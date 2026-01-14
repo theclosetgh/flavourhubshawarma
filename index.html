@@ -157,132 +157,129 @@
     .actions .btn.ghost{flex:1}
 
     footer{padding:18px 0 28px;color:var(--muted);text-align:center;font-size:12px}
-
     .status{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.4}
   </style>
 </head>
 
 <body>
-  <header>
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">FH</div>
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">FH</div>
+      <div>
+        <h1>Flavour Hub Shawarma</h1>
+        <p>Order online • Pay with Paystack • Verified before WhatsApp</p>
+      </div>
+    </div>
+
+    <div class="search">
+      <input id="search" type="search" placeholder="Search menu (e.g., shawarma, burger, fries)..." />
+    </div>
+
+    <div class="pill" id="openCartBtn" title="Scroll to cart">
+      <strong>Cart</strong>
+      <div class="count" id="cartCount">0</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <section class="card">
+      <div class="hd">
         <div>
-          <h1>Flavour Hub Shawarma</h1>
-          <p>Order online • Pay with Paystack • Verified payment before WhatsApp</p>
+          <h2>Menu</h2>
+          <span>Prices in Ghana Cedis (GHS)</span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn ghost" id="clearCartTop">Clear cart</button>
+        </div>
+      </div>
+      <div class="section" id="menuRoot"></div>
+    </section>
+
+    <aside class="card side" id="cartBox">
+      <div class="cart">
+        <div class="title">
+          <h2>Your Order</h2>
+          <small id="cartItemsLabel">0 items</small>
+        </div>
+
+        <div class="cartlist" id="cartList"></div>
+
+        <div class="totals">
+          <div class="row"><span>Subtotal</span><strong id="subTotal">GHS 0.00</strong></div>
+          <div class="row"><span>Delivery fee</span><strong id="deliveryFee">GHS 0.00</strong></div>
+          <div class="row"><span>Total</span><strong id="grandTotal">GHS 0.00</strong></div>
+        </div>
+
+        <div class="note">
+          Payment is verified on the server. After verification, WhatsApp opens with a PAID order + reference.
         </div>
       </div>
 
-      <div class="search">
-        <input id="search" type="search" placeholder="Search menu (e.g., shawarma, burger, fries)..." />
+      <div class="form">
+        <div>
+          <label for="custName">Full Name</label>
+          <input id="custName" placeholder="e.g., Ama Mensah" />
+        </div>
+
+        <div>
+          <label for="custPhone">Phone Number</label>
+          <input id="custPhone" placeholder="e.g., 0500000000" inputmode="tel" />
+        </div>
+
+        <div>
+          <label for="custEmail">Email (required for Paystack)</label>
+          <input id="custEmail" placeholder="e.g., ama@gmail.com" inputmode="email" />
+        </div>
+
+        <div>
+          <label for="mode">Order Type</label>
+          <select id="mode">
+            <option value="Pickup">Pickup</option>
+            <option value="Delivery">Delivery</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="location">Delivery/Pickup Location</label>
+          <input id="location" placeholder="e.g., UPSA Hostel / Madina / Legon..." />
+        </div>
+
+        <div>
+          <label for="note">Extra Note (optional)</label>
+          <textarea id="note" placeholder="Any special instructions? (e.g., no onions, extra spicy)"></textarea>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="payBtn">Pay Online (Paystack)</button>
+          <button class="btn ghost" id="clearCartBtn">Clear</button>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div style="color:var(--muted);font-size:12px;line-height:1.4">
+          WhatsApp Orders: <strong id="waHint"></strong>
+        </div>
       </div>
+    </aside>
+  </div>
 
-      <div class="pill" id="openCartBtn" title="Scroll to cart">
-        <strong>Cart</strong>
-        <div class="count" id="cartCount">0</div>
-      </div>
-    </div>
-  </header>
+  <footer>
+    © <span id="year"></span> Flavour Hub Shawarma
+  </footer>
+</main>
 
-  <main class="wrap">
-    <div class="grid">
-      <!-- MENU -->
-      <section class="card">
-        <div class="hd">
-          <div>
-            <h2>Menu</h2>
-            <span>Prices in Ghana Cedis (GHS)</span>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-            <button class="btn ghost" id="clearCartTop">Clear cart</button>
-          </div>
-        </div>
-        <div class="section" id="menuRoot"></div>
-      </section>
-
-      <!-- CART / CHECKOUT -->
-      <aside class="card side" id="cartBox">
-        <div class="cart">
-          <div class="title">
-            <h2>Your Order</h2>
-            <small id="cartItemsLabel">0 items</small>
-          </div>
-
-          <div class="cartlist" id="cartList"></div>
-
-          <div class="totals">
-            <div class="row"><span>Subtotal</span><strong id="subTotal">GHS 0.00</strong></div>
-            <div class="row"><span>Delivery fee</span><strong id="deliveryFee">GHS 0.00</strong></div>
-            <div class="row"><span>Total</span><strong id="grandTotal">GHS 0.00</strong></div>
-          </div>
-
-          <div class="note">
-            Payment is verified on the server. After verification, WhatsApp opens with a PAID order + reference.
-          </div>
-        </div>
-
-        <div class="form">
-          <div>
-            <label for="custName">Full Name</label>
-            <input id="custName" placeholder="e.g., Ama Mensah" />
-          </div>
-
-          <div>
-            <label for="custPhone">Phone Number</label>
-            <input id="custPhone" placeholder="e.g., 0500000000" inputmode="tel" />
-          </div>
-
-          <div>
-            <label for="custEmail">Email (required for Paystack)</label>
-            <input id="custEmail" placeholder="e.g., ama@gmail.com" inputmode="email" />
-          </div>
-
-          <div>
-            <label for="mode">Order Type</label>
-            <select id="mode">
-              <option value="Pickup">Pickup</option>
-              <option value="Delivery">Delivery</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="location">Delivery/Pickup Location</label>
-            <input id="location" placeholder="e.g., UPSA Hostel / Madina / Legon..." />
-          </div>
-
-          <div>
-            <label for="note">Extra Note (optional)</label>
-            <textarea id="note" placeholder="Any special instructions? (e.g., no onions, extra spicy)"></textarea>
-          </div>
-
-          <div class="actions">
-            <button class="btn" id="payBtn">Pay Online (Paystack)</button>
-            <button class="btn ghost" id="clearCartBtn">Clear</button>
-          </div>
-
-          <div class="status" id="status"></div>
-
-          <div style="color:var(--muted);font-size:12px;line-height:1.4">
-            WhatsApp Orders: <strong id="waHint"></strong>
-          </div>
-        </div>
-      </aside>
-    </div>
-
-    <footer>
-      © <span id="year"></span> Flavour Hub Shawarma
-    </footer>
-  </main>
-
-  <script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 
 <script>
 /* =========================
-   CONFIG
+   CONFIG (EDITED)
 ========================= */
 const BUSINESS_NAME = "Flavour Hub Shawarma";
 const WHATSAPP_NUMBER = "+17623964717";
-const BACKEND_BASE_URL = "https://YOUR-RENDER-APP.onrender.com"; // <-- PUT YOUR REAL RENDER URL
+const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com"; // ✅ FIXED
 const DELIVERY_FEE_GHS = 0;
 
 /* =========================
@@ -333,21 +330,7 @@ const MENU = [
     { name: "Beef Patty", price: 30, desc: "" },
     { name: "Egg", price: 8, desc: "" },
   ]},
-  { category: "Cocktails", items: [
-    { name: "Blue Lagoon", price: 110, desc: "Blue Curacao, Vodka, Sprite" },
-    { name: "Blue Coconut Margarita", price: 110, desc: "Lime Juice, Tequila, Blue Curacao, Coconut Milk" },
-    { name: "Mojito", price: 110, desc: "Lime, Mint Leaves, Vodka, Sprite" },
-    { name: "Tequila Sunrise", price: 110, desc: "Tequila, Orange Juice, Grenadine" },
-    { name: "Sex on the Beach", price: 130, desc: "Cranberry Juice, Grenadine, Vodka, Peach Schnapps, Orange Juice" },
-    { name: "Tsunami", price: 130, desc: "Rum, Blue Curacao, Peach Schnapps, Vodka, Pineapple Juice, Sprite" },
-    { name: "Caribbean Sunset", price: 130, desc: "Blue Curacao, Vodka, Rum, Orange Juice" },
-    { name: "Barbados Surprise", price: 110, desc: "Grenadine, Orange Juice, Rum, Blue Curacao" },
-    { name: "Rainbow Paradise", price: 110, desc: "Grenadine, Rum, Orange Juice, Blue Curacao" },
-    { name: "Green Eyes", price: 110, desc: "Vodka, Blue Curacao, Lime, Orange Juice" },
-  ]},
-  { category: "Mocktails", items: [
-    { name: "Mocktails (Any)", price: 70, desc: "" },
-  ]},
+  { category: "Mocktails", items: [{ name: "Mocktails (Any)", price: 70, desc: "" }]},
   { category: "Local Drinks", items: [
     { name: "Pine Radiant (Fresh Pineapple) — Big Can", price: 50, desc: "" },
     { name: "Pine Radiant (Fresh Pineapple) — Small Can", price: 40, desc: "" },
@@ -364,10 +347,9 @@ const MENU = [
 const cart = new Map();
 const fmt = (n) => `GHS ${Number(n).toFixed(2)}`;
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
-
 const statusEl = document.getElementById("status");
-function setStatus(msg){ statusEl.textContent = msg || ""; }
 
+function setStatus(msg){ statusEl.textContent = msg || ""; }
 function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
 function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price*v.qty; return s; }
 function deliveryFee(){ return (document.getElementById("mode").value === "Delivery") ? DELIVERY_FEE_GHS : 0; }
@@ -639,7 +621,7 @@ async function payOnline(){
     setStatus("Opening Paystack checkout...");
     const handler = PaystackPop.setup({
       key: public_key,
-      email: email,
+      email,
       amount: payload.amount,
       currency: "GHS",
       ref: reference,
