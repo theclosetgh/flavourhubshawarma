@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Flavour Hub Shawarma — Order & Pay Online</title>
-  <meta name="description" content="Flavour Hub Shawarma — Order online and pay securely with Paystack." />
+  <meta name="description" content="Order from Flavour Hub Shawarma and pay securely with Paystack." />
+
   <style>
     :root{
       --bg:#0b0f14; --card:#111822; --muted:#9fb0d0; --text:#eaf1ff;
@@ -107,6 +108,7 @@
       box-shadow: 0 10px 24px rgba(255,122,0,.18);white-space:nowrap;
     }
     .btn:active{transform:translateY(1px)}
+    .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
     .btn.ghost{
       background:rgba(255,255,255,.05);
       border:1px solid var(--line);
@@ -168,7 +170,7 @@
       <div class="logo">FH</div>
       <div>
         <h1>Flavour Hub Shawarma</h1>
-        <p>Order online • Pay with Paystack • Verified before WhatsApp</p>
+        <p>Order online • Paystack • Verified payment before WhatsApp</p>
       </div>
     </div>
 
@@ -271,19 +273,20 @@
   </footer>
 </main>
 
+<!-- Paystack Inline (must be before our script that calls PaystackPop.setup) -->
 <script src="https://js.paystack.co/v1/inline.js"></script>
 
 <script>
 /* =========================
-   CONFIG (EDITED)
+   CONFIG
 ========================= */
 const BUSINESS_NAME = "Flavour Hub Shawarma";
 const WHATSAPP_NUMBER = "+17623964717";
-const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com"; // ✅ FIXED
+const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com"; // your Render URL
 const DELIVERY_FEE_GHS = 0;
 
 /* =========================
-   MENU DATA
+   MENU (edit prices/items anytime)
 ========================= */
 const MENU = [
   { category: "Shawarma", items: [
@@ -347,9 +350,16 @@ const MENU = [
 const cart = new Map();
 const fmt = (n) => `GHS ${Number(n).toFixed(2)}`;
 const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+
 const statusEl = document.getElementById("status");
+const payBtn = document.getElementById("payBtn");
 
 function setStatus(msg){ statusEl.textContent = msg || ""; }
+function setBusy(isBusy){
+  payBtn.disabled = !!isBusy;
+  payBtn.textContent = isBusy ? "Processing..." : "Pay Online (Paystack)";
+}
+
 function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
 function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price*v.qty; return s; }
 function deliveryFee(){ return (document.getElementById("mode").value === "Delivery") ? DELIVERY_FEE_GHS : 0; }
@@ -569,13 +579,14 @@ function openWhatsAppWithPaidOrder(ref){
 }
 
 /* =========================
-   PAYSTACK (INIT + VERIFY)
+   PAYSTACK (INIT + VERIFY) — FIXED CALLBACK
 ========================= */
 async function payOnline(){
   try{
     setStatus("");
+    setBusy(true);
 
-    if (cartCount() === 0) return alert("Your cart is empty. Add items before paying.");
+    if (cartCount() === 0) { setBusy(false); return alert("Your cart is empty. Add items before paying."); }
 
     const name = document.getElementById("custName").value.trim();
     const phone = document.getElementById("custPhone").value.trim();
@@ -583,9 +594,15 @@ async function payOnline(){
     const mode = document.getElementById("mode").value;
     const loc = document.getElementById("location").value.trim();
 
-    if (!email) return alert("Email is required for Paystack.");
-    if (!phone) return alert("Phone number is required.");
-    if (mode === "Delivery" && !loc) return alert("Please enter your delivery location.");
+    if (!email) { setBusy(false); return alert("Email is required for Paystack."); }
+    if (!phone) { setBusy(false); return alert("Phone number is required."); }
+    if (mode === "Delivery" && !loc) { setBusy(false); return alert("Please enter your delivery location."); }
+
+    // Ensure Paystack script loaded
+    if (typeof window.PaystackPop === "undefined" || typeof window.PaystackPop.setup !== "function") {
+      setBusy(false);
+      return alert("Paystack failed to load. Refresh the page and try again.");
+    }
 
     const items = Array.from(cart.values()).map(v => ({
       name: v.name, qty: v.qty, unit_price: v.price, category: v.category
@@ -593,7 +610,7 @@ async function payOnline(){
 
     const payload = {
       email,
-      amount: Math.round(grandTotal() * 100), // pesewas
+      amount: Math.round(grandTotal() * 100),
       currency: "GHS",
       customer: { name, phone },
       order: {
@@ -616,38 +633,46 @@ async function payOnline(){
     const initData = await initRes.json();
     if (!initRes.ok) throw new Error(initData?.error || "Failed to initialize payment.");
 
-    const { reference, public_key } = initData;
+    const reference = initData.reference;
+    const public_key = initData.public_key;
 
     setStatus("Opening Paystack checkout...");
-    const handler = PaystackPop.setup({
+
+    const handler = window.PaystackPop.setup({
       key: public_key,
-      email,
+      email: email,
       amount: payload.amount,
       currency: "GHS",
       ref: reference,
 
-      callback: async function(response){
-        try{
-          setStatus("Verifying payment...");
-          const verifyRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/verify/${encodeURIComponent(response.reference)}`);
-          const verifyData = await verifyRes.json();
-          if (!verifyRes.ok) throw new Error(verifyData?.error || "Verification failed.");
+      // MUST be a function
+      callback: function(response){
+        (async () => {
+          try{
+            setStatus("Verifying payment...");
+            const verifyRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/verify/${encodeURIComponent(response.reference)}`);
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok) throw new Error(verifyData?.error || "Verification failed.");
 
-          if (verifyData.status === "success"){
-            setStatus("Payment verified. Opening WhatsApp...");
-            openWhatsAppWithPaidOrder(response.reference);
-          } else {
-            throw new Error("Payment not successful.");
+            if (verifyData.status === "success"){
+              setStatus("Payment verified. Opening WhatsApp...");
+              openWhatsAppWithPaidOrder(response.reference);
+            } else {
+              throw new Error("Payment not successful.");
+            }
+          }catch(err){
+            console.error(err);
+            alert("Payment verification failed. Please contact Flavour Hub with your reference.");
+            setStatus("Verification failed. Try again or contact support.");
+          } finally {
+            setBusy(false);
           }
-        }catch(err){
-          console.error(err);
-          alert("Payment verification failed. Please contact Flavour Hub with your reference.");
-          setStatus("Verification failed. Try again or contact support.");
-        }
+        })();
       },
 
       onClose: function(){
         setStatus("Payment window closed.");
+        setBusy(false);
       }
     });
 
@@ -657,6 +682,7 @@ async function payOnline(){
     console.error(err);
     alert(err.message || "Something went wrong.");
     setStatus("Error: " + (err.message || "Something went wrong."));
+    setBusy(false);
   }
 }
 
