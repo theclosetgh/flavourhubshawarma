@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flavour Hub Shawarma — Order Online</title>
+  <meta name="description" content="Flavour Hub Shawarma — Browse the menu, add items to cart, and place your order instantly on WhatsApp." />
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --card:#111822;
+      --muted:#9fb0d0;
+      --text:#eaf1ff;
+      --line:rgba(255,255,255,.10);
+      --accent:#ff7a00;
+      --accent2:#ff4d00;
+      --shadow:0 14px 40px rgba(0,0,0,.35);
+      --radius:18px;
+      --radius2:28px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:radial-gradient(1200px 600px at 20% 0%, rgba(255,122,0,.18), transparent 60%),
+                 radial-gradient(900px 500px at 90% 10%, rgba(255,77,0,.14), transparent 60%),
+                 var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit}
+    .wrap{max-width:1120px;margin:0 auto;padding:20px}
+    header{
+      position:sticky; top:0; z-index:20;
+      background:rgba(11,15,20,.72);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar{
+      max-width:1120px;margin:0 auto;padding:14px 20px;
+      display:flex;gap:14px;align-items:center;justify-content:space-between;
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px;min-width:220px
+    }
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      box-shadow: var(--shadow);
+      display:grid;place-items:center;font-weight:900;
+    }
+    .brand h1{font-size:16px;margin:0;line-height:1.15}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .search{flex:1;display:flex;gap:10px;align-items:center}
+    .search input{
+      width:100%;
+      padding:12px 14px;border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      outline:none;
+    }
+    .pill{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      padding:10px 12px;border-radius:999px;
+      display:flex;align-items:center;gap:10px;
+      cursor:pointer;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .pill strong{font-size:13px}
+    .pill .count{
+      min-width:26px;height:26px;border-radius:999px;
+      background:rgba(255,122,0,.18);
+      border:1px solid rgba(255,122,0,.35);
+      display:grid;place-items:center;font-weight:800;font-size:12px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.6fr .9fr;
+      gap:18px;
+      align-items:start;
+      margin-top:18px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+      .side{position:static !important}
+      header{position:static}
+    }
+
+    .card{
+      background:rgba(17,24,34,.72);
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:18px 18px 10px;
+      display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+    }
+    .card .hd h2{margin:0;font-size:16px}
+    .card .hd span{color:var(--muted);font-size:12px}
+    .section{padding:0 18px 18px}
+    .cat{
+      margin-top:14px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:rgba(255,255,255,.03);
+      overflow:hidden;
+    }
+    .cat .catbar{
+      padding:12px 14px;
+      display:flex;align-items:center;justify-content:space-between;
+      background:rgba(0,0,0,.12);
+      border-bottom:1px solid var(--line);
+    }
+    .cat .catbar strong{letter-spacing:.3px}
+    .cat .catbar button{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:7px 10px;border-radius:12px;cursor:pointer;
+    }
+    .items{
+      padding:10px 10px 2px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 620px){
+      .items{grid-template-columns:1fr}
+    }
+    .item{
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.10);
+      border-radius:16px;
+      padding:12px;
+      display:flex;gap:12px;align-items:flex-start;justify-content:space-between;
+    }
+    .item .left{min-width:0}
+    .item h3{margin:0;font-size:14px}
+    .item p{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .price{font-weight:900;white-space:nowrap}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      gap:8px;
+      border:none;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#111;
+      font-weight:900;
+      padding:9px 10px;border-radius:14px;
+      cursor:pointer;
+      box-shadow: 0 10px 24px rgba(255,122,0,.18);
+      white-space:nowrap;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.ghost{
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--line);
+      color:var(--text);
+      box-shadow:none;
+      font-weight:700;
+    }
+    .tag{
+      display:inline-block;
+      font-size:11px;
+      padding:5px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,122,0,.35);
+      background:rgba(255,122,0,.12);
+      color:var(--text);
+      margin-top:8px;
+    }
+
+    .side{position:sticky; top:92px}
+    .cart{padding:16px 16px 14px}
+    .cart .title{display:flex;align-items:center;justify-content:space-between}
+    .cart .title h2{margin:0;font-size:16px}
+    .cart .title small{color:var(--muted)}
+    .cartlist{margin-top:10px;display:flex;flex-direction:column;gap:10px}
+    .cartrow{
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.12);
+      border-radius:16px;
+      padding:10px;
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+    }
+    .cartrow .name{font-weight:800;font-size:13px}
+    .cartrow .meta{color:var(--muted);font-size:12px;margin-top:2px}
+    .qty{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+    .qty button{
+      width:30px;height:30px;border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:900;
+    }
+    .qty span{min-width:18px;text-align:center;font-weight:900}
+    .totals{
+      margin-top:12px;
+      border-top:1px dashed var(--line);
+      padding-top:12px;
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .totals .row{display:flex;justify-content:space-between;gap:10px}
+    .totals .row span{color:var(--muted)}
+    .totals .row strong{font-size:16px}
+    .note{color:var(--muted);font-size:12px;line-height:1.4;margin-top:10px}
+
+    .form{
+      padding:0 16px 16px;
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .form label{font-size:12px;color:var(--muted)}
+    .form input,.form select,.form textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      outline:none;
+    }
+    .form textarea{min-height:84px;resize:vertical}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .actions .btn{flex:1}
+    .actions .btn.ghost{flex:1}
+
+    footer{
+      padding:18px 0 28px;
+      color:var(--muted);
+      text-align:center;
+      font-size:12px;
+    }
+
+    .modal{
+      position:fixed;inset:0;display:none;z-index:50;
+      background:rgba(0,0,0,.60);
+      align-items:center;justify-content:center;
+      padding:18px;
+    }
+    .modal.open{display:flex}
+    .modal .box{
+      width:min(520px,100%);
+      border-radius:26px;
+      background:rgba(17,24,34,.92);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .modal .box .mh{
+      padding:16px 16px 10px;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      border-bottom:1px solid var(--line);
+    }
+    .modal .box .mh h3{margin:0;font-size:15px}
+    .modal .box .mh button{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:8px 10px;border-radius:14px;cursor:pointer;
+    }
+    .modal .box .mc{padding:14px 16px 16px}
+    .modal .box .mc p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">FH</div>
+        <div>
+          <h1>Flavour Hub Shawarma</h1>
+          <p>Tap items to add • Checkout sends order to WhatsApp</p>
+        </div>
+      </div>
+
+      <div class="search">
+        <input id="search" type="search" placeholder="Search menu (e.g., shawarma, burger, fries)..." />
+      </div>
+
+      <div class="pill" id="openCartBtn" title="Scroll to cart">
+        <strong>Cart</strong>
+        <div class="count" id="cartCount">0</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid">
+      <!-- MENU -->
+      <section class="card">
+        <div class="hd">
+          <div>
+            <h2>Menu</h2>
+            <span>Prices in Ghana Cedis (GHS)</span>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+            <button class="btn ghost" id="showInfo">How ordering works</button>
+            <button class="btn ghost" id="clearCartTop">Clear cart</button>
+          </div>
+        </div>
+
+        <div class="section" id="menuRoot"></div>
+      </section>
+
+      <!-- CART / CHECKOUT -->
+      <aside class="card side" id="cartBox">
+        <div class="cart">
+          <div class="title">
+            <h2>Your Order</h2>
+            <small id="cartItemsLabel">0 items</small>
+          </div>
+
+          <div class="cartlist" id="cartList"></div>
+
+          <div class="totals">
+            <div class="row"><span>Subtotal</span><strong id="subTotal">GHS 0.00</strong></div>
+            <div class="row"><span>Delivery fee</span><strong id="deliveryFee">GHS 0.00</strong></div>
+            <div class="row"><span>Total</span><strong id="grandTotal">GHS 0.00</strong></div>
+          </div>
+
+          <div class="note">
+            Tip: Choose Delivery/Pickup below. Checkout will open WhatsApp with your order message ready to send.
+          </div>
+        </div>
+
+        <div class="form">
+          <div>
+            <label for="custName">Full Name</label>
+            <input id="custName" placeholder="e.g., Ama Mensah" />
+          </div>
+
+          <div>
+            <label for="custPhone">Phone Number</label>
+            <input id="custPhone" placeholder="e.g., 0500000000" inputmode="tel" />
+          </div>
+
+          <div>
+            <label for="mode">Order Type</label>
+            <select id="mode">
+              <option value="Pickup">Pickup</option>
+              <option value="Delivery">Delivery</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="location">Delivery/Pickup Location</label>
+            <input id="location" placeholder="e.g., UPSA Hostel / Madina / Legon..." />
+          </div>
+
+          <div>
+            <label for="note">Extra Note (optional)</label>
+            <textarea id="note" placeholder="Any special instructions? (e.g., no onions, extra spicy)"></textarea>
+          </div>
+
+          <div class="actions">
+            <button class="btn" id="checkoutBtn">Place Order on WhatsApp</button>
+            <button class="btn ghost" id="clearCartBtn">Clear</button>
+          </div>
+
+          <div style="color:var(--muted);font-size:12px;line-height:1.4">
+            Orders go to: <strong id="waHint"></strong>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      © <span id="year"></span> Flavour Hub Shawarma • Built for fast ordering.
+    </footer>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="box">
+      <div class="mh">
+        <h3>How ordering works</h3>
+        <button id="closeModal">Close</button>
+      </div>
+      <div class="mc">
+        <p>
+          1) Add items to your cart. 2) Fill your details. 3) Tap “Place Order on WhatsApp”.
+          WhatsApp opens with your full order message ready to send to Flavour Hub.
+        </p>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =========================
+   CONFIG (ALREADY UPDATED)
+========================= */
+const BUSINESS_NAME = "Flavour Hub Shawarma";
+const WHATSAPP_NUMBER = "+17623964717"; // UPDATED as requested
+const DELIVERY_FEE_GHS = 0; // change if you want delivery fee, e.g., 10
+
+/* =========================
+   MENU DATA (FROM YOUR IMAGES)
+========================= */
+const MENU = [
+  { category: "Shawarma", items: [
+    { name: "Sizzling Shawarma (Chicken)", price: 50, desc: "" },
+    { name: "Savory Beef Wrap", price: 60, desc: "" },
+    { name: "Flavor Twist (Beef & Chicken)", price: 70, desc: "" },
+  ]},
+  { category: "Shawarma + Fries", items: [
+    { name: "Chic ’n’ Chips (Chicken Shawarma with Fries)", price: 65, desc: "" },
+    { name: "Beef ’n’ Fries Fusion (Beef Shawarma with Fries)", price: 75, desc: "" },
+  ]},
+  { category: "Burgers", items: [
+    { name: "Cluck & Crunch (Chicken Burger)", price: 50, desc: "" },
+    { name: "Mega Beef (Beef Burger)", price: 60, desc: "" },
+    { name: "The Duo (Chicken & Beef Burger)", price: 85, desc: "" },
+    { name: "Cheeze Boss (Loaded Cheese Burger)", price: 70, desc: "" },
+    { name: "Beef ’n’ Bacon Blaze", price: 100, desc: "" },
+    { name: "Heavy Load (Double Beef & Cheese Burger)", price: 130, desc: "" },
+    { name: "Egg on Top (Cheese Burger with Egg)", price: 90, desc: "" },
+    { name: "Eat Me Up (Bacon, Egg & Cheese on Single Beef Patty)", price: 120, desc: "" },
+  ]},
+  { category: "Noodles", items: [
+    { name: "Budget Bowl Series (Corned Beef, Egg & Sausage) — Medium", price: 40, desc: "" },
+    { name: "Budget Bowl Series (Corned Beef, Egg & Sausage) — Large", price: 60, desc: "" },
+    { name: "Golden Chicken Strings (Chicken Only)", price: 70, desc: "" },
+    { name: "Street Beef Vibes (Beef Only)", price: 90, desc: "" },
+  ]},
+  { category: "Spaghetti", items: [
+    { name: "Quick Prep (Corned Beef, Egg & Sausage) — Medium", price: 40, desc: "" },
+    { name: "Quick Prep (Corned Beef, Egg & Sausage) — Large", price: 60, desc: "" },
+    { name: "Savory Beef Bowl", price: 80, desc: "" },
+    { name: "Chicken Royal (Chicken Only)", price: 60, desc: "" },
+  ]},
+  { category: "Special Combos", items: [
+    { name: "Obolo Bia Ye Guy (Chicken & Beef Shawarma with Fries)", price: 150, desc: "" },
+    { name: "Big Man (Chicken & Beef Noodles)", price: 140, desc: "" },
+    { name: "Full Flavour (Chicken & Beef Spaghetti)", price: 100, desc: "" },
+  ]},
+  { category: "Extras", items: [
+    { name: "Fries", price: 20, desc: "" },
+    { name: "Wings (6 pcs)", price: 50, desc: "" },
+    { name: "Cheese", price: 20, desc: "" },
+    { name: "Bacon", price: 18, desc: "" },
+    { name: "Beef Patty", price: 30, desc: "" },
+    { name: "Egg", price: 8, desc: "" },
+  ]},
+  { category: "Cocktails", items: [
+    { name: "Blue Lagoon", price: 110, desc: "Blue Curacao, Vodka, Sprite" },
+    { name: "Blue Coconut Margarita", price: 110, desc: "Lime Juice, Tequila, Blue Curacao, Coconut Milk" },
+    { name: "Mojito", price: 110, desc: "Lime, Mint Leaves, Vodka, Sprite" },
+    { name: "Tequila Sunrise", price: 110, desc: "Tequila, Orange Juice, Grenadine" },
+    { name: "Sex on the Beach", price: 130, desc: "Cranberry Juice, Grenadine, Vodka, Peach Schnapps, Orange Juice" },
+    { name: "Tsunami", price: 130, desc: "Rum, Blue Curacao, Peach Schnapps, Vodka, Pineapple Juice, Sprite" },
+    { name: "Caribbean Sunset", price: 130, desc: "Blue Curacao, Vodka, Rum, Orange Juice" },
+    { name: "Barbados Surprise", price: 110, desc: "Grenadine, Orange Juice, Rum, Blue Curacao" },
+    { name: "Rainbow Paradise", price: 110, desc: "Grenadine, Rum, Orange Juice, Blue Curacao" },
+    { name: "Green Eyes", price: 110, desc: "Vodka, Blue Curacao, Lime, Orange Juice" },
+  ]},
+  { category: "Mocktails", items: [
+    { name: "Mocktails (Any)", price: 70, desc: "" },
+  ]},
+  { category: "Local Drinks", items: [
+    { name: "Pine Radiant (Fresh Pineapple) — Big Can", price: 50, desc: "" },
+    { name: "Pine Radiant (Fresh Pineapple) — Small Can", price: 40, desc: "" },
+    { name: "Pine Radiant (Fresh Pineapple) — Cup", price: 30, desc: "" },
+    { name: "Roselle Mist (Sobolo) — Big Can", price: 50, desc: "" },
+    { name: "Roselle Mist (Sobolo) — Small Can", price: 40, desc: "" },
+    { name: "Roselle Mist (Sobolo) — Cup", price: 30, desc: "" },
+  ]},
+];
+
+/* =========================
+   STATE
+========================= */
+const cart = new Map(); // key -> {name, price, qty, category}
+
+/* =========================
+   HELPERS
+========================= */
+const fmt = (n) => `GHS ${Number(n).toFixed(2)}`;
+const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+
+function cartCount(){
+  let c = 0;
+  for (const v of cart.values()) c += v.qty;
+  return c;
+}
+function cartSubtotal(){
+  let s = 0;
+  for (const v of cart.values()) s += v.price * v.qty;
+  return s;
+}
+function deliveryFee(){
+  const mode = document.getElementById("mode").value;
+  return (mode === "Delivery") ? DELIVERY_FEE_GHS : 0;
+}
+function grandTotal(){
+  return cartSubtotal() + deliveryFee();
+}
+
+/* =========================
+   RENDER MENU
+========================= */
+const menuRoot = document.getElementById("menuRoot");
+
+function renderMenu(filterText=""){
+  menuRoot.innerHTML = "";
+  const q = filterText.trim().toLowerCase();
+
+  MENU.forEach(cat => {
+    const filteredItems = cat.items.filter(it => {
+      const hay = `${cat.category} ${it.name} ${it.desc || ""}`.toLowerCase();
+      return q ? hay.includes(q) : true;
+    });
+    if (!filteredItems.length) return;
+
+    const catId = "cat-" + slug(cat.category);
+
+    const catEl = document.createElement("div");
+    catEl.className = "cat";
+    catEl.dataset.cat = cat.category;
+
+    catEl.innerHTML = `
+      <div class="catbar">
+        <strong>${cat.category}</strong>
+        <button type="button" data-toggle="${catId}">Hide</button>
+      </div>
+      <div class="items" id="${catId}"></div>
+    `;
+
+    const itemsEl = catEl.querySelector(".items");
+
+    filteredItems.forEach(it => {
+      const key = `${cat.category}::${it.name}`;
+      const inCart = cart.get(key);
+      const itemEl = document.createElement("div");
+      itemEl.className = "item";
+      itemEl.innerHTML = `
+        <div class="left">
+          <h3>${it.name}</h3>
+          ${it.desc ? `<p>${it.desc}</p>` : `<p></p>`}
+          <span class="tag">${cat.category}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
+          <div class="price">${fmt(it.price)}</div>
+          <button class="btn" type="button" data-add="${encodeURIComponent(key)}">+ Add</button>
+          ${inCart ? `<button class="btn ghost" type="button" data-focuscart="1">In cart: ${inCart.qty}</button>` : ``}
+        </div>
+      `;
+      itemsEl.appendChild(itemEl);
+    });
+
+    menuRoot.appendChild(catEl);
+  });
+
+  menuRoot.querySelectorAll("button[data-toggle]").forEach(btn=>{
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-toggle");
+      const block = document.getElementById(id);
+      const isHidden = block.style.display === "none";
+      block.style.display = isHidden ? "" : "none";
+      btn.textContent = isHidden ? "Hide" : "Show";
+    });
+  });
+
+  menuRoot.querySelectorAll("button[data-add]").forEach(btn=>{
+    btn.addEventListener("click", () => {
+      const key = decodeURIComponent(btn.getAttribute("data-add"));
+      addToCart(key);
+    });
+  });
+
+  menuRoot.querySelectorAll("button[data-focuscart]").forEach(btn=>{
+    btn.addEventListener("click", () => {
+      document.getElementById("cartBox").scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  });
+}
+
+/* =========================
+   CART OPS
+========================= */
+function addToCart(key){
+  let found = null;
+  for (const c of MENU){
+    for (const it of c.items){
+      const k = `${c.category}::${it.name}`;
+      if (k === key) found = { ...it, category: c.category };
+    }
+  }
+  if (!found) return;
+
+  if (cart.has(key)){
+    cart.get(key).qty += 1;
+  }else{
+    cart.set(key, { name: found.name, price: found.price, qty: 1, category: found.category });
+  }
+  renderCart();
+  renderMenu(document.getElementById("search").value);
+}
+
+function inc(key){
+  if (!cart.has(key)) return;
+  cart.get(key).qty += 1;
+  renderCart();
+  renderMenu(document.getElementById("search").value);
+}
+function dec(key){
+  if (!cart.has(key)) return;
+  cart.get(key).qty -= 1;
+  if (cart.get(key).qty <= 0) cart.delete(key);
+  renderCart();
+  renderMenu(document.getElementById("search").value);
+}
+function clearCart(){
+  cart.clear();
+  renderCart();
+  renderMenu(document.getElementById("search").value);
+}
+
+/* =========================
+   RENDER CART
+========================= */
+const cartList = document.getElementById("cartList");
+const cartCountEl = document.getElementById("cartCount");
+const cartItemsLabel = document.getElementById("cartItemsLabel");
+const subTotalEl = document.getElementById("subTotal");
+const deliveryFeeEl = document.getElementById("deliveryFee");
+const grandTotalEl = document.getElementById("grandTotal");
+
+function renderCart(){
+  cartList.innerHTML = "";
+  const entries = Array.from(cart.entries());
+
+  if (!entries.length){
+    cartList.innerHTML = `
+      <div class="cartrow" style="text-align:center">
+        <div>
+          <div class="name">Your cart is empty</div>
+          <div class="meta">Add items from the menu to begin.</div>
+        </div>
+      </div>
+    `;
+  } else {
+    entries.forEach(([key, v]) => {
+      const row = document.createElement("div");
+      row.className = "cartrow";
+      row.innerHTML = `
+        <div>
+          <div class="name">${v.name}</div>
+          <div class="meta">${v.category} • ${fmt(v.price)} each • Line: <strong>${fmt(v.price * v.qty)}</strong></div>
+        </div>
+        <div class="qty">
+          <button type="button" aria-label="Decrease" data-dec="${encodeURIComponent(key)}">−</button>
+          <span>${v.qty}</span>
+          <button type="button" aria-label="Increase" data-inc="${encodeURIComponent(key)}">+</button>
+        </div>
+      `;
+      cartList.appendChild(row);
+    });
+
+    cartList.querySelectorAll("button[data-inc]").forEach(b=>{
+      b.addEventListener("click",()=>inc(decodeURIComponent(b.getAttribute("data-inc"))));
+    });
+    cartList.querySelectorAll("button[data-dec]").forEach(b=>{
+      b.addEventListener("click",()=>dec(decodeURIComponent(b.getAttribute("data-dec"))));
+    });
+  }
+
+  cartCountEl.textContent = cartCount();
+  cartItemsLabel.textContent = `${cartCount()} item${cartCount()===1?"":"s"}`;
+
+  subTotalEl.textContent = fmt(cartSubtotal());
+  deliveryFeeEl.textContent = fmt(deliveryFee());
+  grandTotalEl.textContent = fmt(grandTotal());
+}
+
+/* =========================
+   CHECKOUT (WHATSAPP)
+========================= */
+function buildOrderMessage(){
+  const name = document.getElementById("custName").value.trim();
+  const phone = document.getElementById("custPhone").value.trim();
+  const mode = document.getElementById("mode").value;
+  const loc = document.getElementById("location").value.trim();
+  const note = document.getElementById("note").value.trim();
+
+  const lines = [];
+  lines.push(`*${BUSINESS_NAME} — New Order*`);
+  lines.push(`--------------------------------`);
+  if (name) lines.push(`Name: ${name}`);
+  if (phone) lines.push(`Phone: ${phone}`);
+  lines.push(`Order Type: ${mode}`);
+  if (loc) lines.push(`Location: ${loc}`);
+  lines.push(`--------------------------------`);
+  lines.push(`Items:`);
+
+  for (const [key, v] of cart.entries()){
+    lines.push(`- ${v.name}  x${v.qty}  = ${fmt(v.price * v.qty)}`);
+  }
+
+  lines.push(`--------------------------------`);
+  lines.push(`Subtotal: ${fmt(cartSubtotal())}`);
+  lines.push(`Delivery: ${fmt(deliveryFee())}`);
+  lines.push(`Total: *${fmt(grandTotal())}*`);
+
+  if (note){
+    lines.push(`--------------------------------`);
+    lines.push(`Note: ${note}`);
+  }
+
+  lines.push(`--------------------------------`);
+  lines.push(`Sent from Flavour Hub online menu.`);
+  return lines.join("\n");
+}
+
+function checkout(){
+  if (cartCount() === 0){
+    alert("Your cart is empty. Add items before placing an order.");
+    return;
+  }
+  const mode = document.getElementById("mode").value;
+  if (mode === "Delivery"){
+    const loc = document.getElementById("location").value.trim();
+    if (!loc){
+      alert("Please enter your delivery location.");
+      return;
+    }
+  }
+
+  const msg = buildOrderMessage();
+  const wa = WHATSAPP_NUMBER.replace(/\+/g,"").replace(/\s/g,"");
+  const url = `https://wa.me/${wa}?text=${encodeURIComponent(msg)}`;
+  window.open(url, "_blank");
+}
+
+/* =========================
+   EVENTS / INIT
+========================= */
+document.getElementById("search").addEventListener("input", (e) => renderMenu(e.target.value));
+document.getElementById("mode").addEventListener("change", () => {
+  deliveryFeeEl.textContent = fmt(deliveryFee());
+  grandTotalEl.textContent = fmt(grandTotal());
+});
+document.getElementById("checkoutBtn").addEventListener("click", checkout);
+document.getElementById("clearCartBtn").addEventListener("click", clearCart);
+document.getElementById("clearCartTop").addEventListener("click", clearCart);
+document.getElementById("openCartBtn").addEventListener("click", () => {
+  document.getElementById("cartBox").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+document.getElementById("showInfo").addEventListener("click", () => document.getElementById("modal").classList.add("open"));
+document.getElementById("closeModal").addEventListener("click", () => document.getElementById("modal").classList.remove("open"));
+document.getElementById("modal").addEventListener("click", (e) => {
+  if (e.target.id === "modal") document.getElementById("modal").classList.remove("open");
+});
+
+document.getElementById("year").textContent = new Date().getFullYear();
+document.getElementById("waHint").textContent = WHATSAPP_NUMBER;
+
+// initial
+renderMenu();
+renderCart();
+</script>
+</body>
+</html>
