@@ -1,148 +1,164 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Order Successful — Flavour Hub Shawarma</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Order Successful — Flavour Hub Shawarma</title>
 
-<style>
-:root{
-  --ink:#0f172a;
-  --muted:#64748b;
-  --line:#e2e8f0;
-  --soft:#f8fafc;
-  --ok:#16a34a;
-  --ok2:#22c55e;
-  --brand:#ef4444;
-  --brand2:#f97316;
-  --radius:22px;
-  --shadow:0 16px 40px rgba(2,6,23,.08);
-  --max:900px;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background:var(--soft);
-  color:var(--ink);
-}
-header{
-  background:#fff;
-  border-bottom:1px solid var(--line);
-}
-.top{
-  max-width:var(--max);
-  margin:auto;
-  padding:16px;
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-.logo{
-  width:44px;height:44px;
-  border-radius:14px;
-  background:linear-gradient(135deg,var(--brand),var(--brand2));
-  display:grid;
-  place-items:center;
-  color:#fff;
-  font-weight:900;
-}
-.wrap{
-  max-width:var(--max);
-  margin:auto;
-  padding:20px 16px 40px;
-}
-.card{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  overflow:hidden;
-}
-.hero{
-  padding:20px;
-  background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(34,197,94,.06));
-  border-bottom:1px solid var(--line);
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-}
-.badge{
-  background:rgba(34,197,94,.15);
-  border:1px solid rgba(34,197,94,.3);
-  color:#14532d;
-  padding:8px 12px;
-  border-radius:999px;
-  font-weight:900;
-  font-size:12px;
-}
-.body{
-  padding:18px;
-}
-.row{
-  display:flex;
-  justify-content:space-between;
-  font-size:13px;
-  margin-bottom:8px;
-}
-.items{
-  margin-top:14px;
-  border-top:1px dashed var(--line);
-  padding-top:12px;
-}
-.item{
-  display:flex;
-  justify-content:space-between;
-  font-size:13px;
-  margin-bottom:6px;
-}
-.total{
-  margin-top:14px;
-  font-size:16px;
-  font-weight:900;
-  display:flex;
-  justify-content:space-between;
-}
-.actions{
-  margin-top:18px;
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.btn{
-  flex:1;
-  border:none;
-  border-radius:14px;
-  padding:12px 16px;
-  font-weight:900;
-  cursor:pointer;
-}
-.btn.whatsapp{
-  background:linear-gradient(135deg,var(--ok),var(--ok2));
-  color:#fff;
-}
-.btn.back{
-  background:#fff;
-  border:1px solid var(--line);
-}
-footer{
-  margin-top:14px;
-  text-align:center;
-  color:var(--muted);
-  font-size:12px;
-}
-</style>
+  <style>
+    :root{
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --soft:#f8fafc;
+      --shadow: 0 16px 40px rgba(2,6,23,.08);
+      --r2:22px;
+      --ok:#16a34a;
+      --ok2:#22c55e;
+      --brand:#ef4444;
+      --brand2:#f97316;
+      --max:980px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--soft);
+      color:var(--ink);
+    }
+    header{
+      background:rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .top{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:14px 16px;
+      display:flex; align-items:center; gap:12px;
+    }
+    .logo{
+      width:42px; height:42px; border-radius:14px;
+      background:linear-gradient(135deg,var(--brand),var(--brand2));
+      box-shadow: var(--shadow);
+      display:grid; place-items:center;
+      color:#fff; font-weight:900; letter-spacing:.4px;
+    }
+    .top h1{margin:0; font-size:14px}
+    .top p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+
+    .wrap{max-width:var(--max); margin:0 auto; padding:18px 16px 40px}
+    .card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:var(--r2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .hero{
+      padding:18px;
+      background:linear-gradient(135deg, rgba(34,197,94,.12), rgba(34,197,94,.06), rgba(15,23,42,.02));
+      border-bottom:1px solid var(--line);
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    }
+    .hero h2{margin:0; font-size:18px}
+    .hero p{margin:7px 0 0; color:var(--muted); font-size:13px; line-height:1.45}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(34,197,94,.25);
+      background:rgba(34,197,94,.10);
+      color:#0b3d1f;
+      font-weight:900;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .body{padding:16px 18px}
+    .row{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
+    .mini{
+      border:1px solid var(--line);
+      background:var(--soft);
+      border-radius:16px;
+      padding:12px;
+      min-width: 260px;
+      flex:1;
+    }
+    .mini .k{color:var(--muted); font-size:12px}
+    .mini .v{font-weight:900; margin-top:4px}
+
+    .items{
+      margin-top:14px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .itemsHd{
+      background:var(--soft);
+      border-bottom:1px solid var(--line);
+      padding:12px;
+      font-weight:900;
+      font-size:13px;
+    }
+    .itemsBd{padding:12px; display:flex; flex-direction:column; gap:10px}
+    .item{
+      display:flex; justify-content:space-between; gap:10px;
+      border-bottom:1px dashed var(--line);
+      padding-bottom:10px;
+    }
+    .item:last-child{border-bottom:none; padding-bottom:0}
+    .item .name{font-weight:900}
+    .item .sub{color:var(--muted); font-size:12px; margin-top:3px}
+    .item .amt{font-weight:900; white-space:nowrap}
+
+    .totals{
+      margin-top:14px;
+      border-top:1px dashed var(--line);
+      padding-top:12px;
+      display:flex; flex-direction:column; gap:8px;
+      font-size:13px;
+    }
+    .totals .trow{display:flex; justify-content:space-between; gap:10px}
+    .totals .trow span{color:var(--muted)}
+    .totals .trow strong{font-size:15px}
+
+    .actions{
+      margin-top:14px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .btn{
+      border:none;
+      cursor:pointer;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:950;
+      font-size:13px;
+      flex:1;
+      min-width:220px;
+    }
+    .btn.whatsapp{
+      background:linear-gradient(135deg,var(--ok),var(--ok2));
+      color:#fff;
+      box-shadow: 0 12px 24px rgba(34,197,94,.18);
+    }
+    .btn.back{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
+    }
+
+    footer{margin-top:16px;text-align:center;color:var(--muted);font-size:12px}
+  </style>
 </head>
-
 <body>
-
 <header>
   <div class="top">
     <div class="logo">FH</div>
     <div>
-      <strong>Flavour Hub Shawarma</strong><br>
-      <span style="font-size:12px;color:#64748b">Order confirmation</span>
+      <h1>Flavour Hub Shawarma</h1>
+      <p>Payment confirmation</p>
     </div>
   </div>
 </header>
@@ -151,87 +167,135 @@ footer{
   <div class="card">
     <div class="hero">
       <div>
-        <h2 style="margin:0">Payment Successful</h2>
-        <p style="margin:6px 0 0;color:#64748b;font-size:13px">
-          Your payment has been verified successfully.
-        </p>
+        <h2>Order successful</h2>
+        <p>Your payment was verified. Send your paid order to WhatsApp for quick processing.</p>
       </div>
-      <div class="badge">PAID</div>
+      <div class="badge">Verified Payment</div>
     </div>
 
     <div class="body">
-      <div class="row"><span>Reference</span><strong id="ref">—</strong></div>
-      <div class="row"><span>Order Type</span><strong id="mode">—</strong></div>
+      <div class="row">
+        <div class="mini">
+          <div class="k">Paystack Reference</div>
+          <div class="v" id="ref">—</div>
+        </div>
+        <div class="mini">
+          <div class="k">Total Paid</div>
+          <div class="v" id="paid">GHS 0.00</div>
+        </div>
+        <div class="mini">
+          <div class="k">Order Type</div>
+          <div class="v" id="mode">—</div>
+        </div>
+      </div>
 
-      <div class="items" id="items"></div>
+      <div class="items">
+        <div class="itemsHd">Items</div>
+        <div class="itemsBd" id="items"></div>
+      </div>
 
-      <div class="total">
-        <span>Total Paid</span>
-        <span id="total">GHS 0.00</span>
+      <div class="totals">
+        <div class="trow"><span>Subtotal</span><strong id="sub">GHS 0.00</strong></div>
+        <div class="trow"><span>Delivery</span><strong id="del">GHS 0.00</strong></div>
+        <div class="trow"><span>Total</span><strong id="tot">GHS 0.00</strong></div>
+        <div class="trow"><span>Distance</span><strong id="dist">—</strong></div>
+        <div class="trow"><span>ETA</span><strong id="eta">—</strong></div>
       </div>
 
       <div class="actions">
-        <button class="btn back" onclick="location.href='index.html'">
-          Back to Menu
-        </button>
-        <button class="btn whatsapp" id="waBtn">
-          Send Order to WhatsApp
-        </button>
+        <button class="btn back" id="backBtn" type="button">Back to Menu</button>
+        <button class="btn whatsapp" id="waBtn" type="button">Send to WhatsApp</button>
       </div>
 
-      <footer>
-        © <span id="year"></span> Flavour Hub Shawarma
-      </footer>
+      <footer>© <span id="year"></span> Flavour Hub Shawarma</footer>
     </div>
   </div>
 </div>
 
 <script>
-const WHATSAPP_LOCAL = "0543748208";
-const GH = "233";
+  const GH_COUNTRY_CODE = "233";
 
-function formatGH(n){
-  n = n.replace(/\D/g,"");
-  if(n.startsWith("0")) return GH + n.slice(1);
-  if(n.startsWith(GH)) return n;
-  return GH + n;
-}
+  function formatGhanaWhatsappNumber(raw){
+    let s = String(raw || "").trim();
+    s = s.replace(/\s+/g,"").replace(/[()-]/g,"").replace(/\+/g,"");
+    if (/^0\d{9}$/.test(s)) return GH_COUNTRY_CODE + s.slice(1);
+    if (/^233\d{9}$/.test(s)) return s;
+    if (/^\d{9}$/.test(s)) return GH_COUNTRY_CODE + s;
+    return s.replace(/\D/g,"");
+  }
 
-const waNumber = formatGH(WHATSAPP_LOCAL);
-const order = JSON.parse(localStorage.getItem("fh_last_paid_order") || "{}");
+  const fmt = n => `GHS ${Number(n || 0).toFixed(2)}`;
 
-document.getElementById("year").textContent = new Date().getFullYear();
-document.getElementById("ref").textContent = order.reference || "—";
-document.getElementById("mode").textContent = order.mode || "—";
-document.getElementById("total").textContent =
-  order.totals ? `GHS ${order.totals.total.toFixed(2)}` : "GHS 0.00";
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-const itemsBox = document.getElementById("items");
-if(order.items){
-  order.items.forEach(i=>{
-    const d = document.createElement("div");
-    d.className = "item";
-    d.innerHTML = `<span>${i.name} × ${i.qty}</span><strong>GHS ${(i.qty*i.unit_price).toFixed(2)}</strong>`;
-    itemsBox.appendChild(d);
+  const url = new URL(location.href);
+  const refParam = url.searchParams.get("ref") || "—";
+
+  let order = null;
+  try { order = JSON.parse(localStorage.getItem("fh_last_paid_order") || "null"); } catch(e){}
+
+  document.getElementById("ref").textContent = order?.reference || refParam;
+  document.getElementById("paid").textContent = fmt(order?.totals?.total);
+  document.getElementById("mode").textContent = order?.mode || "—";
+
+  document.getElementById("sub").textContent = fmt(order?.totals?.subtotal);
+  document.getElementById("del").textContent = fmt(order?.totals?.delivery);
+  document.getElementById("tot").textContent = fmt(order?.totals?.total);
+
+  const dist = order?.delivery?.distance_km;
+  const eta = order?.delivery?.eta;
+  document.getElementById("dist").textContent = (dist || dist===0) ? `${dist} km` : "—";
+  document.getElementById("eta").textContent = eta || "—";
+
+  const itemsEl = document.getElementById("items");
+  if (!order?.items?.length){
+    itemsEl.innerHTML = `<div style="color:#64748b;font-size:13px">
+      Order details not found on this device. You can still send the reference on WhatsApp.
+    </div>`;
+  } else {
+    itemsEl.innerHTML = "";
+    order.items.forEach(i=>{
+      const line = document.createElement("div");
+      line.className = "item";
+      line.innerHTML = `
+        <div>
+          <div class="name">${i.name}</div>
+          <div class="sub">${i.qty} × ${fmt(i.unit_price)}</div>
+        </div>
+        <div class="amt">${fmt(i.unit_price * i.qty)}</div>
+      `;
+      itemsEl.appendChild(line);
+    });
+  }
+
+  document.getElementById("backBtn").addEventListener("click", () => {
+    window.location.href = "index.html";
   });
-}
 
-document.getElementById("waBtn").onclick = () => {
-  const lines = [
-    "*Flavour Hub Shawarma — PAID ORDER*",
-    `Reference: ${order.reference}`,
-    `Order type: ${order.mode}`,
-    "------------------------"
-  ];
-  order.items?.forEach(i=>{
-    lines.push(`- ${i.name} x${i.qty}`);
+  document.getElementById("waBtn").addEventListener("click", () => {
+    const whatsappLocal = order?.whatsapp || "0543748208";
+    const wa = formatGhanaWhatsappNumber(whatsappLocal);
+
+    const lines = [];
+    lines.push(`*Flavour Hub Shawarma — PAID Order* ✅`);
+    lines.push(`Paystack Ref: *${order?.reference || refParam}*`);
+    lines.push(`Order Type: ${order?.mode || "—"}`);
+    if (order?.location) lines.push(`Location: ${order.location}`);
+    if (order?.delivery?.distance_km) lines.push(`Distance: ${order.delivery.distance_km} km`);
+    if (order?.delivery?.eta) lines.push(`ETA: ${order.delivery.eta}`);
+    lines.push(`----------------------------`);
+    lines.push(`Items:`);
+    (order?.items || []).forEach(i=>{
+      lines.push(`- ${i.name} x${i.qty}`);
+    });
+    lines.push(`----------------------------`);
+    lines.push(`Subtotal: ${fmt(order?.totals?.subtotal)}`);
+    lines.push(`Delivery: ${fmt(order?.totals?.delivery)}`);
+    lines.push(`Total: *${fmt(order?.totals?.total)}*`);
+    if (order?.note) { lines.push(`Note: ${order.note}`); }
+
+    window.location.href = `https://wa.me/${wa}?text=${encodeURIComponent(lines.join("\n"))}`;
   });
-  lines.push("------------------------");
-  lines.push(`Total: GHS ${order.totals?.total}`);
-  window.location.href =
-    `https://wa.me/${waNumber}?text=${encodeURIComponent(lines.join("\n"))}`;
-};
 </script>
-
 </body>
 </html>
