@@ -21,7 +21,6 @@
       --accent2:#f97316;
       --max:1200px;
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -30,7 +29,6 @@
       background:var(--bg);
     }
 
-    /* HEADER */
     header{
       position:sticky; top:0; z-index:50;
       background:rgba(255,255,255,.92);
@@ -102,7 +100,6 @@
       .pill{order:2}
     }
 
-    /* MAIN */
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 16px 96px;}
     .hero{
       margin-top:12px;
@@ -193,7 +190,6 @@
       font-size:12px;
     }
 
-    /* PRODUCT GRID */
     .grid{
       display:grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -254,7 +250,6 @@
       font-weight:900;
     }
 
-    /* BOTTOM BAR */
     .checkoutBar{
       position:fixed;
       left:0; right:0; bottom:0;
@@ -292,7 +287,6 @@
     }
     .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
-    /* DRAWER + MOBILE BOTTOM SHEET */
     .drawerMask{
       position:fixed; inset:0;
       background:rgba(2,6,23,.45);
@@ -468,6 +462,7 @@
       color:var(--muted);
       min-height:18px;
       line-height:1.4;
+      word-break: break-word;
     }
     footer{
       margin-top:18px;
@@ -638,10 +633,14 @@
 
 <script>
 /* =========================
-   CONFIG
+   CONFIG (EDIT THESE)
 ========================= */
 const BUSINESS_NAME = "Flavour Hub Shawarma";
+
+/* IMPORTANT: your Render backend base URL */
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
+
+/* WhatsApp number shown on success page */
 const WHATSAPP_LOCAL = "0543748208";
 
 /* LOCKED shop coordinates */
@@ -655,7 +654,6 @@ const DELIVERY_MAX      = 60;
 
 /* =========================
    MENU DATA (NEW MENU ONLY)
-   - Removed old menu completely
 ========================= */
 const MENU = [
   { category: "Shawarma", items: [
@@ -664,38 +662,32 @@ const MENU = [
     { name: "Flavor Twist (Shredded Beef)", price: 80, desc: "Shredded beef shawarma." },
     { name: "Flavor Twist (Shredded Beef & Chicken)", price: 90, desc: "Mixed shredded beef and chicken." },
   ]},
-
   { category: "Shawarma + Fries", items: [
     { name: "Chic ’n’ Chips (Chicken Shawarma + Fries)", price: 65, desc: "Chicken shawarma served with fries." },
     { name: "Beef ’n’ Fries Fusion (Minced Meat + Fries)", price: 75, desc: "Minced meat shawarma with fries." },
     { name: "Beef ’n’ Fries Fusion (Shredded Beef + Fries)", price: 90, desc: "Shredded beef shawarma with fries." },
   ]},
-
   { category: "Noodles", items: [
     { name: "Budget Bowl Series — Medium", price: 40, desc: "Corned beef, egg & sausage." },
     { name: "Budget Bowl Series — Large", price: 60, desc: "Corned beef, egg & sausage." },
     { name: "Golden Chicken Strings (Chicken Only)", price: 70, desc: "Chicken-only noodles." },
     { name: "Street Beef Vibes (Beef Only)", price: 90, desc: "Beef-only noodles." },
   ]},
-
   { category: "Spaghetti", items: [
     { name: "Quick Prep — Medium", price: 40, desc: "Corned beef, egg & sausage." },
     { name: "Quick Prep — Large", price: 60, desc: "Corned beef, egg & sausage." },
     { name: "Savory Beef Bowl", price: 80, desc: "Beef spaghetti bowl." },
     { name: "Chicken Royal (Chicken Only)", price: 60, desc: "Chicken-only spaghetti." },
   ]},
-
   { category: "Loaded Fries", items: [
     { name: "Flavour Burst Fries", price: 100, desc: "Fries with beef or chicken & cheese." },
     { name: "Melt and Crunch", price: 130, desc: "Fries with beef or chicken, extra cheese." },
   ]},
-
   { category: "Special Combos", items: [
     { name: "Obolo Bia Ye Guy (Chicken & Beef Shawarma with Fries)", price: 150, desc: "Chicken & beef shawarma with fries." },
     { name: "Big Man (Chicken & Beef Noodles)", price: 140, desc: "Chicken & beef noodles." },
     { name: "Full Flavour (Chicken & Beef Spaghetti)", price: 100, desc: "Chicken & beef spaghetti." },
   ]},
-
   { category: "Extras", items: [
     { name: "Fries", price: 20, desc: "Extra fries." },
     { name: "Wings (6 pcs)", price: 50, desc: "Six pieces of wings." },
@@ -703,8 +695,7 @@ const MENU = [
     { name: "Bacon", price: 18, desc: "Add bacon." },
     { name: "Egg", price: 8, desc: "Add egg." },
   ]},
-
-  { category: "Local Drinks", items: [ 
+  { category: "Local Drinks", items: [
     { name: "Obolo Pine Can", price: 40, desc: "Pineapple drink." },
     { name: "Biggie Pine Can", price: 30, desc: "Pineapple drink." },
     { name: "Smallie Pine Can", price: 20, desc: "Small pineapple drink." },
@@ -734,21 +725,15 @@ let deliveryFeeGhs = 0;
 let deliveryDistanceKm = null;
 let deliveryDurationText = "";
 let deliveryPlace = null;
-
-/* Origin */
 let shopLatLng = null;
 
-/* Delivery pricing */
 function calcSuggestedFee(distanceKm){
   const raw = DELIVERY_BASE_FEE + (distanceKm * DELIVERY_PER_KM);
   const capped = Math.min(DELIVERY_MAX, Math.max(DELIVERY_MIN, raw));
   return Math.round(capped * 10) / 10;
 }
-
 function orderMode(){ return document.getElementById("mode").value; }
-function deliveryFee(){
-  return (orderMode() === "Delivery") ? (Number(deliveryFeeGhs) || 0) : 0;
-}
+function deliveryFee(){ return (orderMode() === "Delivery") ? (Number(deliveryFeeGhs) || 0) : 0; }
 function grandTotal(){ return cartSubtotal() + deliveryFee(); }
 
 /* =========================
@@ -934,6 +919,9 @@ document.getElementById("barReview").addEventListener("click", openDrawer);
 document.getElementById("clearCartBtn").addEventListener("click", clearCart);
 document.getElementById("clearCartTop").addEventListener("click", clearCart);
 document.getElementById("barClear").addEventListener("click", clearCart);
+document.getElementById("barReview").addEventListener("click", openDrawer);
+document.getElementById("barClear").addEventListener("click", clearCart);
+document.getElementById("barReview").addEventListener("click", openDrawer);
 
 /* =========================
    DELIVERY (Map + Ghana-only Places)
@@ -943,7 +931,6 @@ const deliveryMeta = document.getElementById("deliveryMeta");
 const deliveryAddressInput = document.getElementById("deliveryAddress");
 
 let gmap = null;
-let shopMarker = null;
 let destMarker = null;
 let directionsService = null;
 let directionsRenderer = null;
@@ -960,7 +947,6 @@ function resetDeliveryPricing(keepAddress=false){
   deliveryPlace = null;
 
   deliveryMeta.textContent = "Select an address to calculate distance and delivery fee.";
-
   if (!keepAddress) deliveryAddressInput.value = "";
 
   if (destMarker) { destMarker.setMap(null); destMarker = null; }
@@ -986,12 +972,10 @@ async function routeAndPrice(){
         }
 
         const leg = result.routes[0].legs[0];
-        const meters = leg.distance?.value || 0;
-        const km = meters / 1000;
-        const durationText = leg.duration?.text || "";
+        const km = (leg.distance?.value || 0) / 1000;
 
         deliveryDistanceKm = Math.round(km * 10) / 10;
-        deliveryDurationText = durationText;
+        deliveryDurationText = leg.duration?.text || "";
         deliveryFeeGhs = calcSuggestedFee(km);
 
         directionsRenderer.setDirections(result);
@@ -1016,27 +1000,20 @@ window.initMap = function(){
   });
 
   directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer({
-    map: gmap,
-    suppressMarkers: true
-  });
+  directionsRenderer = new google.maps.DirectionsRenderer({ map: gmap, suppressMarkers: true });
 
-  shopMarker = new google.maps.Marker({
+  new google.maps.Marker({
     map: gmap,
     position: shopLatLng,
     title: "Flavour Hub Shawarma (Lin-Mart Executive Hostel, Haatso)"
   });
 
-  // Ghana-only Autocomplete + bias around the shop
   autocomplete = new google.maps.places.Autocomplete(deliveryAddressInput, {
     fields: ["geometry","formatted_address","name"],
     componentRestrictions: { country: "gh" }
   });
 
-  const biasCircle = new google.maps.Circle({
-    center: shopLatLng,
-    radius: 35000
-  });
+  const biasCircle = new google.maps.Circle({ center: shopLatLng, radius: 35000 });
   autocomplete.setBounds(biasCircle.getBounds());
 
   autocomplete.addListener("place_changed", async () => {
@@ -1051,20 +1028,15 @@ window.initMap = function(){
     document.getElementById("location").value = deliveryPlace.address || "";
 
     if (destMarker) destMarker.setMap(null);
-    destMarker = new google.maps.Marker({
-      map: gmap,
-      position: deliveryPlace.location,
-      title: "Delivery destination"
-    });
+    destMarker = new google.maps.Marker({ map: gmap, position: deliveryPlace.location, title: "Delivery destination" });
 
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(shopLatLng);
     bounds.extend(deliveryPlace.location);
     gmap.fitBounds(bounds);
 
-    try{
-      await routeAndPrice();
-    }catch(e){
+    try{ await routeAndPrice(); }
+    catch(e){
       deliveryFeeGhs = 0;
       deliveryMeta.textContent = "Could not calculate distance. Please try another address.";
       renderCartUI();
@@ -1084,7 +1056,7 @@ document.getElementById("mode").addEventListener("change", () => {
 });
 
 /* =========================
-   PAYSTACK (Backend init + verify)
+   PAYSTACK (Matched to backend routes)
 ========================= */
 async function payOnline(){
   try{
@@ -1119,7 +1091,7 @@ async function payOnline(){
 
     const payload = {
       email,
-      amount: Math.round(grandTotal() * 100),
+      amount: Math.round(grandTotal() * 100), // pesewas
       currency: "GHS",
       customer: { name, phone },
       order: {
@@ -1190,6 +1162,7 @@ async function payOnline(){
               window.location.href = `success.html?ref=${encodeURIComponent(response.reference)}`;
               return;
             }
+
             throw new Error("Payment not successful.");
           }catch(err){
             console.error(err);
@@ -1222,15 +1195,13 @@ document.getElementById("payBtn").addEventListener("click", payOnline);
    INIT
 ========================= */
 document.getElementById("year").textContent = new Date().getFullYear();
-
 renderCategories();
 renderProducts();
 renderCartUI();
-
 setDeliveryUI(false);
 </script>
 
-<!-- Google Maps (Ghana-only autocomplete inside initMap) -->
+<!-- Google Maps: replace YOUR_GOOGLE_MAPS_KEY with your key -->
 <script
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOBRv9knyRPlGPteyNDkfm_0VK8V6gvSg&libraries=places&callback=initMap"
   async defer></script>
