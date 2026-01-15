@@ -30,9 +30,7 @@
       background:var(--bg);
     }
 
-    /* =========================
-       HEADER (Responsive)
-    ========================= */
+    /* HEADER */
     header{
       position:sticky; top:0; z-index:50;
       background:rgba(255,255,255,.92);
@@ -47,10 +45,7 @@
       align-items:center;
       gap:12px;
     }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      min-width: 260px;
-    }
+    .brand{display:flex; align-items:center; gap:10px; min-width: 260px;}
     .logo{
       width:42px; height:42px; border-radius:14px;
       background:linear-gradient(135deg,var(--accent),var(--accent2));
@@ -73,12 +68,12 @@
     }
     .search input{
       width:100%;
-      border:none;
-      outline:none;
+      border:none; outline:none;
       background:transparent;
       font-size:13px;
       color:var(--ink);
     }
+
     .pill{
       display:flex; align-items:center; gap:10px;
       background:var(--soft);
@@ -100,7 +95,6 @@
       font-size:12px;
     }
 
-    /* Mobile header stacking */
     @media (max-width: 760px){
       .top{flex-wrap:wrap}
       .brand{min-width:unset; flex:1}
@@ -108,9 +102,7 @@
       .pill{order:2}
     }
 
-    /* =========================
-       MAIN
-    ========================= */
+    /* MAIN */
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 16px 96px;}
     .hero{
       margin-top:12px;
@@ -201,9 +193,7 @@
       font-size:12px;
     }
 
-    /* =========================
-       PRODUCT GRID (Better balance)
-    ========================= */
+    /* PRODUCT GRID */
     .grid{
       display:grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -219,7 +209,7 @@
       overflow:hidden;
       box-shadow: 0 1px 0 rgba(2,6,23,.04);
       display:flex; flex-direction:column;
-      min-height: 192px; /* consistent heights */
+      min-height: 192px;
     }
     .cardInner{padding:14px; display:flex; flex-direction:column; height:100%}
     .title{margin:0; font-weight:950; font-size:14px; letter-spacing:.1px}
@@ -264,9 +254,7 @@
       font-weight:900;
     }
 
-    /* =========================
-       BOTTOM BAR
-    ========================= */
+    /* BOTTOM BAR */
     .checkoutBar{
       position:fixed;
       left:0; right:0; bottom:0;
@@ -304,9 +292,7 @@
     }
     .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
-    /* =========================
-       DRAWER + MOBILE BOTTOM SHEET
-    ========================= */
+    /* DRAWER + MOBILE BOTTOM SHEET */
     .drawerMask{
       position:fixed; inset:0;
       background:rgba(2,6,23,.45);
@@ -329,7 +315,6 @@
     .drawer.open{transform: translateX(0)}
     .drawerMask.show{display:block}
 
-    /* Bottom sheet on phone */
     @media (max-width: 760px){
       .drawer{
         top:auto;
@@ -507,7 +492,7 @@
 
     <div class="search">
       <span style="color:var(--muted);font-size:12px">Search</span>
-      <input id="search" type="search" placeholder="Search shawarma, burger, fries, noodles..." />
+      <input id="search" type="search" placeholder="Search shawarma, noodles, fries, drinks..." />
     </div>
 
     <div class="pill" id="openReview">
@@ -521,7 +506,7 @@
   <section class="hero">
     <div>
       <h2>Order online</h2>
-      <p>Add items, review your order, choose Pickup or Delivery. For Delivery, pick an address and the system will calculate distance, ETA, and suggest a delivery fee automatically. Delivery search is limited to Ghana only.</p>
+      <p>Add items, review your order, choose Pickup or Delivery. For Delivery, pick an address and the system will calculate distance, ETA, and suggest a delivery fee automatically. Delivery address search is limited to Ghana only.</p>
     </div>
     <div class="chips">
       <div class="chip"><b>Currency:</b> GHS</div>
@@ -669,63 +654,63 @@ const DELIVERY_MIN      = 8;
 const DELIVERY_MAX      = 60;
 
 /* =========================
-   MENU DATA (same as before)
+   MENU DATA (NEW MENU ONLY)
+   - Removed old menu completely
 ========================= */
 const MENU = [
   { category: "Shawarma", items: [
-    { name: "Sizzling Shawarma (Chicken)", price: 50, desc: "Fresh chicken shawarma wrap." },
-    { name: "Savory Beef Wrap", price: 60, desc: "Beef shawarma wrap with signature sauce." },
-    { name: "Flavor Twist (Beef & Chicken)", price: 70, desc: "Mixed beef & chicken shawarma." },
+    { name: "Sizzling Shawarma (Chicken)", price: 50, desc: "Classic chicken shawarma." },
+    { name: "Minced with Flavour (Minced Meat)", price: 60, desc: "Minced meat shawarma with signature flavour." },
+    { name: "Flavor Twist (Shredded Beef)", price: 80, desc: "Shredded beef shawarma." },
+    { name: "Flavor Twist (Shredded Beef & Chicken)", price: 90, desc: "Mixed shredded beef and chicken." },
   ]},
+
   { category: "Shawarma + Fries", items: [
-    { name: "Chic ’n’ Chips (Chicken + Fries)", price: 65, desc: "Chicken shawarma served with fries." },
-    { name: "Beef ’n’ Fries Fusion (Beef + Fries)", price: 75, desc: "Beef shawarma served with fries." },
+    { name: "Chic ’n’ Chips (Chicken Shawarma + Fries)", price: 65, desc: "Chicken shawarma served with fries." },
+    { name: "Beef ’n’ Fries Fusion (Minced Meat + Fries)", price: 75, desc: "Minced meat shawarma with fries." },
+    { name: "Beef ’n’ Fries Fusion (Shredded Beef + Fries)", price: 90, desc: "Shredded beef shawarma with fries." },
   ]},
-  { category: "Burgers", items: [
-    { name: "Cluck & Crunch (Chicken Burger)", price: 50, desc: "Crispy chicken burger." },
-    { name: "Mega Beef (Beef Burger)", price: 60, desc: "Classic beef burger." },
-    { name: "Cheeze Boss (Loaded Cheese Burger)", price: 70, desc: "Loaded cheese burger." },
-    { name: "The Duo (Chicken & Beef Burger)", price: 85, desc: "Chicken + beef burger combo." },
-    { name: "Beef ’n’ Bacon Blaze", price: 100, desc: "Beef burger with bacon." },
-    { name: "Egg on Top (Cheese Burger + Egg)", price: 90, desc: "Cheese burger topped with egg." },
-    { name: "Eat Me Up (Bacon, Egg & Cheese)", price: 120, desc: "Single patty with bacon, egg & cheese." },
-    { name: "Heavy Load (Double Beef & Cheese)", price: 130, desc: "Double beef + extra cheese." },
-  ]},
+
   { category: "Noodles", items: [
-    { name: "Budget Bowl (Corned Beef, Egg & Sausage) — Medium", price: 40, desc: "Quick, tasty noodles bowl." },
-    { name: "Budget Bowl (Corned Beef, Egg & Sausage) — Large", price: 60, desc: "Large noodles bowl." },
-    { name: "Golden Chicken Strings (Chicken Only)", price: 70, desc: "Chicken noodles bowl." },
-    { name: "Street Beef Vibes (Beef Only)", price: 90, desc: "Beef noodles bowl." },
+    { name: "Budget Bowl Series — Medium", price: 40, desc: "Corned beef, egg & sausage." },
+    { name: "Budget Bowl Series — Large", price: 60, desc: "Corned beef, egg & sausage." },
+    { name: "Golden Chicken Strings (Chicken Only)", price: 70, desc: "Chicken-only noodles." },
+    { name: "Street Beef Vibes (Beef Only)", price: 90, desc: "Beef-only noodles." },
   ]},
+
   { category: "Spaghetti", items: [
-    { name: "Quick Prep (Corned Beef, Egg & Sausage) — Medium", price: 40, desc: "Spaghetti bowl — medium." },
-    { name: "Quick Prep (Corned Beef, Egg & Sausage) — Large", price: 60, desc: "Spaghetti bowl — large." },
+    { name: "Quick Prep — Medium", price: 40, desc: "Corned beef, egg & sausage." },
+    { name: "Quick Prep — Large", price: 60, desc: "Corned beef, egg & sausage." },
     { name: "Savory Beef Bowl", price: 80, desc: "Beef spaghetti bowl." },
-    { name: "Chicken Royal (Chicken Only)", price: 60, desc: "Chicken spaghetti bowl." },
+    { name: "Chicken Royal (Chicken Only)", price: 60, desc: "Chicken-only spaghetti." },
   ]},
+
+  { category: "Loaded Fries", items: [
+    { name: "Flavour Burst Fries", price: 100, desc: "Fries with beef or chicken & cheese." },
+    { name: "Melt and Crunch", price: 130, desc: "Fries with beef or chicken, extra cheese." },
+  ]},
+
   { category: "Special Combos", items: [
-    { name: "Obolo Bia Ye Guy (Chicken & Beef + Fries)", price: 150, desc: "Chicken & beef shawarma with fries." },
-    { name: "Big Man (Chicken & Beef Noodles)", price: 140, desc: "Chicken & beef noodles combo." },
-    { name: "Full Flavour (Chicken & Beef Spaghetti)", price: 100, desc: "Chicken & beef spaghetti combo." },
+    { name: "Obolo Bia Ye Guy (Chicken & Beef Shawarma with Fries)", price: 150, desc: "Chicken & beef shawarma with fries." },
+    { name: "Big Man (Chicken & Beef Noodles)", price: 140, desc: "Chicken & beef noodles." },
+    { name: "Full Flavour (Chicken & Beef Spaghetti)", price: 100, desc: "Chicken & beef spaghetti." },
   ]},
+
   { category: "Extras", items: [
-    { name: "Fries", price: 20, desc: "Crispy fries." },
-    { name: "Wings (6 pcs)", price: 50, desc: "6 pieces wings." },
+    { name: "Fries", price: 20, desc: "Extra fries." },
+    { name: "Wings (6 pcs)", price: 50, desc: "Six pieces of wings." },
     { name: "Cheese", price: 20, desc: "Extra cheese." },
     { name: "Bacon", price: 18, desc: "Add bacon." },
-    { name: "Beef Patty", price: 30, desc: "Extra beef patty." },
     { name: "Egg", price: 8, desc: "Add egg." },
   ]},
-  { category: "Mocktails", items: [
-    { name: "Mocktail (Any)", price: 70, desc: "Ask for available flavours." }
-  ]},
+
   { category: "Local Drinks", items: [
-    { name: "Fresh Pineapple — Big Can", price: 50, desc: "Pine Radiant." },
-    { name: "Fresh Pineapple — Small Can", price: 40, desc: "Pine Radiant." },
-    { name: "Fresh Pineapple — Cup", price: 30, desc: "Pine Radiant." },
-    { name: "Sobolo — Big Can", price: 50, desc: "Roselle Mist." },
-    { name: "Sobolo — Small Can", price: 40, desc: "Roselle Mist." },
-    { name: "Sobolo — Cup", price: 30, desc: "Roselle Mist." },
+    { name: "Obolo Sobolo Can", price: 40, desc: "Sobolo drink." },
+    { name: "Biggie Bissap Can", price: 30, desc: "Bissap drink." },
+    { name: "Smallie Can", price: 20, desc: "Small drink size." },
+    { name: "Obolo Pine Can", price: 40, desc: "Pineapple drink." },
+    { name: "Biggie Pine Can", price: 30, desc: "Pineapple drink." },
+    { name: "Smallie Pine Can", price: 20, desc: "Small pineapple drink." },
   ]},
 ];
 
@@ -1045,16 +1030,15 @@ window.initMap = function(){
     title: "Flavour Hub Shawarma (Lin-Mart Executive Hostel, Haatso)"
   });
 
-  // Ghana-only Autocomplete + bias around your shop
+  // Ghana-only Autocomplete + bias around the shop
   autocomplete = new google.maps.places.Autocomplete(deliveryAddressInput, {
     fields: ["geometry","formatted_address","name"],
-    componentRestrictions: { country: "gh" }   // ✅ Ghana only
+    componentRestrictions: { country: "gh" }
   });
 
-  // Bias suggestions near the shop area (Accra)
   const biasCircle = new google.maps.Circle({
     center: shopLatLng,
-    radius: 35000 // 35km bias around Accra (not a hard limit)
+    radius: 35000
   });
   autocomplete.setBounds(biasCircle.getBounds());
 
@@ -1103,7 +1087,7 @@ document.getElementById("mode").addEventListener("change", () => {
 });
 
 /* =========================
-   PAYSTACK (same pattern)
+   PAYSTACK (Backend init + verify)
 ========================= */
 async function payOnline(){
   try{
@@ -1249,6 +1233,7 @@ renderCartUI();
 setDeliveryUI(false);
 </script>
 
+<!-- Google Maps (Ghana-only autocomplete inside initMap) -->
 <script
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOBRv9knyRPlGPteyNDkfm_0VK8V6gvSg&libraries=places&callback=initMap"
   async defer></script>
