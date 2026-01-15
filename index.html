@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Flavour Hub Shawarma — Order Online</title>
-  <meta name="description" content="Flavour Hub Shawarma — order pickup or delivery, delivery fee by distance, pay with Paystack, then confirm on WhatsApp." />
+  <meta name="description" content="Flavour Hub Shawarma — order pickup or delivery, delivery fee by distance, pay with Paystack." />
 
   <style>
     :root{
@@ -21,6 +21,7 @@
       --accent2:#f97316;
       --max:1200px;
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -28,6 +29,10 @@
       color:var(--ink);
       background:var(--bg);
     }
+
+    /* =========================
+       HEADER (Responsive)
+    ========================= */
     header{
       position:sticky; top:0; z-index:50;
       background:rgba(255,255,255,.92);
@@ -37,19 +42,26 @@
     .top{
       max-width:var(--max);
       margin:0 auto;
-      padding:14px 16px;
-      display:flex; align-items:center; gap:12px;
+      padding:12px 16px;
+      display:flex;
+      align-items:center;
+      gap:12px;
     }
-    .brand{display:flex; align-items:center; gap:10px; min-width:260px}
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width: 260px;
+    }
     .logo{
       width:42px; height:42px; border-radius:14px;
       background:linear-gradient(135deg,var(--accent),var(--accent2));
       box-shadow: var(--shadow2);
       display:grid; place-items:center;
       color:#fff; font-weight:900; letter-spacing:.4px;
+      flex:0 0 auto;
     }
     .brand h1{margin:0; font-size:15px; line-height:1.15}
     .brand p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+
     .search{
       flex:1;
       display:flex; align-items:center; gap:10px;
@@ -57,6 +69,7 @@
       border:1px solid var(--line);
       border-radius:999px;
       padding:10px 12px;
+      min-width: 220px;
     }
     .search input{
       width:100%;
@@ -87,9 +100,20 @@
       font-size:12px;
     }
 
-    .wrap{max-width:var(--max); margin:0 auto; padding:18px 16px 90px;}
+    /* Mobile header stacking */
+    @media (max-width: 760px){
+      .top{flex-wrap:wrap}
+      .brand{min-width:unset; flex:1}
+      .search{order:3; flex:1 1 100%; min-width:unset}
+      .pill{order:2}
+    }
+
+    /* =========================
+       MAIN
+    ========================= */
+    .wrap{max-width:var(--max); margin:0 auto; padding:16px 16px 96px;}
     .hero{
-      margin-top:14px;
+      margin-top:12px;
       background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(249,115,22,.08), rgba(15,23,42,.02));
       border:1px solid var(--line);
       border-radius: var(--r2);
@@ -141,7 +165,7 @@
     .panelHd small{color:var(--muted); font-size:12px}
     .panelBd{padding:12px 14px 14px}
 
-    .sideCats{position:sticky; top:84px}
+    .sideCats{position:sticky; top:78px}
     .catList{display:flex; flex-direction:column; gap:8px}
     .catBtn{
       width:100%;
@@ -164,6 +188,7 @@
     .productsTop{
       display:flex; align-items:center; justify-content:space-between; gap:10px;
       margin-bottom:10px;
+      flex-wrap:wrap;
     }
     .productsTop .hint{color:var(--muted); font-size:12px}
     .clearSmall{
@@ -176,6 +201,9 @@
       font-size:12px;
     }
 
+    /* =========================
+       PRODUCT GRID (Better balance)
+    ========================= */
     .grid{
       display:grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -191,12 +219,19 @@
       overflow:hidden;
       box-shadow: 0 1px 0 rgba(2,6,23,.04);
       display:flex; flex-direction:column;
-      min-height: 170px;
+      min-height: 192px; /* consistent heights */
     }
-    .cardInner{padding:14px}
+    .cardInner{padding:14px; display:flex; flex-direction:column; height:100%}
     .title{margin:0; font-weight:950; font-size:14px; letter-spacing:.1px}
-    .desc{margin:7px 0 0; color:var(--muted); font-size:12.5px; line-height:1.4; min-height: 34px}
-    .meta{margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .desc{
+      margin:7px 0 0;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.4;
+      min-height: 34px;
+    }
+    .spacer{flex:1}
+    .meta{margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px}
     .price{font-weight:950; font-size:13.5px}
     .tag{
       font-size:11px;
@@ -229,6 +264,9 @@
       font-weight:900;
     }
 
+    /* =========================
+       BOTTOM BAR
+    ========================= */
     .checkoutBar{
       position:fixed;
       left:0; right:0; bottom:0;
@@ -266,6 +304,9 @@
     }
     .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
+    /* =========================
+       DRAWER + MOBILE BOTTOM SHEET
+    ========================= */
     .drawerMask{
       position:fixed; inset:0;
       background:rgba(2,6,23,.45);
@@ -288,6 +329,23 @@
     .drawer.open{transform: translateX(0)}
     .drawerMask.show{display:block}
 
+    /* Bottom sheet on phone */
+    @media (max-width: 760px){
+      .drawer{
+        top:auto;
+        right:auto;
+        left:0;
+        bottom:0;
+        width:100%;
+        height:86vh;
+        border-left:none;
+        border-top:1px solid var(--line);
+        border-radius: 22px 22px 0 0;
+        transform: translateY(100%);
+      }
+      .drawer.open{transform: translateY(0)}
+    }
+
     .drawerHd{
       padding:14px 14px;
       border-bottom:1px solid var(--line);
@@ -307,6 +365,7 @@
       overflow:auto;
       flex:1;
     }
+
     .cartList{display:flex;flex-direction:column;gap:10px}
     .cartRow{
       border:1px solid var(--line);
@@ -425,7 +484,6 @@
       min-height:18px;
       line-height:1.4;
     }
-
     footer{
       margin-top:18px;
       text-align:center;
@@ -463,12 +521,12 @@
   <section class="hero">
     <div>
       <h2>Order online</h2>
-      <p>Add items, review your order, choose Pickup or Delivery. For Delivery, pick an address and the system will calculate distance, ETA, and suggest a delivery fee automatically.</p>
+      <p>Add items, review your order, choose Pickup or Delivery. For Delivery, pick an address and the system will calculate distance, ETA, and suggest a delivery fee automatically. Delivery search is limited to Ghana only.</p>
     </div>
     <div class="chips">
       <div class="chip"><b>Currency:</b> GHS</div>
+      <div class="chip"><b>Delivery:</b> Ghana only</div>
       <div class="chip"><b>Payment:</b> Paystack</div>
-      <div class="chip"><b>Origin:</b> Haatso</div>
     </div>
   </section>
 
@@ -560,11 +618,10 @@
         </select>
       </div>
 
-      <!-- Delivery map + autocomplete -->
       <div class="deliveryBox" id="deliveryBox">
         <div class="field">
-          <label for="deliveryAddress">Delivery address (search & select)</label>
-          <input id="deliveryAddress" placeholder="Type your location (e.g., UPSA Hostel, Madina...)" />
+          <label for="deliveryAddress">Delivery address (Ghana only)</label>
+          <input id="deliveryAddress" placeholder="Type location (e.g., UPSA, Madina, Legon...)" />
         </div>
         <div class="deliveryMeta" id="deliveryMeta">
           Select an address to calculate distance and delivery fee.
@@ -600,21 +657,19 @@
 ========================= */
 const BUSINESS_NAME = "Flavour Hub Shawarma";
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
-
-/* WhatsApp number (used on success page; stored order includes it implicitly) */
 const WHATSAPP_LOCAL = "0543748208";
 
-/* LOCKED Shop Coordinates (from your Google Maps link) */
+/* LOCKED shop coordinates */
 const SHOP_FIXED = { lat: 5.6677055, lng: -0.1971199 };
 
-/* Delivery pricing model (edit these if you want) */
-const DELIVERY_BASE_FEE = 8;     // GHS
-const DELIVERY_PER_KM   = 2.5;   // GHS per km
-const DELIVERY_MIN      = 8;     // minimum
-const DELIVERY_MAX      = 60;    // maximum
+/* Delivery pricing model */
+const DELIVERY_BASE_FEE = 8;
+const DELIVERY_PER_KM   = 2.5;
+const DELIVERY_MIN      = 8;
+const DELIVERY_MAX      = 60;
 
 /* =========================
-   MENU
+   MENU DATA (same as before)
 ========================= */
 const MENU = [
   { category: "Shawarma", items: [
@@ -698,7 +753,7 @@ let deliveryDistanceKm = null;
 let deliveryDurationText = "";
 let deliveryPlace = null;
 
-/* Origin (shop) */
+/* Origin */
 let shopLatLng = null;
 
 /* Delivery pricing */
@@ -770,6 +825,7 @@ function renderProducts(){
       <div class="cardInner">
         <p class="title">${it.name}</p>
         <p class="desc">${it.desc || ""}</p>
+        <div class="spacer"></div>
         <div class="meta">
           <div class="price">${fmt(it.price)}</div>
           <div class="tag">${it.category}</div>
@@ -893,8 +949,12 @@ document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
 document.getElementById("openReview").addEventListener("click", openDrawer);
 document.getElementById("barReview").addEventListener("click", openDrawer);
 
+document.getElementById("clearCartBtn").addEventListener("click", clearCart);
+document.getElementById("clearCartTop").addEventListener("click", clearCart);
+document.getElementById("barClear").addEventListener("click", clearCart);
+
 /* =========================
-   DELIVERY (MAP + DISTANCE)
+   DELIVERY (Map + Ghana-only Places)
 ========================= */
 const deliveryBox = document.getElementById("deliveryBox");
 const deliveryMeta = document.getElementById("deliveryMeta");
@@ -908,8 +968,7 @@ let directionsRenderer = null;
 let autocomplete = null;
 
 function setDeliveryUI(show){
-  if (show) deliveryBox.classList.add("show");
-  else deliveryBox.classList.remove("show");
+  deliveryBox.classList.toggle("show", !!show);
 }
 
 function resetDeliveryPricing(keepAddress=false){
@@ -920,10 +979,7 @@ function resetDeliveryPricing(keepAddress=false){
 
   deliveryMeta.textContent = "Select an address to calculate distance and delivery fee.";
 
-  if (!keepAddress) {
-    deliveryAddressInput.value = "";
-    // keep optional text location as user entered
-  }
+  if (!keepAddress) deliveryAddressInput.value = "";
 
   if (destMarker) { destMarker.setMap(null); destMarker = null; }
   if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
@@ -954,7 +1010,6 @@ async function routeAndPrice(){
 
         deliveryDistanceKm = Math.round(km * 10) / 10;
         deliveryDurationText = durationText;
-
         deliveryFeeGhs = calcSuggestedFee(km);
 
         directionsRenderer.setDirections(result);
@@ -990,9 +1045,18 @@ window.initMap = function(){
     title: "Flavour Hub Shawarma (Lin-Mart Executive Hostel, Haatso)"
   });
 
+  // Ghana-only Autocomplete + bias around your shop
   autocomplete = new google.maps.places.Autocomplete(deliveryAddressInput, {
-    fields: ["geometry","formatted_address","name"]
+    fields: ["geometry","formatted_address","name"],
+    componentRestrictions: { country: "gh" }   // ✅ Ghana only
   });
+
+  // Bias suggestions near the shop area (Accra)
+  const biasCircle = new google.maps.Circle({
+    center: shopLatLng,
+    radius: 35000 // 35km bias around Accra (not a hard limit)
+  });
+  autocomplete.setBounds(biasCircle.getBounds());
 
   autocomplete.addListener("place_changed", async () => {
     const place = autocomplete.getPlace();
@@ -1003,7 +1067,6 @@ window.initMap = function(){
       location: place.geometry.location
     };
 
-    // Mirror into location text field for record
     document.getElementById("location").value = deliveryPlace.address || "";
 
     if (destMarker) destMarker.setMap(null);
@@ -1031,7 +1094,6 @@ window.initMap = function(){
 document.getElementById("mode").addEventListener("change", () => {
   if (orderMode() === "Delivery") {
     setDeliveryUI(true);
-    // If already chosen, recalc
     if (deliveryPlace?.location) routeAndPrice().catch(()=>{});
   } else {
     setDeliveryUI(false);
@@ -1041,7 +1103,7 @@ document.getElementById("mode").addEventListener("change", () => {
 });
 
 /* =========================
-   PAYSTACK (Initialize + Verify)
+   PAYSTACK (same pattern)
 ========================= */
 async function payOnline(){
   try{
@@ -1088,7 +1150,7 @@ async function payOnline(){
         delivery: {
           distance_km: deliveryDistanceKm,
           eta: deliveryDurationText,
-          fee_ghs: deliveryFee()
+          fee_ghs: (mode === "Delivery") ? deliveryFee() : 0
         },
         totals: { subtotal: cartSubtotal(), delivery: deliveryFee(), total: grandTotal() }
       }
@@ -1106,7 +1168,6 @@ async function payOnline(){
 
     const reference = initData.reference;
     const public_key = initData.public_key;
-
     if (!reference || !public_key) throw new Error("Payment init response missing reference/public key.");
 
     setStatus("Opening Paystack checkout...");
@@ -1126,8 +1187,6 @@ async function payOnline(){
             if (!verifyRes.ok) throw new Error(verifyData?.error || "Verification failed.");
 
             if (verifyData.status === "success"){
-              setStatus("Payment verified. Preparing receipt...");
-
               const paidOrder = {
                 reference: response.reference,
                 business: BUSINESS_NAME,
@@ -1140,19 +1199,16 @@ async function payOnline(){
                 delivery: {
                   distance_km: deliveryDistanceKm,
                   eta: deliveryDurationText,
-                  fee_ghs: deliveryFee()
+                  fee_ghs: (mode === "Delivery") ? deliveryFee() : 0
                 },
                 totals: { subtotal: cartSubtotal(), delivery: deliveryFee(), total: grandTotal() },
                 paidAt: new Date().toISOString()
               };
-
               localStorage.setItem("fh_last_paid_order", JSON.stringify(paidOrder));
-
               closeDrawer();
               window.location.href = `success.html?ref=${encodeURIComponent(response.reference)}`;
               return;
             }
-
             throw new Error("Payment not successful.");
           }catch(err){
             console.error(err);
@@ -1179,30 +1235,20 @@ async function payOnline(){
     setBusy(false);
   }
 }
-
 document.getElementById("payBtn").addEventListener("click", payOnline);
-
-/* =========================
-   BUTTONS
-========================= */
-document.getElementById("clearCartBtn").addEventListener("click", clearCart);
-document.getElementById("clearCartTop").addEventListener("click", clearCart);
-document.getElementById("barClear").addEventListener("click", clearCart);
 
 /* =========================
    INIT
 ========================= */
 document.getElementById("year").textContent = new Date().getFullYear();
 
-/* Default: Pickup -> hide delivery map */
-setDeliveryUI(false);
-
 renderCategories();
 renderProducts();
 renderCartUI();
+
+setDeliveryUI(false);
 </script>
 
-<!-- Google Maps (replace key) -->
 <script
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOBRv9knyRPlGPteyNDkfm_0VK8V6gvSg&libraries=places&callback=initMap"
   async defer></script>
