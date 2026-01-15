@@ -3,299 +3,137 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Order Successful — Flavour Hub Shawarma</title>
-
+  <title>Payment Successful — Flavour Hub Shawarma</title>
   <style>
     :root{
-      --ink:#0f172a;
-      --muted:#64748b;
-      --line:#e2e8f0;
-      --soft:#f8fafc;
-      --shadow: 0 16px 40px rgba(2,6,23,.08);
-      --r2:22px;
-      --ok:#16a34a;
-      --ok2:#22c55e;
-      --brand:#ef4444;
-      --brand2:#f97316;
-      --max:980px;
+      --bg:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc;
+      --r2:22px; --accent:#ef4444; --accent2:#f97316; --max:900px;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:var(--soft);
-      color:var(--ink);
-    }
-    header{
-      background:rgba(255,255,255,.92);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--line);
-    }
-    .top{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:14px 16px;
-      display:flex; align-items:center; gap:12px;
-    }
-    .logo{
-      width:42px; height:42px; border-radius:14px;
-      background:linear-gradient(135deg,var(--brand),var(--brand2));
-      box-shadow: var(--shadow);
-      display:grid; place-items:center;
-      color:#fff; font-weight:900; letter-spacing:.4px;
-    }
-    .top h1{margin:0; font-size:14px}
-    .top p{margin:2px 0 0; font-size:12px; color:var(--muted)}
-
-    .wrap{max-width:var(--max); margin:0 auto; padding:18px 16px 40px}
+    body{margin:0;font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:var(--max);margin:0 auto;padding:20px 16px}
     .card{
-      background:#fff;
+      margin-top:18px;
       border:1px solid var(--line);
-      border-radius:var(--r2);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .hero{
+      border-radius: var(--r2);
       padding:18px;
-      background:linear-gradient(135deg, rgba(34,197,94,.12), rgba(34,197,94,.06), rgba(15,23,42,.02));
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(249,115,22,.06), rgba(15,23,42,.01));
     }
-    .hero h2{margin:0; font-size:18px}
-    .hero p{margin:7px 0 0; color:var(--muted); font-size:13px; line-height:1.45}
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(34,197,94,.25);
-      background:rgba(34,197,94,.10);
-      color:#0b3d1f;
-      font-weight:900;
-      font-size:12px;
-      white-space:nowrap;
-    }
-
-    .body{padding:16px 18px}
-    .row{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
-    .mini{
-      border:1px solid var(--line);
-      background:var(--soft);
-      border-radius:16px;
-      padding:12px;
-      min-width: 260px;
-      flex:1;
-    }
-    .mini .k{color:var(--muted); font-size:12px}
-    .mini .v{font-weight:900; margin-top:4px}
-
-    .items{
-      margin-top:14px;
-      border:1px solid var(--line);
-      border-radius:16px;
-      overflow:hidden;
-    }
-    .itemsHd{
-      background:var(--soft);
-      border-bottom:1px solid var(--line);
-      padding:12px;
-      font-weight:900;
-      font-size:13px;
-    }
-    .itemsBd{padding:12px; display:flex; flex-direction:column; gap:10px}
-    .item{
-      display:flex; justify-content:space-between; gap:10px;
-      border-bottom:1px dashed var(--line);
-      padding-bottom:10px;
-    }
-    .item:last-child{border-bottom:none; padding-bottom:0}
-    .item .name{font-weight:900}
-    .item .sub{color:var(--muted); font-size:12px; margin-top:3px}
-    .item .amt{font-weight:900; white-space:nowrap}
-
-    .totals{
-      margin-top:14px;
-      border-top:1px dashed var(--line);
-      padding-top:12px;
-      display:flex; flex-direction:column; gap:8px;
-      font-size:13px;
-    }
-    .totals .trow{display:flex; justify-content:space-between; gap:10px}
-    .totals .trow span{color:var(--muted)}
-    .totals .trow strong{font-size:15px}
-
-    .actions{
-      margin-top:14px;
-      display:flex; gap:10px; flex-wrap:wrap;
-    }
+    h1{margin:0;font-size:18px}
+    p{margin:10px 0 0;color:var(--muted);line-height:1.5}
+    .box{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}
+    .row{display:flex;justify-content:space-between;gap:10px;margin:8px 0;font-size:13px}
+    .row span{color:var(--muted)}
+    .items{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+    .item{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+    .btns{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
     .btn{
-      border:none;
-      cursor:pointer;
-      border-radius:14px;
-      padding:12px 14px;
-      font-weight:950;
-      font-size:13px;
-      flex:1;
-      min-width:220px;
+      border:none;cursor:pointer;border-radius:14px;padding:12px 14px;font-weight:900;font-size:13px;
     }
-    .btn.whatsapp{
-      background:linear-gradient(135deg,var(--ok),var(--ok2));
-      color:#fff;
-      box-shadow: 0 12px 24px rgba(34,197,94,.18);
-    }
-    .btn.back{
-      border:1px solid var(--line);
-      background:#fff;
-      color:var(--ink);
-    }
-
-    footer{margin-top:16px;text-align:center;color:var(--muted);font-size:12px}
+    .primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+    .ghost{border:1px solid var(--line);background:#fff;color:var(--ink)}
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
+    code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
   </style>
 </head>
 <body>
-<header>
-  <div class="top">
-    <div class="logo">FH</div>
-    <div>
-      <h1>Flavour Hub Shawarma</h1>
-      <p>Payment confirmation</p>
+  <div class="wrap">
+    <div class="card">
+      <h1>Payment successful</h1>
+      <p>Your payment has been confirmed. Send your order details to Flavour Hub on WhatsApp to speed up preparation and delivery.</p>
+
+      <div class="box" id="box"></div>
+
+      <div class="btns">
+        <button class="btn primary" id="waBtn">Send to WhatsApp</button>
+        <a class="btn ghost" href="./index.html" style="text-decoration:none;display:inline-block;">Back to Home</a>
+        <button class="btn ghost" id="clearBtn">Clear saved order</button>
+      </div>
     </div>
+
+    <footer>Flavour Hub Shawarma • Lin-Mart Executive Hostel • Haatso</footer>
   </div>
-</header>
-
-<div class="wrap">
-  <div class="card">
-    <div class="hero">
-      <div>
-        <h2>Order successful</h2>
-        <p>Your payment was verified. Send your paid order to WhatsApp for quick processing.</p>
-      </div>
-      <div class="badge">Verified Payment</div>
-    </div>
-
-    <div class="body">
-      <div class="row">
-        <div class="mini">
-          <div class="k">Paystack Reference</div>
-          <div class="v" id="ref">—</div>
-        </div>
-        <div class="mini">
-          <div class="k">Total Paid</div>
-          <div class="v" id="paid">GHS 0.00</div>
-        </div>
-        <div class="mini">
-          <div class="k">Order Type</div>
-          <div class="v" id="mode">—</div>
-        </div>
-      </div>
-
-      <div class="items">
-        <div class="itemsHd">Items</div>
-        <div class="itemsBd" id="items"></div>
-      </div>
-
-      <div class="totals">
-        <div class="trow"><span>Subtotal</span><strong id="sub">GHS 0.00</strong></div>
-        <div class="trow"><span>Delivery</span><strong id="del">GHS 0.00</strong></div>
-        <div class="trow"><span>Total</span><strong id="tot">GHS 0.00</strong></div>
-        <div class="trow"><span>Distance</span><strong id="dist">—</strong></div>
-        <div class="trow"><span>ETA</span><strong id="eta">—</strong></div>
-      </div>
-
-      <div class="actions">
-        <button class="btn back" id="backBtn" type="button">Back to Menu</button>
-        <button class="btn whatsapp" id="waBtn" type="button">Send to WhatsApp</button>
-      </div>
-
-      <footer>© <span id="year"></span> Flavour Hub Shawarma</footer>
-    </div>
-  </div>
-</div>
 
 <script>
-  const GH_COUNTRY_CODE = "233";
+(function(){
+  const params = new URLSearchParams(location.search);
+  const ref = params.get("ref") || "";
+  const raw = localStorage.getItem("fh_last_paid_order");
+  const order = raw ? JSON.parse(raw) : null;
 
-  function formatGhanaWhatsappNumber(raw){
-    let s = String(raw || "").trim();
-    s = s.replace(/\s+/g,"").replace(/[()-]/g,"").replace(/\+/g,"");
-    if (/^0\d{9}$/.test(s)) return GH_COUNTRY_CODE + s.slice(1);
-    if (/^233\d{9}$/.test(s)) return s;
-    if (/^\d{9}$/.test(s)) return GH_COUNTRY_CODE + s;
-    return s.replace(/\D/g,"");
+  const box = document.getElementById("box");
+  if (!order){
+    box.innerHTML = `
+      <div class="row"><span>Status</span><b>No saved order found</b></div>
+      <p style="margin:10px 0 0;color:var(--muted);font-size:13px">
+        If you just paid, please go back and try again. Reference: <code>${ref || "—"}</code>
+      </p>`;
+    return;
   }
 
-  const fmt = n => `GHS ${Number(n || 0).toFixed(2)}`;
+  const whatsapp = order.whatsapp || "0543748208";
+  const totals = order.totals || {};
+  const items = order.items || [];
+  const delivery = order.delivery || {};
 
-  document.getElementById("year").textContent = new Date().getFullYear();
+  const itemsHtml = items.map(i => `
+    <div class="item">
+      <div>${i.qty} × ${i.name}</div>
+      <div><b>GHS ${(i.unit_price * i.qty).toFixed(2)}</b></div>
+    </div>`).join("");
 
-  const url = new URL(location.href);
-  const refParam = url.searchParams.get("ref") || "—";
+  box.innerHTML = `
+    <div class="row"><span>Reference</span><b><code>${order.reference || ref || "—"}</code></b></div>
+    <div class="row"><span>Customer</span><b>${order.customer?.name || "—"}</b></div>
+    <div class="row"><span>Phone</span><b>${order.customer?.phone || "—"}</b></div>
+    <div class="row"><span>Mode</span><b>${order.mode || "—"}</b></div>
+    <div class="row"><span>Location</span><b>${order.location || "—"}</b></div>
+    <div class="row"><span>Note</span><b>${order.note || "—"}</b></div>
 
-  let order = null;
-  try { order = JSON.parse(localStorage.getItem("fh_last_paid_order") || "null"); } catch(e){}
+    <div class="items">${itemsHtml}</div>
 
-  document.getElementById("ref").textContent = order?.reference || refParam;
-  document.getElementById("paid").textContent = fmt(order?.totals?.total);
-  document.getElementById("mode").textContent = order?.mode || "—";
+    <div style="margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">
+      <div class="row"><span>Subtotal</span><b>GHS ${(totals.subtotal || 0).toFixed(2)}</b></div>
+      <div class="row"><span>Delivery</span><b>GHS ${(totals.delivery || 0).toFixed(2)}</b></div>
+      <div class="row"><span>Total Paid</span><b>GHS ${(totals.total || 0).toFixed(2)}</b></div>
+      <div class="row"><span>Distance</span><b>${delivery.distance_km ? (delivery.distance_km + " km") : "—"}</b></div>
+      <div class="row"><span>ETA</span><b>${delivery.eta || "—"}</b></div>
+    </div>
+  `;
 
-  document.getElementById("sub").textContent = fmt(order?.totals?.subtotal);
-  document.getElementById("del").textContent = fmt(order?.totals?.delivery);
-  document.getElementById("tot").textContent = fmt(order?.totals?.total);
-
-  const dist = order?.delivery?.distance_km;
-  const eta = order?.delivery?.eta;
-  document.getElementById("dist").textContent = (dist || dist===0) ? `${dist} km` : "—";
-  document.getElementById("eta").textContent = eta || "—";
-
-  const itemsEl = document.getElementById("items");
-  if (!order?.items?.length){
-    itemsEl.innerHTML = `<div style="color:#64748b;font-size:13px">
-      Order details not found on this device. You can still send the reference on WhatsApp.
-    </div>`;
-  } else {
-    itemsEl.innerHTML = "";
-    order.items.forEach(i=>{
-      const line = document.createElement("div");
-      line.className = "item";
-      line.innerHTML = `
-        <div>
-          <div class="name">${i.name}</div>
-          <div class="sub">${i.qty} × ${fmt(i.unit_price)}</div>
-        </div>
-        <div class="amt">${fmt(i.unit_price * i.qty)}</div>
-      `;
-      itemsEl.appendChild(line);
-    });
+  function buildWhatsAppMessage(){
+    const lines = [];
+    lines.push(`Hello Flavour Hub Shawarma, I have paid.`);
+    lines.push(`Reference: ${order.reference || ref || "—"}`);
+    lines.push(`Name: ${order.customer?.name || "—"}`);
+    lines.push(`Phone: ${order.customer?.phone || "—"}`);
+    lines.push(`Mode: ${order.mode || "—"}`);
+    if (order.location) lines.push(`Location: ${order.location}`);
+    if (order.note) lines.push(`Note: ${order.note}`);
+    lines.push(`Items:`);
+    for (const it of items){
+      lines.push(`- ${it.qty} x ${it.name} (GHS ${(it.unit_price * it.qty).toFixed(2)})`);
+    }
+    lines.push(`Subtotal: GHS ${(totals.subtotal || 0).toFixed(2)}`);
+    lines.push(`Delivery: GHS ${(totals.delivery || 0).toFixed(2)}`);
+    lines.push(`Total: GHS ${(totals.total || 0).toFixed(2)}`);
+    return lines.join("\n");
   }
-
-  document.getElementById("backBtn").addEventListener("click", () => {
-    window.location.href = "index.html";
-  });
 
   document.getElementById("waBtn").addEventListener("click", () => {
-    const whatsappLocal = order?.whatsapp || "0543748208";
-    const wa = formatGhanaWhatsappNumber(whatsappLocal);
-
-    const lines = [];
-    lines.push(`*Flavour Hub Shawarma — PAID Order* ✅`);
-    lines.push(`Paystack Ref: *${order?.reference || refParam}*`);
-    lines.push(`Order Type: ${order?.mode || "—"}`);
-    if (order?.location) lines.push(`Location: ${order.location}`);
-    if (order?.delivery?.distance_km) lines.push(`Distance: ${order.delivery.distance_km} km`);
-    if (order?.delivery?.eta) lines.push(`ETA: ${order.delivery.eta}`);
-    lines.push(`----------------------------`);
-    lines.push(`Items:`);
-    (order?.items || []).forEach(i=>{
-      lines.push(`- ${i.name} x${i.qty}`);
-    });
-    lines.push(`----------------------------`);
-    lines.push(`Subtotal: ${fmt(order?.totals?.subtotal)}`);
-    lines.push(`Delivery: ${fmt(order?.totals?.delivery)}`);
-    lines.push(`Total: *${fmt(order?.totals?.total)}*`);
-    if (order?.note) { lines.push(`Note: ${order.note}`); }
-
-    window.location.href = `https://wa.me/${wa}?text=${encodeURIComponent(lines.join("\n"))}`;
+    const msg = encodeURIComponent(buildWhatsAppMessage());
+    // Use wa.me; Ghana local numbers often need country code for best results.
+    // If you want strict: convert 054... to 23354...
+    const phoneDigits = whatsapp.replace(/\D/g, "");
+    const url = `https://wa.me/${phoneDigits}?text=${msg}`;
+    window.open(url, "_blank");
   });
+
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    localStorage.removeItem("fh_last_paid_order");
+    location.reload();
+  });
+})();
 </script>
 </body>
 </html>
