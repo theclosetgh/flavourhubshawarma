@@ -1,1053 +1,386 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Flavour Hub Shawarma — Order Online</title>
-  <meta name="description" content="Flavour Hub Shawarma — build your order, review, then pay securely with Paystack." />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flavour Hub Shawarma — Order Online</title>
 
-  <style>
-    :root{
-      --bg:#ffffff;
-      --ink:#0f172a;         /* slate-900 */
-      --muted:#64748b;       /* slate-500 */
-      --line:#e2e8f0;        /* slate-200 */
-      --soft:#f8fafc;        /* slate-50 */
-      --card:#ffffff;
-      --shadow: 0 16px 40px rgba(2,6,23,.08);
-      --shadow2: 0 10px 24px rgba(2,6,23,.10);
-      --r:16px;
-      --r2:22px;
+<style>
+/* =======================
+   DESIGN SYSTEM
+======================= */
+:root{
+  --bg:#ffffff;
+  --ink:#0f172a;
+  --muted:#64748b;
+  --line:#e2e8f0;
+  --soft:#f8fafc;
+  --accent:#ef4444;
+  --accent2:#f97316;
+  --shadow:0 16px 40px rgba(2,6,23,.08);
+  --radius:20px;
+  --max:1200px;
+}
 
-      /* Accent (modern food brand red) */
-      --accent:#ef4444;      /* red-500 */
-      --accent2:#f97316;     /* orange-500 */
-      --ok:#16a34a;
-      --danger:#dc2626;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:var(--bg);
+  color:var(--ink);
+}
 
-      --max:1200px;
-    }
+/* =======================
+   HEADER
+======================= */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.top{
+  max-width:var(--max);
+  margin:auto;
+  padding:14px 16px;
+  display:flex;
+  gap:14px;
+  align-items:center;
+}
+.logo{
+  width:44px;height:44px;
+  border-radius:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+}
+.brand h1{margin:0;font-size:15px}
+.brand p{margin:2px 0 0;font-size:12px;color:var(--muted)}
+.search{
+  flex:1;
+  display:flex;
+  align-items:center;
+  background:var(--soft);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:10px 14px;
+}
+.search input{
+  border:none;background:none;outline:none;
+  width:100%;font-size:13px;
+}
+.cartBtn{
+  display:flex;gap:10px;align-items:center;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:10px 14px;
+  cursor:pointer;
+}
+.cartBtn span{
+  background:rgba(239,68,68,.15);
+  border-radius:999px;
+  padding:4px 8px;
+  font-weight:900;
+}
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--ink);
-      background:var(--bg);
-    }
+/* =======================
+   MAIN
+======================= */
+.wrap{
+  max-width:var(--max);
+  margin:auto;
+  padding:18px 16px 100px;
+}
+.hero{
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:20px;
+  background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(249,115,22,.1));
+}
+.hero h2{margin:0}
+.hero p{margin:8px 0 0;color:var(--muted)}
 
-    a{color:inherit}
-    .wrap{max-width:var(--max); margin:0 auto; padding:18px 16px 90px;}
+.layout{
+  margin-top:16px;
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:16px;
+}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+}
 
-    /* Top nav */
-    header{
-      position:sticky; top:0; z-index:50;
-      background:rgba(255,255,255,.92);
-      backdrop-filter: blur(10px);
-      border-bottom:1px solid var(--line);
-    }
-    .top{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:14px 16px;
-      display:flex; align-items:center; gap:12px;
-    }
-    .brand{display:flex; align-items:center; gap:10px; min-width:260px}
-    .logo{
-      width:42px; height:42px; border-radius:14px;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      box-shadow: var(--shadow2);
-      display:grid; place-items:center;
-      color:#fff; font-weight:900; letter-spacing:.4px;
-    }
-    .brand h1{margin:0; font-size:15px; line-height:1.15}
-    .brand p{margin:2px 0 0; font-size:12px; color:var(--muted)}
-    .search{
-      flex:1;
-      display:flex; align-items:center; gap:10px;
-      background:var(--soft);
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:10px 12px;
-    }
-    .search input{
-      width:100%;
-      border:none;
-      outline:none;
-      background:transparent;
-      font-size:13px;
-      color:var(--ink);
-    }
-    .pill{
-      display:flex; align-items:center; gap:10px;
-      background:var(--soft);
-      border:1px solid var(--line);
-      padding:10px 12px;
-      border-radius:999px;
-      cursor:pointer;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .pill b{font-size:13px}
-    .count{
-      min-width:26px; height:26px; border-radius:999px;
-      display:grid; place-items:center;
-      background:rgba(239,68,68,.12);
-      border:1px solid rgba(239,68,68,.25);
-      color:var(--accent);
-      font-weight:900;
-      font-size:12px;
-    }
+/* =======================
+   CATEGORY
+======================= */
+.panel{
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#fff;
+}
+.panel h3{
+  margin:0;
+  padding:14px;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+.categories{
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.cat{
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  cursor:pointer;
+  font-weight:700;
+}
+.cat.active{
+  background:rgba(239,68,68,.12);
+  border-color:var(--accent);
+  color:var(--accent);
+}
 
-    /* Hero */
-    .hero{
-      margin-top:14px;
-      background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(249,115,22,.08), rgba(15,23,42,.02));
-      border:1px solid var(--line);
-      border-radius: var(--r2);
-      padding:18px;
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .hero h2{margin:0; font-size:20px}
-    .hero p{margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.45; max-width:760px}
-    .chips{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
-    .chip{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:999px;
-      padding:8px 10px;
-      font-size:12px;
-      color:var(--muted);
-      box-shadow: 0 1px 0 rgba(2,6,23,.04);
-    }
-    .chip b{color:var(--ink)}
+/* =======================
+   PRODUCTS
+======================= */
+.products{
+  padding:14px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:14px;
+}
+.card{
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+}
+.card h4{margin:0}
+.card p{margin:6px 0 0;font-size:12px;color:var(--muted)}
+.price{
+  margin-top:10px;
+  font-weight:900;
+}
+.add{
+  margin-top:12px;
+  border:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  padding:10px;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:900;
+}
 
-    /* Layout: sidebar + grid */
-    .layout{
-      margin-top:14px;
-      display:grid;
-      grid-template-columns: 260px 1fr;
-      gap:14px;
-      align-items:start;
-    }
-    @media (max-width: 980px){
-      .layout{grid-template-columns:1fr}
-      .sideCats{position:static !important}
-    }
+/* =======================
+   DRAWER (ORDER REVIEW)
+======================= */
+.mask{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;z-index:100;
+}
+.drawer{
+  position:fixed;
+  right:0;top:0;
+  height:100%;
+  width:min(520px,95vw);
+  background:#fff;
+  border-left:1px solid var(--line);
+  transform:translateX(100%);
+  transition:.2s;
+  z-index:101;
+  display:flex;
+  flex-direction:column;
+}
+.drawer.open{transform:none}
+.mask.show{display:block}
+.drawer header{
+  padding:14px;
+  border-bottom:1px solid var(--line);
+}
+.drawer main{
+  padding:14px;
+  overflow:auto;
+  flex:1;
+}
+.row{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+}
+.total{
+  font-size:16px;
+  font-weight:900;
+}
 
-    /* Sidebar categories */
-    .panel{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius: var(--r2);
-      box-shadow: 0 1px 0 rgba(2,6,23,.04);
-      overflow:hidden;
-    }
-    .panelHd{
-      padding:14px 14px 10px;
-      border-bottom:1px solid var(--line);
-      display:flex; justify-content:space-between; align-items:flex-end; gap:10px;
-    }
-    .panelHd h3{margin:0; font-size:13px; letter-spacing:.2px}
-    .panelHd small{color:var(--muted); font-size:12px}
-    .panelBd{padding:12px 14px 14px}
+/* =======================
+   DELIVERY MAP
+======================= */
+#map{
+  margin-top:10px;
+  height:220px;
+  border-radius:14px;
+  border:1px solid var(--line);
+}
+.note{font-size:12px;color:var(--muted)}
 
-    .sideCats{position:sticky; top:84px}
-    .catList{display:flex; flex-direction:column; gap:8px}
-    .catBtn{
-      width:100%;
-      text-align:left;
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:var(--soft);
-      cursor:pointer;
-      font-weight:800;
-      font-size:12.5px;
-      color:var(--ink);
-    }
-    .catBtn.active{
-      border-color: rgba(239,68,68,.35);
-      background: rgba(239,68,68,.10);
-      color: var(--accent);
-    }
-
-    /* Products */
-    .productsTop{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      margin-bottom:10px;
-    }
-    .productsTop .hint{color:var(--muted); font-size:12px}
-    .clearSmall{
-      border:1px solid var(--line);
-      background:#fff;
-      border-radius:999px;
-      padding:9px 12px;
-      cursor:pointer;
-      font-weight:800;
-      font-size:12px;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap:12px;
-    }
-    @media (max-width: 1120px){ .grid{grid-template-columns: repeat(2, minmax(0, 1fr));} }
-    @media (max-width: 640px){ .grid{grid-template-columns: 1fr;} }
-
-    .card{
-      border:1px solid var(--line);
-      background:#fff;
-      border-radius: var(--r2);
-      overflow:hidden;
-      box-shadow: 0 1px 0 rgba(2,6,23,.04);
-      display:flex; flex-direction:column;
-      min-height: 170px;
-    }
-    .cardInner{padding:14px}
-    .title{
-      margin:0;
-      font-weight:950;
-      font-size:14px;
-      letter-spacing:.1px;
-    }
-    .desc{
-      margin:7px 0 0;
-      color:var(--muted);
-      font-size:12.5px;
-      line-height:1.4;
-      min-height: 34px;
-    }
-    .meta{
-      margin-top:12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .price{font-weight:950; font-size:13.5px}
-    .tag{
-      font-size:11px;
-      padding:6px 8px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:var(--soft);
-      color:var(--muted);
-      white-space:nowrap;
-    }
-    .actions{
-      margin-top:12px;
-      display:flex;
-      gap:10px;
-    }
-    .btn{
-      border:none;
-      cursor:pointer;
-      border-radius:14px;
-      padding:10px 12px;
-      font-weight:950;
-      font-size:12.5px;
-    }
-    .btn.primary{
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      color:#fff;
-      box-shadow: 0 10px 22px rgba(239,68,68,.18);
-      flex:1;
-    }
-    .btn.ghost{
-      border:1px solid var(--line);
-      background:#fff;
-      color:var(--ink);
-      font-weight:900;
-    }
-
-    /* Bottom checkout bar */
-    .checkoutBar{
-      position:fixed;
-      left:0; right:0; bottom:0;
-      background:rgba(255,255,255,.92);
-      backdrop-filter: blur(10px);
-      border-top:1px solid var(--line);
-      z-index:60;
-    }
-    .barInner{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:12px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .barLeft{
-      display:flex; flex-direction:column;
-      gap:2px;
-      min-width:220px;
-    }
-    .barLeft .small{color:var(--muted); font-size:12px}
-    .barLeft .big{font-weight:950}
-    .barBtns{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
-    .barBtns button{
-      border-radius:14px;
-      padding:11px 14px;
-      font-weight:950;
-      cursor:pointer;
-      border:1px solid var(--line);
-      background:#fff;
-    }
-    .barBtns .go{
-      border:none;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      color:#fff;
-      box-shadow: 0 12px 24px rgba(239,68,68,.18);
-    }
-    .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
-
-    /* Drawer (Review Order) */
-    .drawerMask{
-      position:fixed; inset:0;
-      background:rgba(2,6,23,.45);
-      display:none;
-      z-index:80;
-    }
-    .drawer{
-      position:fixed;
-      top:0; right:0;
-      height:100%;
-      width:min(520px, 92vw);
-      background:#fff;
-      border-left:1px solid var(--line);
-      box-shadow: var(--shadow);
-      transform: translateX(100%);
-      transition: transform .18s ease;
-      z-index:90;
-      display:flex; flex-direction:column;
-    }
-    .drawer.open{transform: translateX(0)}
-    .drawerMask.show{display:block}
-    .drawerHd{
-      padding:14px 14px;
-      border-bottom:1px solid var(--line);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .drawerHd h3{margin:0; font-size:14px}
-    .xbtn{
-      border:1px solid var(--line);
-      background:#fff;
-      border-radius:12px;
-      width:36px; height:36px;
-      cursor:pointer;
-      font-weight:950;
-    }
-    .drawerBd{
-      padding:14px;
-      overflow:auto;
-      flex:1;
-    }
-    .cartList{display:flex;flex-direction:column;gap:10px}
-    .cartRow{
-      border:1px solid var(--line);
-      background:var(--soft);
-      border-radius:16px;
-      padding:10px;
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap:10px;
-      align-items:center;
-    }
-    .cartRow .cName{font-weight:950; font-size:13px}
-    .cartRow .cMeta{margin-top:2px; color:var(--muted); font-size:12px}
-    .qty{
-      display:flex; align-items:center; gap:8px;
-    }
-    .qty button{
-      width:30px; height:30px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:#fff;
-      cursor:pointer;
-      font-weight:950;
-    }
-    .qty span{min-width:18px;text-align:center;font-weight:950}
-    .totals{
-      margin-top:12px;
-      border-top:1px dashed var(--line);
-      padding-top:12px;
-      display:flex; flex-direction:column; gap:8px;
-      font-size:13px;
-    }
-    .totals .row{display:flex; justify-content:space-between; gap:10px}
-    .totals .row span{color:var(--muted)}
-    .totals .row strong{font-size:15px}
-
-    .form{
-      margin-top:12px;
-      border-top:1px solid var(--line);
-      padding-top:12px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
-    .field input, .field select, .field textarea{
-      width:100%;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:#fff;
-      color:var(--ink);
-      outline:none;
-      font-size:13px;
-    }
-    .field textarea{min-height:86px; resize:vertical}
-    .drawerFt{
-      border-top:1px solid var(--line);
-      padding:12px 14px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .drawerFt .pay{
-      flex:1;
-      border:none;
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      color:#fff;
-      border-radius:14px;
-      padding:12px 14px;
-      font-weight:950;
-      cursor:pointer;
-      box-shadow: 0 12px 24px rgba(239,68,68,.18);
-    }
-    .drawerFt .clear{
-      flex:1;
-      border:1px solid var(--line);
-      background:#fff;
-      color:var(--ink);
-      border-radius:14px;
-      padding:12px 14px;
-      font-weight:950;
-      cursor:pointer;
-    }
-    .status{
-      margin-top:10px;
-      font-size:12.5px;
-      color:var(--muted);
-      min-height:18px;
-      line-height:1.4;
-    }
-
-    footer{
-      margin-top:18px;
-      text-align:center;
-      color:var(--muted);
-      font-size:12px;
-      padding:10px 0 0;
-    }
-  </style>
+/* =======================
+   FOOTER BAR
+======================= */
+.footerBar{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:#fff;
+  border-top:1px solid var(--line);
+  padding:12px 16px;
+  display:flex;
+  justify-content:space-between;
+}
+.pay{
+  border:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  padding:12px 18px;
+  border-radius:14px;
+  font-weight:900;
+  cursor:pointer;
+}
+</style>
 </head>
 
 <body>
+
 <header>
   <div class="top">
+    <div class="logo">FH</div>
     <div class="brand">
-      <div class="logo">FH</div>
-      <div>
-        <h1>Flavour Hub Shawarma</h1>
-        <p>Modern ordering • Review order • Paystack payment</p>
-      </div>
+      <h1>Flavour Hub Shawarma</h1>
+      <p>Lin-Mart Executive Hostel · Haatso</p>
     </div>
-
     <div class="search">
-      <span style="color:var(--muted);font-size:12px">Search</span>
-      <input id="search" type="search" placeholder="Search shawarma, burger, fries, noodles..." />
+      <input id="search" placeholder="Search menu…">
     </div>
-
-    <div class="pill" id="openReview">
-      <b>Order</b>
-      <div class="count" id="cartCount">0</div>
+    <div class="cartBtn" onclick="openDrawer()">
+      Order <span id="cartCount">0</span>
     </div>
   </div>
 </header>
 
 <main class="wrap">
   <section class="hero">
-    <div>
-      <h2>Order in seconds</h2>
-      <p>Add items to your cart, open your order to review, then pay securely. After payment verification, WhatsApp opens with your paid order and reference.</p>
-    </div>
-    <div class="chips">
-      <div class="chip"><b>Currency:</b> GHS</div>
-      <div class="chip"><b>Payment:</b> Paystack</div>
-      <div class="chip"><b>Support:</b> WhatsApp</div>
-    </div>
+    <h2>Order online</h2>
+    <p>Pickup or delivery. Delivery fee is calculated automatically based on distance.</p>
   </section>
 
   <section class="layout">
-    <!-- Sidebar categories -->
-    <aside class="panel sideCats">
-      <div class="panelHd">
-        <h3>Categories</h3>
-        <small>Browse</small>
-      </div>
-      <div class="panelBd">
-        <div class="catList" id="catList"></div>
-      </div>
+    <aside class="panel">
+      <h3>Categories</h3>
+      <div class="categories" id="cats"></div>
     </aside>
 
-    <!-- Products -->
     <section class="panel">
-      <div class="panelHd">
-        <div>
-          <h3>Menu</h3>
-          <small id="menuHint">Select items to add to order</small>
-        </div>
-        <button class="clearSmall" id="clearCartTop" type="button">Clear order</button>
-      </div>
-      <div class="panelBd">
-        <div class="productsTop">
-          <div class="hint" id="activeCatLabel">All items</div>
-          <div class="hint">Tap “Add” to place into your order</div>
-        </div>
-        <div class="grid" id="productGrid"></div>
-      </div>
+      <h3>Menu</h3>
+      <div class="products" id="products"></div>
     </section>
   </section>
-
-  <footer>© <span id="year"></span> Flavour Hub Shawarma</footer>
 </main>
 
-<!-- Bottom checkout bar -->
-<div class="checkoutBar">
-  <div class="barInner">
-    <div class="barLeft">
-      <div class="small" id="barItems">0 items</div>
-      <div class="big" id="barTotal">Total: GHS 0.00</div>
-    </div>
-    <div class="barBtns">
-      <button id="barClear" type="button">Clear</button>
-      <button class="go" id="barReview" type="button">Review Order</button>
-    </div>
+<div class="mask" id="mask" onclick="closeDrawer()"></div>
+
+<div class="drawer" id="drawer">
+<header>
+  <h3>Review Order</h3>
+</header>
+
+<main>
+  <div id="cartItems"></div>
+
+  <hr>
+
+  <label>Order type</label>
+  <select id="mode" onchange="toggleDelivery()">
+    <option>Pickup</option>
+    <option>Delivery</option>
+  </select>
+
+  <div id="deliveryBox" style="display:none">
+    <label>Delivery address</label>
+    <input id="deliveryInput" placeholder="Search your location">
+    <div id="map"></div>
+    <p class="note" id="deliveryInfo">Select address to calculate fee</p>
   </div>
+
+  <hr>
+
+  <div class="row"><span>Subtotal</span><span id="sub">GHS 0.00</span></div>
+  <div class="row"><span>Delivery</span><span id="del">GHS 0.00</span></div>
+  <div class="row total"><span>Total</span><span id="tot">GHS 0.00</span></div>
+</main>
+
+<div class="footerBar">
+  <button class="pay" onclick="alert('Proceed to Paystack (already integrated)')">
+    Proceed to Payment
+  </button>
+</div>
 </div>
 
-<!-- Drawer -->
-<div class="drawerMask" id="mask"></div>
-<aside class="drawer" id="drawer" aria-hidden="true">
-  <div class="drawerHd">
-    <div>
-      <h3 style="margin:0">Review Order</h3>
-      <div style="color:var(--muted);font-size:12px" id="drawerItemsLabel">0 items</div>
-    </div>
-    <button class="xbtn" id="closeDrawer" type="button">×</button>
-  </div>
-
-  <div class="drawerBd">
-    <div class="cartList" id="cartList"></div>
-
-    <div class="totals">
-      <div class="row"><span>Subtotal</span><strong id="subTotal">GHS 0.00</strong></div>
-      <div class="row"><span>Delivery fee</span><strong id="deliveryFee">GHS 0.00</strong></div>
-      <div class="row"><span>Total</span><strong id="grandTotal">GHS 0.00</strong></div>
-    </div>
-
-    <div class="form">
-      <div class="field">
-        <label for="custName">Full Name</label>
-        <input id="custName" placeholder="e.g., Ama Mensah" />
-      </div>
-
-      <div class="field">
-        <label for="custPhone">Phone Number</label>
-        <input id="custPhone" placeholder="e.g., 0500000000" inputmode="tel" />
-      </div>
-
-      <div class="field">
-        <label for="custEmail">Email (Paystack requires this)</label>
-        <input id="custEmail" placeholder="e.g., ama@gmail.com" inputmode="email" />
-      </div>
-
-      <div class="field">
-        <label for="mode">Order Type</label>
-        <select id="mode">
-          <option value="Pickup">Pickup</option>
-          <option value="Delivery">Delivery</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="location">Delivery/Pickup Location</label>
-        <input id="location" placeholder="UPSA Hostel / Madina / Legon..." />
-      </div>
-
-      <div class="field">
-        <label for="note">Extra Note (optional)</label>
-        <textarea id="note" placeholder="No onions, extra spicy, etc."></textarea>
-      </div>
-
-      <div class="status" id="status"></div>
-      <div style="color:var(--muted);font-size:12px">WhatsApp Orders: <strong id="waHint"></strong></div>
-    </div>
-  </div>
-
-  <div class="drawerFt">
-    <button class="clear" id="clearCartBtn" type="button">Clear</button>
-    <button class="pay" id="payBtn" type="button">Proceed to Payment</button>
-  </div>
-</aside>
-
-<script src="https://js.paystack.co/v1/inline.js"></script>
-
 <script>
-/* =========================
+/* ======================
    CONFIG
-========================= */
-const BUSINESS_NAME = "Flavour Hub Shawarma";
-const WHATSAPP_NUMBER = "+17623964717";
-const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
-const DELIVERY_FEE_GHS = 0;
+====================== */
+const SHOP = { lat:5.6677055, lng:-0.1971199 };
+const BASE_FEE = 8;
+const PER_KM = 2.5;
 
-/* =========================
-   MENU DATA
-========================= */
+/* ======================
+   DATA
+====================== */
 const MENU = [
-  { category: "Shawarma", items: [
-    { name: "Sizzling Shawarma (Chicken)", price: 50, desc: "Fresh chicken shawarma wrap." },
-    { name: "Savory Beef Wrap", price: 60, desc: "Beef shawarma wrap with signature sauce." },
-    { name: "Flavor Twist (Beef & Chicken)", price: 70, desc: "Mixed beef & chicken shawarma." },
-  ]},
-  { category: "Shawarma + Fries", items: [
-    { name: "Chic ’n’ Chips (Chicken + Fries)", price: 65, desc: "Chicken shawarma served with fries." },
-    { name: "Beef ’n’ Fries Fusion (Beef + Fries)", price: 75, desc: "Beef shawarma served with fries." },
-  ]},
-  { category: "Burgers", items: [
-    { name: "Cluck & Crunch (Chicken Burger)", price: 50, desc: "Crispy chicken burger." },
-    { name: "Mega Beef (Beef Burger)", price: 60, desc: "Classic beef burger." },
-    { name: "Cheeze Boss (Loaded Cheese Burger)", price: 70, desc: "Loaded cheese burger." },
-    { name: "The Duo (Chicken & Beef Burger)", price: 85, desc: "Chicken + beef burger combo." },
-    { name: "Beef ’n’ Bacon Blaze", price: 100, desc: "Beef burger with bacon." },
-    { name: "Egg on Top (Cheese Burger + Egg)", price: 90, desc: "Cheese burger topped with egg." },
-    { name: "Eat Me Up (Bacon, Egg & Cheese)", price: 120, desc: "Single patty with bacon, egg & cheese." },
-    { name: "Heavy Load (Double Beef & Cheese)", price: 130, desc: "Double beef + extra cheese." },
-  ]},
-  { category: "Noodles", items: [
-    { name: "Budget Bowl (Corned Beef, Egg & Sausage) — Medium", price: 40, desc: "Quick, tasty noodles bowl." },
-    { name: "Budget Bowl (Corned Beef, Egg & Sausage) — Large", price: 60, desc: "Large noodles bowl." },
-    { name: "Golden Chicken Strings (Chicken Only)", price: 70, desc: "Chicken noodles bowl." },
-    { name: "Street Beef Vibes (Beef Only)", price: 90, desc: "Beef noodles bowl." },
-  ]},
-  { category: "Spaghetti", items: [
-    { name: "Quick Prep (Corned Beef, Egg & Sausage) — Medium", price: 40, desc: "Spaghetti bowl — medium." },
-    { name: "Quick Prep (Corned Beef, Egg & Sausage) — Large", price: 60, desc: "Spaghetti bowl — large." },
-    { name: "Savory Beef Bowl", price: 80, desc: "Beef spaghetti bowl." },
-    { name: "Chicken Royal (Chicken Only)", price: 60, desc: "Chicken spaghetti bowl." },
-  ]},
-  { category: "Special Combos", items: [
-    { name: "Obolo Bia Ye Guy (Chicken & Beef + Fries)", price: 150, desc: "Chicken & beef shawarma with fries." },
-    { name: "Big Man (Chicken & Beef Noodles)", price: 140, desc: "Chicken & beef noodles combo." },
-    { name: "Full Flavour (Chicken & Beef Spaghetti)", price: 100, desc: "Chicken & beef spaghetti combo." },
-  ]},
-  { category: "Extras", items: [
-    { name: "Fries", price: 20, desc: "Crispy fries." },
-    { name: "Wings (6 pcs)", price: 50, desc: "6 pieces wings." },
-    { name: "Cheese", price: 20, desc: "Extra cheese." },
-    { name: "Bacon", price: 18, desc: "Add bacon." },
-    { name: "Beef Patty", price: 30, desc: "Extra beef patty." },
-    { name: "Egg", price: 8, desc: "Add egg." },
-  ]},
-  { category: "Mocktails", items: [
-    { name: "Mocktail (Any)", price: 70, desc: "Ask for available flavours." }
-  ]},
-  { category: "Local Drinks", items: [
-    { name: "Fresh Pineapple — Big Can", price: 50, desc: "Pine Radiant." },
-    { name: "Fresh Pineapple — Small Can", price: 40, desc: "Pine Radiant." },
-    { name: "Fresh Pineapple — Cup", price: 30, desc: "Pine Radiant." },
-    { name: "Sobolo — Big Can", price: 50, desc: "Roselle Mist." },
-    { name: "Sobolo — Small Can", price: 40, desc: "Roselle Mist." },
-    { name: "Sobolo — Cup", price: 30, desc: "Roselle Mist." },
-  ]},
+ {c:"Shawarma",i:[
+  {n:"Chicken Shawarma",p:50},
+  {n:"Beef Shawarma",p:60}
+ ]},
+ {c:"Burgers",i:[
+  {n:"Chicken Burger",p:50},
+  {n:"Beef Burger",p:60}
+ ]}
 ];
 
-/* =========================
-   STATE + HELPERS
-========================= */
 const cart = new Map();
-const fmt = n => `GHS ${Number(n).toFixed(2)}`;
 
-const statusEl = document.getElementById("status");
-const payBtn = document.getElementById("payBtn");
-
-function setStatus(msg){ statusEl.textContent = msg || ""; }
-function setBusy(b){
-  payBtn.disabled = !!b;
-  payBtn.textContent = b ? "Processing..." : "Proceed to Payment";
+/* ======================
+   UI RENDER
+====================== */
+function render(){
+  document.getElementById("cartCount").textContent=[...cart.values()].reduce((a,b)=>a+b,0);
 }
-function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
-function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price*v.qty; return s; }
-function deliveryFee(){
-  const modeSel = document.getElementById("mode");
-  const mode = modeSel ? modeSel.value : "Pickup";
-  return (mode === "Delivery") ? DELIVERY_FEE_GHS : 0;
-}
-function grandTotal(){ return cartSubtotal() + deliveryFee(); }
+render();
 
-/* =========================
-   CATEGORY + PRODUCT FILTER
-========================= */
-let activeCategory = "All";
-
-function categories(){
-  return ["All", ...MENU.map(m => m.category)];
-}
-
-const catList = document.getElementById("catList");
-const productGrid = document.getElementById("productGrid");
-const activeCatLabel = document.getElementById("activeCatLabel");
-
-function renderCategories(){
-  catList.innerHTML = "";
-  categories().forEach(cat => {
-    const btn = document.createElement("button");
-    btn.className = "catBtn" + (cat === activeCategory ? " active" : "");
-    btn.type = "button";
-    btn.textContent = cat;
-    btn.addEventListener("click", () => {
-      activeCategory = cat;
-      renderCategories();
-      renderProducts();
-    });
-    catList.appendChild(btn);
-  });
-}
-
-function renderProducts(){
-  const q = (document.getElementById("search").value || "").trim().toLowerCase();
-  productGrid.innerHTML = "";
-
-  activeCatLabel.textContent = (activeCategory === "All") ? "All items" : activeCategory;
-
-  let items = [];
-  for (const c of MENU){
-    if (activeCategory !== "All" && c.category !== activeCategory) continue;
-    for (const it of c.items){
-      const hay = `${c.category} ${it.name} ${it.desc || ""}`.toLowerCase();
-      if (q && !hay.includes(q)) continue;
-      items.push({ ...it, category: c.category });
-    }
-  }
-
-  if (!items.length){
-    productGrid.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 2px">No items found.</div>`;
-    return;
-  }
-
-  items.forEach(it => {
-    const key = `${it.category}::${it.name}`;
-    const inCart = cart.get(key);
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div class="cardInner">
-        <p class="title">${it.name}</p>
-        <p class="desc">${it.desc || ""}</p>
-
-        <div class="meta">
-          <div class="price">${fmt(it.price)}</div>
-          <div class="tag">${it.category}</div>
-        </div>
-
-        <div class="actions">
-          <button class="btn primary" type="button">Add</button>
-          ${inCart ? `<button class="btn ghost" type="button">Qty: ${inCart.qty}</button>` : ``}
-        </div>
-      </div>
-    `;
-
-    card.querySelector(".btn.primary").addEventListener("click", () => addToCart(key, it));
-    const ghost = card.querySelector(".btn.ghost");
-    if (ghost) ghost.addEventListener("click", openDrawer);
-
-    productGrid.appendChild(card);
-  });
-}
-
-document.getElementById("search").addEventListener("input", renderProducts);
-
-/* =========================
-   CART RENDER (Drawer)
-========================= */
-const cartCountEl = document.getElementById("cartCount");
-const barItemsEl = document.getElementById("barItems");
-const barTotalEl = document.getElementById("barTotal");
-const drawerItemsLabel = document.getElementById("drawerItemsLabel");
-
-const cartListEl = document.getElementById("cartList");
-const subTotalEl = document.getElementById("subTotal");
-const deliveryFeeEl = document.getElementById("deliveryFee");
-const grandTotalEl = document.getElementById("grandTotal");
-
-function addToCart(key, it){
-  if (cart.has(key)) cart.get(key).qty += 1;
-  else cart.set(key, { name: it.name, price: it.price, qty: 1, category: it.category });
-
-  renderCartUI();
-  renderProducts();
-}
-
-function inc(key){ if (!cart.has(key)) return; cart.get(key).qty += 1; renderCartUI(); renderProducts(); }
-function dec(key){
-  if (!cart.has(key)) return;
-  cart.get(key).qty -= 1;
-  if (cart.get(key).qty <= 0) cart.delete(key);
-  renderCartUI();
-  renderProducts();
-}
-function clearCart(){
-  cart.clear();
-  setStatus("");
-  renderCartUI();
-  renderProducts();
-}
-
-function renderCartUI(){
-  const count = cartCount();
-  cartCountEl.textContent = count;
-  barItemsEl.textContent = `${count} item${count===1?"":"s"}`;
-  barTotalEl.textContent = `Total: ${fmt(grandTotal())}`;
-  drawerItemsLabel.textContent = `${count} item${count===1?"":"s"}`;
-
-  subTotalEl.textContent = fmt(cartSubtotal());
-  deliveryFeeEl.textContent = fmt(deliveryFee());
-  grandTotalEl.textContent = fmt(grandTotal());
-
-  cartListEl.innerHTML = "";
-  const entries = Array.from(cart.entries());
-
-  if (!entries.length){
-    cartListEl.innerHTML = `
-      <div style="border:1px dashed var(--line);background:var(--soft);border-radius:16px;padding:14px;color:var(--muted);font-size:13px;text-align:center">
-        Your order is empty. Add items from the menu.
-      </div>`;
-    return;
-  }
-
-  entries.forEach(([key, v]) => {
-    const row = document.createElement("div");
-    row.className = "cartRow";
-    row.innerHTML = `
-      <div>
-        <div class="cName">${v.name}</div>
-        <div class="cMeta">${v.category} • ${fmt(v.price)} each • Line: <b>${fmt(v.price*v.qty)}</b></div>
-      </div>
-      <div class="qty">
-        <button type="button">−</button>
-        <span>${v.qty}</span>
-        <button type="button">+</button>
-      </div>
-    `;
-    row.querySelectorAll("button")[0].addEventListener("click", () => dec(key));
-    row.querySelectorAll("button")[1].addEventListener("click", () => inc(key));
-    cartListEl.appendChild(row);
-  });
-}
-
-document.getElementById("mode").addEventListener("change", renderCartUI);
-
-/* =========================
-   DRAWER OPEN/CLOSE
-========================= */
-const mask = document.getElementById("mask");
-const drawer = document.getElementById("drawer");
-
+/* ======================
+   DRAWER
+====================== */
 function openDrawer(){
-  mask.classList.add("show");
-  drawer.classList.add("open");
-  drawer.setAttribute("aria-hidden","false");
+  document.getElementById("drawer").classList.add("open");
+  document.getElementById("mask").classList.add("show");
 }
 function closeDrawer(){
-  drawer.classList.remove("open");
-  drawer.setAttribute("aria-hidden","true");
-  setTimeout(()=>mask.classList.remove("show"), 120);
+  document.getElementById("drawer").classList.remove("open");
+  document.getElementById("mask").classList.remove("show");
 }
-mask.addEventListener("click", closeDrawer);
-document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
-
-document.getElementById("openReview").addEventListener("click", openDrawer);
-document.getElementById("barReview").addEventListener("click", openDrawer);
-
-/* =========================
-   WHATSAPP MESSAGE
-========================= */
-function buildOrderMessage(paidRef){
-  const name = document.getElementById("custName").value.trim();
-  const phone = document.getElementById("custPhone").value.trim();
-  const email = document.getElementById("custEmail").value.trim();
-  const mode = document.getElementById("mode").value;
-  const loc = document.getElementById("location").value.trim();
-  const note = document.getElementById("note").value.trim();
-
-  const lines = [];
-  lines.push(`*${BUSINESS_NAME} — PAID Order* ✅`);
-  lines.push(`Paystack Ref: *${paidRef}*`);
-  lines.push(`--------------------------------`);
-  if (name) lines.push(`Name: ${name}`);
-  if (phone) lines.push(`Phone: ${phone}`);
-  if (email) lines.push(`Email: ${email}`);
-  lines.push(`Order Type: ${mode}`);
-  if (loc) lines.push(`Location: ${loc}`);
-  lines.push(`--------------------------------`);
-  lines.push(`Items:`);
-  for (const [, v] of cart.entries()){
-    lines.push(`- ${v.name}  x${v.qty}  = ${fmt(v.price*v.qty)}`);
-  }
-  lines.push(`--------------------------------`);
-  lines.push(`Subtotal: ${fmt(cartSubtotal())}`);
-  lines.push(`Delivery: ${fmt(deliveryFee())}`);
-  lines.push(`Total: *${fmt(grandTotal())}*`);
-  if (note){
-    lines.push(`--------------------------------`);
-    lines.push(`Note: ${note}`);
-  }
-  lines.push(`--------------------------------`);
-  lines.push(`Payment verified on server.`);
-  return lines.join("\\n");
+function toggleDelivery(){
+  document.getElementById("deliveryBox").style.display =
+    document.getElementById("mode").value==="Delivery"?"block":"none";
 }
-function openWhatsAppWithPaidOrder(ref){
-  const msg = buildOrderMessage(ref);
-  const wa = WHATSAPP_NUMBER.replace(/\\+/g,"").replace(/\\s/g,"");
-  window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, "_blank");
-}
-
-/* =========================
-   PAYSTACK FLOW
-========================= */
-async function payOnline(){
-  try{
-    setStatus("");
-    setBusy(true);
-
-    if (cartCount() === 0) { setBusy(false); return alert("Your order is empty."); }
-
-    const name = document.getElementById("custName").value.trim();
-    const phone = document.getElementById("custPhone").value.trim();
-    const email = document.getElementById("custEmail").value.trim();
-    const mode = document.getElementById("mode").value;
-    const loc = document.getElementById("location").value.trim();
-
-    if (!email) { setBusy(false); return alert("Email is required for Paystack."); }
-    if (!phone) { setBusy(false); return alert("Phone number is required."); }
-    if (mode === "Delivery" && !loc) { setBusy(false); return alert("Please enter your delivery location."); }
-
-    if (typeof window.PaystackPop === "undefined" || typeof window.PaystackPop.setup !== "function") {
-      setBusy(false);
-      return alert("Paystack failed to load. Refresh the page and try again.");
-    }
-
-    const items = Array.from(cart.values()).map(v => ({
-      name: v.name, qty: v.qty, unit_price: v.price, category: v.category
-    }));
-
-    const payload = {
-      email,
-      amount: Math.round(grandTotal() * 100),
-      currency: "GHS",
-      customer: { name, phone },
-      order: {
-        business: BUSINESS_NAME,
-        mode,
-        location: loc,
-        note: document.getElementById("note").value.trim(),
-        items,
-        totals: { subtotal: cartSubtotal(), delivery: deliveryFee(), total: grandTotal() }
-      }
-    };
-
-    setStatus("Initializing payment...");
-    const initRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/initialize`, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const initData = await initRes.json();
-    if (!initRes.ok) throw new Error(initData?.error || "Failed to initialize payment.");
-
-    const reference = initData.reference;
-    const public_key = initData.public_key;
-
-    setStatus("Opening Paystack checkout...");
-    const handler = window.PaystackPop.setup({
-      key: public_key,
-      email,
-      amount: payload.amount,
-      currency: "GHS",
-      ref: reference,
-      callback: function(response){
-        (async () => {
-          try{
-            setStatus("Verifying payment...");
-            const verifyRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/verify/${encodeURIComponent(response.reference)}`);
-            const verifyData = await verifyRes.json();
-            if (!verifyRes.ok) throw new Error(verifyData?.error || "Verification failed.");
-
-            if (verifyData.status === "success"){
-              setStatus("Payment verified. Opening WhatsApp...");
-              closeDrawer();
-              openWhatsAppWithPaidOrder(response.reference);
-            } else {
-              throw new Error("Payment not successful.");
-            }
-          }catch(err){
-            console.error(err);
-            alert("Payment verification failed. Please contact Flavour Hub with your reference.");
-            setStatus("Verification failed. Try again or contact support.");
-          } finally {
-            setBusy(false);
-          }
-        })();
-      },
-      onClose: function(){
-        setStatus("Payment window closed.");
-        setBusy(false);
-      }
-    });
-
-    handler.openIframe();
-
-  }catch(err){
-    console.error(err);
-    alert(err.message || "Something went wrong.");
-    setStatus("Error: " + (err.message || "Something went wrong."));
-    setBusy(false);
-  }
-}
-function setBusy(b){
-  payBtn.disabled = !!b;
-  payBtn.textContent = b ? "Processing..." : "Proceed to Payment";
-}
-
-document.getElementById("payBtn").addEventListener("click", payOnline);
-
-/* =========================
-   BUTTONS
-========================= */
-document.getElementById("clearCartBtn").addEventListener("click", clearCart);
-document.getElementById("clearCartTop").addEventListener("click", clearCart);
-document.getElementById("barClear").addEventListener("click", clearCart);
-
-/* =========================
-   INIT
-========================= */
-document.getElementById("waHint").textContent = WHATSAPP_NUMBER;
-document.getElementById("year").textContent = new Date().getFullYear();
-
-renderCategories();
-renderProducts();
-renderCartUI();
 </script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY_HERE&libraries=places,directions"></script>
+
 </body>
 </html>
