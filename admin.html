@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flavour Hub — Admin</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;background:#0b1220;color:#eaf1ff}
+  .wrap{max-width:1100px;margin:auto;padding:18px}
+  .card{background:#0f172a;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;margin-top:12px}
+  input,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#0b1220;color:#eaf1ff}
+  button{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#111c33;color:#eaf1ff;cursor:pointer;font-weight:800}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:2fr 1fr 2fr;gap:10px}
+  @media(max-width:800px){.row,.row3{grid-template-columns:1fr}}
+  .muted{opacity:.8;font-size:12px}
+  .cat{margin-top:14px}
+  .item{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:10px;align-items:center;margin-top:8px}
+  @media(max-width:900px){.item{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>Admin — Flavour Hub Menu</h2>
+  <div class="muted">Login, edit items, add image URLs, then Save. Customers will see updates instantly.</div>
+
+  <div class="card" id="loginCard">
+    <div class="row">
+      <div>
+        <label class="muted">Admin Password</label>
+        <input id="pw" type="password" placeholder="Enter admin password" />
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:10px">
+        <button onclick="login()">Login</button>
+        <span id="loginMsg" class="muted"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="editorCard" style="display:none">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div class="muted" id="status"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button onclick="addCategory()">+ Category</button>
+        <button onclick="saveMenu()">Save Menu</button>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+    <div id="cats"></div>
+  </div>
+</div>
+
+<script>
+const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
+let token = localStorage.getItem("fh_admin_token") || "";
+let menu = null;
+
+function setStatus(msg){ document.getElementById("status").textContent = msg || ""; }
+
+async function login(){
+  const password = document.getElementById("pw").value.trim();
+  const r = await fetch(`${BACKEND_BASE_URL}/api/admin/login`, {
+    method:"POST", headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ password })
+  });
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok){ document.getElementById("loginMsg").textContent = data.error || "Login failed"; return; }
+  token = data.token;
+  localStorage.setItem("fh_admin_token", token);
+  document.getElementById("loginMsg").textContent = "Logged in";
+  await loadMenu();
+}
+
+function logout(){
+  token = "";
+  localStorage.removeItem("fh_admin_token");
+  location.reload();
+}
+
+async function loadMenu(){
+  const r = await fetch(`${BACKEND_BASE_URL}/api/menu`);
+  menu = await r.json();
+  document.getElementById("loginCard").style.display = "none";
+  document.getElementById("editorCard").style.display = "block";
+  render();
+}
+
+function addCategory(){
+  menu.categories.push({ name:"New Category", items:[] });
+  render();
+}
+
+function addItem(ci){
+  menu.categories[ci].items.push({ id:"", name:"New Item", price:0, desc:"", image:"" });
+  render();
+}
+
+function delItem(ci, ii){
+  menu.categories[ci].items.splice(ii,1);
+  render();
+}
+
+function delCat(ci){
+  menu.categories.splice(ci,1);
+  render();
+}
+
+function render(){
+  const cats = document.getElementById("cats");
+  cats.innerHTML = "";
+  menu.categories.forEach((cat, ci) => {
+    const wrap = document.createElement("div");
+    wrap.className = "cat";
+
+    wrap.innerHTML = `
+      <div class="row">
+        <div>
+          <label class="muted">Category name</label>
+          <input value="${escapeHtml(cat.name)}" oninput="menu.categories[${ci}].name=this.value" />
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+          <button onclick="addItem(${ci})">+ Item</button>
+          <button onclick="delCat(${ci})">Delete Category</button>
+        </div>
+      </div>
+    `;
+
+    cat.items.forEach((it, ii) => {
+      const row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML = `
+        <input placeholder="Item name" value="${escapeHtml(it.name||"")}" oninput="menu.categories[${ci}].items[${ii}].name=this.value" />
+        <input placeholder="Price (GHS)" type="number" value="${Number(it.price||0)}" oninput="menu.categories[${ci}].items[${ii}].price=Number(this.value||0)" />
+        <input placeholder="Image URL (https://...jpg)" value="${escapeHtml(it.image||"")}" oninput="menu.categories[${ci}].items[${ii}].image=this.value" />
+        <button onclick="delItem(${ci},${ii})">Remove</button>
+        <textarea style="grid-column:1/-1" placeholder="Description" oninput="menu.categories[${ci}].items[${ii}].desc=this.value">${escapeHtml(it.desc||"")}</textarea>
+      `;
+      wrap.appendChild(row);
+    });
+
+    cats.appendChild(wrap);
+  });
+}
+
+async function saveMenu(){
+  if(!token){ alert("Login first"); return; }
+  setStatus("Saving...");
+  const r = await fetch(`${BACKEND_BASE_URL}/api/admin/menu`, {
+    method:"PUT",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify(menu)
+  });
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok){
+    setStatus(data.error || "Save failed");
+    if((data.error||"").includes("Invalid/expired")) logout();
+    return;
+  }
+  menu = data;
+  setStatus("Saved successfully.");
+  render();
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+(async function init(){
+  if(token){
+    try{ await loadMenu(); } catch(e){ /* ignore */ }
+  }
+})();
+</script>
+</body>
+</html>
