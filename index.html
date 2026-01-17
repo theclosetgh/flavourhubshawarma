@@ -6,7 +6,7 @@
   <title>Flavour Hub Shawarma — Order Online</title>
   <meta name="description" content="Flavour Hub Shawarma — order pickup or delivery, delivery fee by distance, pay with Paystack." />
 
-  <!-- FREE MAP (No API key, no billing): OpenStreetMap + Leaflet -->
+  <!-- FREE MAP (No API key): OpenStreetMap + Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
@@ -211,16 +211,10 @@
       flex-direction:column;
       min-height: 224px;
     }
-
-    /* PROFESSIONAL IMAGE LAYOUT:
-       - Image never covers text because it's in its own media block.
-       - Text stays in cardInner with padding.
-    */
     .cardMedia{
       height: 150px;
       background: var(--soft);
       border-bottom: 1px solid var(--line);
-      position: relative;
       overflow: hidden;
       display:flex;
       align-items:center;
@@ -231,34 +225,12 @@
       height:100%;
       object-fit: cover;
       display:block;
-      filter: saturate(1.02);
-      transform: scale(1.01);
     }
     .cardMedia .ph{
       color: var(--muted);
       font-size: 12px;
       font-weight: 900;
-      letter-spacing: .2px;
     }
-    /* Optional subtle label on image (does NOT cover text area) */
-    .imgBadge{
-      position:absolute;
-      left:10px;
-      bottom:10px;
-      padding:6px 8px;
-      border-radius:999px;
-      font-size:11px;
-      font-weight:900;
-      background: rgba(255,255,255,.92);
-      border:1px solid var(--line);
-      color: var(--ink);
-      box-shadow: 0 6px 18px rgba(2,6,23,.10);
-      max-width: calc(100% - 20px);
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-
     .cardInner{padding:14px; display:flex; flex-direction:column; height:100%}
     .title{margin:0; font-weight:950; font-size:14px; letter-spacing:.1px}
     .desc{
@@ -337,7 +309,6 @@
       color:#fff;
       box-shadow: 0 12px 24px rgba(239,68,68,.18);
     }
-    .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
     .drawerMask{
       position:fixed; inset:0;
@@ -425,7 +396,6 @@
       object-fit:cover;
       display:block;
     }
-
     .cartRow .cName{font-weight:950; font-size:13px}
     .cartRow .cMeta{margin-top:2px; color:var(--muted); font-size:12px}
     .qty{display:flex; align-items:center; gap:8px}
@@ -487,8 +457,6 @@
       line-height:1.4;
     }
     .deliveryMeta b{color:var(--ink)}
-
-    /* FREE MAP container */
     #map{
       margin-top:10px;
       width:100%;
@@ -499,7 +467,6 @@
       overflow:hidden;
     }
 
-    /* Ghana-only address suggestions */
     .suggestBox{
       margin-top:8px;
       border:1px solid var(--line);
@@ -548,7 +515,6 @@
       font-weight:950;
       cursor:pointer;
     }
-    .drawerFt button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
     .status{
       margin-top:10px;
@@ -597,7 +563,7 @@
       <h2>Order online</h2>
       <p>
         Add items, review your order, choose Pickup or Delivery. For Delivery, type an address (Ghana-only) and select a suggestion,
-        or tap the map to drop a pin. Delivery fee is calculated by distance. Map is free (OpenStreetMap + Leaflet).
+        or tap the free map to drop a pin. Delivery fee is calculated by distance.
       </p>
     </div>
     <div class="chips">
@@ -699,7 +665,7 @@
       <div class="deliveryBox" id="deliveryBox">
         <div class="field">
           <label for="deliveryAddress">Delivery address (Ghana only)</label>
-          <input id="deliveryAddress" placeholder="Type location (e.g., UPSA, Madina, Legon...) then pick a suggestion" autocomplete="off" />
+          <input id="deliveryAddress" placeholder="Type location then pick a suggestion (or tap map)" autocomplete="off" />
           <div class="suggestBox" id="suggestBox"></div>
         </div>
 
@@ -734,9 +700,6 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-/* =========================
-   CONFIG (EDIT THESE)
-========================= */
 const BUSINESS_NAME = "Flavour Hub Shawarma";
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
 const WHATSAPP_LOCAL = "0543748208";
@@ -747,13 +710,8 @@ const DELIVERY_PER_KM   = 2.5;
 const DELIVERY_MIN      = 8;
 const DELIVERY_MAX      = 60;
 
-/* Free map cannot do routing; we estimate ETA */
 const ETA_KMH = 25;
 
-/* =========================
-   MENU (Loads from backend if available; fallback to local)
-   Your admin page should save menu to backend.
-========================= */
 let MENU_FALLBACK = [
   { category: "Shawarma", items: [
     { name: "Sizzling Shawarma (Chicken)", price: 50, desc: "Classic chicken shawarma.", img: "" },
@@ -770,12 +728,8 @@ let MENU_FALLBACK = [
     { name: "Smallie Pine Can", price: 20, desc: "Small pineapple drink.", img: "" },
   ]},
 ];
-
 let MENU = [];
 
-/* =========================
-   STATE + HELPERS
-========================= */
 const cart = new Map();
 const fmt = n => `GHS ${Number(n || 0).toFixed(2)}`;
 
@@ -791,11 +745,10 @@ function setBusy(b){
 function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
 function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price * v.qty; return s; }
 
-/* Delivery state */
 let deliveryFeeGhs = 0;
 let deliveryDistanceKm = null;
 let deliveryDurationText = "";
-let deliveryPlace = null; // {address, lat, lng}
+let deliveryPlace = null;
 
 function calcSuggestedFee(distanceKm){
   const raw = DELIVERY_BASE_FEE + (distanceKm * DELIVERY_PER_KM);
@@ -825,9 +778,6 @@ function estimateEtaText(distanceKm){
   return `${h} hr${h>1?"s":""} ${m} mins`;
 }
 
-/* =========================
-   LOAD MENU FROM BACKEND
-========================= */
 async function loadMenuFromBackend(){
   try{
     const res = await fetch(`${BACKEND_BASE_URL}/api/menu`);
@@ -841,9 +791,6 @@ async function loadMenuFromBackend(){
   }
 }
 
-/* =========================
-   CATEGORIES + PRODUCTS
-========================= */
 let activeCategory = "All";
 function categories(){ return ["All", ...MENU.map(m => m.category)]; }
 
@@ -896,10 +843,7 @@ function renderProducts(){
 
     const hasImg = (it.img || "").trim().length > 0;
     const imgHtml = hasImg
-      ? `<div class="cardMedia">
-           <img src="${escapeAttr(it.img)}" alt="${escapeAttr(it.name)}" loading="lazy">
-           <div class="imgBadge">${escapeHtml(it.name)}</div>
-         </div>`
+      ? `<div class="cardMedia"><img src="${escapeAttr(it.img)}" alt="${escapeAttr(it.name)}" loading="lazy"></div>`
       : `<div class="cardMedia"><div class="ph">No image</div></div>`;
 
     card.innerHTML = `
@@ -929,9 +873,6 @@ function renderProducts(){
 
 document.getElementById("search").addEventListener("input", renderProducts);
 
-/* =========================
-   CART UI
-========================= */
 const cartCountEl = document.getElementById("cartCount");
 const barItemsEl = document.getElementById("barItems");
 const barTotalEl = document.getElementById("barTotal");
@@ -1014,9 +955,6 @@ function renderCartUI(){
   });
 }
 
-/* =========================
-   DRAWER
-========================= */
 const mask = document.getElementById("mask");
 const drawer = document.getElementById("drawer");
 
@@ -1040,9 +978,6 @@ document.getElementById("clearCartBtn").addEventListener("click", clearCart);
 document.getElementById("clearCartTop").addEventListener("click", clearCart);
 document.getElementById("barClear").addEventListener("click", clearCart);
 
-/* =========================
-   DELIVERY (FREE MAP + GH ONLY SEARCH)
-========================= */
 const deliveryBox = document.getElementById("deliveryBox");
 const deliveryMeta = document.getElementById("deliveryMeta");
 const deliveryAddressInput = document.getElementById("deliveryAddress");
@@ -1090,13 +1025,13 @@ function ensureMapInit(){
   map.on("click", (e) => {
     if (orderMode() !== "Delivery") return;
     const { lat, lng } = e.latlng;
-    setDestination({ address: `Pinned location (${lat.toFixed(5)}, ${lng.toFixed(5)})`, lat, lng }, true);
+    setDestination({ address: `Pinned location (${lat.toFixed(5)}, ${lng.toFixed(5)})`, lat, lng });
   });
 
   setTimeout(() => { try{ map.invalidateSize(); }catch{} }, 120);
 }
 
-function setDestination(place, fromPin=false){
+function setDestination(place){
   deliveryPlace = place;
 
   if (destMarker && map) map.removeLayer(destMarker);
@@ -1114,13 +1049,11 @@ function setDestination(place, fromPin=false){
 
   deliveryMeta.innerHTML =
     `Distance: <b>${deliveryDistanceKm} km</b> • ETA: <b>${deliveryDurationText}</b><br>` +
-    `Suggested delivery fee: <b>${fmt(deliveryFeeGhs)}</b>` +
-    (fromPin ? `<div style="margin-top:6px">Tip: Type an address for a cleaner location.</div>` : "");
+    `Suggested delivery fee: <b>${fmt(deliveryFeeGhs)}</b>`;
 
   renderCartUI();
 }
 
-/* Ghana-only search via Nominatim (free; rate-limited) */
 let searchTimer = null;
 deliveryAddressInput.addEventListener("input", () => {
   if (orderMode() !== "Delivery") return;
@@ -1163,7 +1096,7 @@ function showSuggestions(list){
     row.addEventListener("click", () => {
       deliveryAddressInput.value = item.address;
       hideSuggestions();
-      setDestination({ address: item.address, lat: item.lat, lng: item.lng }, false);
+      setDestination({ address: item.address, lat: item.lat, lng: item.lng });
     });
     suggestBox.appendChild(row);
   });
@@ -1180,7 +1113,7 @@ document.addEventListener("click", (e) => {
 document.getElementById("mode").addEventListener("change", () => {
   if (orderMode() === "Delivery") {
     setDeliveryUI(true);
-    if (deliveryPlace?.lat && deliveryPlace?.lng) setDestination(deliveryPlace, false);
+    if (deliveryPlace?.lat && deliveryPlace?.lng) setDestination(deliveryPlace);
   } else {
     setDeliveryUI(false);
     resetDeliveryPricing(true);
@@ -1188,9 +1121,6 @@ document.getElementById("mode").addEventListener("change", () => {
   renderCartUI();
 });
 
-/* =========================
-   PAYSTACK
-========================= */
 async function payOnline(){
   try{
     setStatus("");
@@ -1209,7 +1139,7 @@ async function payOnline(){
     if (!phone) { setBusy(false); return alert("Phone number is required."); }
 
     if (mode === "Delivery") {
-      if (!deliveryPlace?.lat || !deliveryPlace?.lng) { setBusy(false); return alert("Please select a delivery address (or drop a pin on the map)."); }
+      if (!deliveryPlace?.lat || !deliveryPlace?.lng) { setBusy(false); return alert("Please select a delivery address (or tap the map)."); }
       if (!deliveryFeeGhs || deliveryFeeGhs <= 0) { setBusy(false); return alert("Delivery fee not calculated. Choose another address or pin."); }
     }
 
@@ -1327,9 +1257,6 @@ async function payOnline(){
 }
 document.getElementById("payBtn").addEventListener("click", payOnline);
 
-/* =========================
-   INIT
-========================= */
 document.getElementById("year").textContent = new Date().getFullYear();
 
 (async () => {
@@ -1340,9 +1267,6 @@ document.getElementById("year").textContent = new Date().getFullYear();
   setDeliveryUI(false);
 })();
 
-/* =========================
-   SAFE HTML ESCAPES
-========================= */
 function escapeHtml(s){
   return String(s ?? "").replace(/[&<>"']/g, m => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
