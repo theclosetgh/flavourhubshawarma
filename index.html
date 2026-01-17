@@ -21,6 +21,7 @@
       --accent2:#f97316;
       --max:1200px;
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -205,8 +206,33 @@
       overflow:hidden;
       box-shadow: 0 1px 0 rgba(2,6,23,.04);
       display:flex; flex-direction:column;
-      min-height: 192px;
+      min-height: 240px;
     }
+    .thumb{
+      height:132px;
+      border-bottom:1px solid var(--line);
+      background:
+        radial-gradient(1200px 400px at -10% -20%, rgba(239,68,68,.25), rgba(249,115,22,.08), rgba(15,23,42,.02)),
+        linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,.01));
+      position:relative;
+      overflow:hidden;
+    }
+    .thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .thumb .ph{
+      position:absolute; inset:0;
+      display:flex; align-items:flex-end; justify-content:flex-start;
+      padding:10px 12px;
+      color:rgba(15,23,42,.68);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+
     .cardInner{padding:14px; display:flex; flex-direction:column; height:100%}
     .title{margin:0; font-weight:950; font-size:14px; letter-spacing:.1px}
     .desc{
@@ -352,10 +378,21 @@
       border-radius:16px;
       padding:10px;
       display:grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 52px 1fr auto;
       gap:10px;
       align-items:center;
     }
+    .cThumb{
+      width:52px;height:52px;border-radius:14px;
+      border:1px solid var(--line);
+      overflow:hidden;
+      background:linear-gradient(135deg, rgba(239,68,68,.12), rgba(249,115,22,.10));
+      display:grid; place-items:center;
+      color:rgba(15,23,42,.65);
+      font-weight:950;
+      font-size:12px;
+    }
+    .cThumb img{width:100%;height:100%;object-fit:cover;display:block}
     .cartRow .cName{font-weight:950; font-size:13px}
     .cartRow .cMeta{margin-top:2px; color:var(--muted); font-size:12px}
     .qty{display:flex; align-items:center; gap:8px}
@@ -462,7 +499,6 @@
       color:var(--muted);
       min-height:18px;
       line-height:1.4;
-      word-break: break-word;
     }
     footer{
       margin-top:18px;
@@ -532,14 +568,21 @@
       <div class="panelBd">
         <div class="productsTop">
           <div class="hint" id="activeCatLabel">All items</div>
-          <div class="hint">Tap “Add” to place into your order</div>
+          <div class="hint" id="menuMeta">Loading menu...</div>
         </div>
         <div class="grid" id="productGrid"></div>
       </div>
     </section>
   </section>
 
-  <footer>© <span id="year"></span> Flavour Hub Shawarma</footer>
+  <footer>
+    © <span id="year"></span> Flavour Hub Shawarma
+    <div style="margin-top:6px">
+      <span style="font-size:11px;color:var(--muted)">
+        Admin: /admin.html
+      </span>
+    </div>
+  </footer>
 </main>
 
 <div class="checkoutBar">
@@ -633,15 +676,14 @@
 
 <script>
 /* =========================
-   CONFIG (EDIT THESE)
+   CONFIG
 ========================= */
 const BUSINESS_NAME = "Flavour Hub Shawarma";
-
-/* IMPORTANT: your Render backend base URL */
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
+const WHATSAPP_LOCAL = "0543748208"; // for success page text
 
-/* WhatsApp number shown on success page */
-const WHATSAPP_LOCAL = "0543748208";
+// Ghana number for wa.me format: 0XXXXXXXXX -> 233XXXXXXXXX
+const WHATSAPP_WA = "233543748208";
 
 /* LOCKED shop coordinates */
 const SHOP_FIXED = { lat: 5.6677055, lng: -0.1971199 };
@@ -653,66 +695,70 @@ const DELIVERY_MIN      = 8;
 const DELIVERY_MAX      = 60;
 
 /* =========================
-   MENU DATA (NEW MENU ONLY)
+   DEFAULT MENU (fallback)
+   Real menu loads from backend: GET /api/menu
 ========================= */
-const MENU = [
+const FALLBACK_MENU = [
   { category: "Shawarma", items: [
-    { name: "Sizzling Shawarma (Chicken)", price: 50, desc: "Classic chicken shawarma." },
-    { name: "Minced with Flavour (Minced Meat)", price: 60, desc: "Minced meat shawarma with signature flavour." },
-    { name: "Flavor Twist (Shredded Beef)", price: 80, desc: "Shredded beef shawarma." },
-    { name: "Flavor Twist (Shredded Beef & Chicken)", price: 90, desc: "Mixed shredded beef and chicken." },
+    { name: "Sizzling Shawarma (Chicken)", price: 50, desc: "Classic chicken shawarma.", image: "" },
+    { name: "Minced with Flavour (Minced Meat)", price: 60, desc: "Minced meat shawarma with signature flavour.", image: "" },
+    { name: "Flavor Twist (Shredded Beef)", price: 80, desc: "Shredded beef shawarma.", image: "" },
+    { name: "Flavor Twist (Shredded Beef & Chicken)", price: 90, desc: "Mixed shredded beef and chicken.", image: "" },
   ]},
   { category: "Shawarma + Fries", items: [
-    { name: "Chic ’n’ Chips (Chicken Shawarma + Fries)", price: 65, desc: "Chicken shawarma served with fries." },
-    { name: "Beef ’n’ Fries Fusion (Minced Meat + Fries)", price: 75, desc: "Minced meat shawarma with fries." },
-    { name: "Beef ’n’ Fries Fusion (Shredded Beef + Fries)", price: 90, desc: "Shredded beef shawarma with fries." },
+    { name: "Chic ’n’ Chips (Chicken Shawarma + Fries)", price: 65, desc: "Chicken shawarma served with fries.", image: "" },
+    { name: "Beef ’n’ Fries Fusion (Minced Meat + Fries)", price: 75, desc: "Minced meat shawarma with fries.", image: "" },
+    { name: "Beef ’n’ Fries Fusion (Shredded Beef + Fries)", price: 90, desc: "Shredded beef shawarma with fries.", image: "" },
   ]},
   { category: "Noodles", items: [
-    { name: "Budget Bowl Series — Medium", price: 40, desc: "Corned beef, egg & sausage." },
-    { name: "Budget Bowl Series — Large", price: 60, desc: "Corned beef, egg & sausage." },
-    { name: "Golden Chicken Strings (Chicken Only)", price: 70, desc: "Chicken-only noodles." },
-    { name: "Street Beef Vibes (Beef Only)", price: 90, desc: "Beef-only noodles." },
+    { name: "Budget Bowl Series — Medium", price: 40, desc: "Corned beef, egg & sausage.", image: "" },
+    { name: "Budget Bowl Series — Large", price: 60, desc: "Corned beef, egg & sausage.", image: "" },
+    { name: "Golden Chicken Strings (Chicken Only)", price: 70, desc: "Chicken-only noodles.", image: "" },
+    { name: "Street Beef Vibes (Beef Only)", price: 90, desc: "Beef-only noodles.", image: "" },
   ]},
   { category: "Spaghetti", items: [
-    { name: "Quick Prep — Medium", price: 40, desc: "Corned beef, egg & sausage." },
-    { name: "Quick Prep — Large", price: 60, desc: "Corned beef, egg & sausage." },
-    { name: "Savory Beef Bowl", price: 80, desc: "Beef spaghetti bowl." },
-    { name: "Chicken Royal (Chicken Only)", price: 60, desc: "Chicken-only spaghetti." },
+    { name: "Quick Prep — Medium", price: 40, desc: "Corned beef, egg & sausage.", image: "" },
+    { name: "Quick Prep — Large", price: 60, desc: "Corned beef, egg & sausage.", image: "" },
+    { name: "Savory Beef Bowl", price: 80, desc: "Beef spaghetti bowl.", image: "" },
+    { name: "Chicken Royal (Chicken Only)", price: 60, desc: "Chicken-only spaghetti.", image: "" },
   ]},
   { category: "Loaded Fries", items: [
-    { name: "Flavour Burst Fries", price: 100, desc: "Fries with beef or chicken & cheese." },
-    { name: "Melt and Crunch", price: 130, desc: "Fries with beef or chicken, extra cheese." },
+    { name: "Flavour Burst Fries", price: 100, desc: "Fries with beef or chicken & cheese.", image: "" },
+    { name: "Melt and Crunch", price: 130, desc: "Fries with beef or chicken, extra cheese.", image: "" },
   ]},
   { category: "Special Combos", items: [
-    { name: "Obolo Bia Ye Guy (Chicken & Beef Shawarma with Fries)", price: 150, desc: "Chicken & beef shawarma with fries." },
-    { name: "Big Man (Chicken & Beef Noodles)", price: 140, desc: "Chicken & beef noodles." },
-    { name: "Full Flavour (Chicken & Beef Spaghetti)", price: 100, desc: "Chicken & beef spaghetti." },
+    { name: "Obolo Bia Ye Guy (Chicken & Beef Shawarma with Fries)", price: 150, desc: "Chicken & beef shawarma with fries.", image: "" },
+    { name: "Big Man (Chicken & Beef Noodles)", price: 140, desc: "Chicken & beef noodles.", image: "" },
+    { name: "Full Flavour (Chicken & Beef Spaghetti)", price: 100, desc: "Chicken & beef spaghetti.", image: "" },
   ]},
   { category: "Extras", items: [
-    { name: "Fries", price: 20, desc: "Extra fries." },
-    { name: "Wings (6 pcs)", price: 50, desc: "Six pieces of wings." },
-    { name: "Cheese", price: 20, desc: "Extra cheese." },
-    { name: "Bacon", price: 18, desc: "Add bacon." },
-    { name: "Egg", price: 8, desc: "Add egg." },
+    { name: "Fries", price: 20, desc: "Extra fries.", image: "" },
+    { name: "Wings (6 pcs)", price: 50, desc: "Six pieces of wings.", image: "" },
+    { name: "Cheese", price: 20, desc: "Extra cheese.", image: "" },
+    { name: "Bacon", price: 18, desc: "Add bacon.", image: "" },
+    { name: "Egg", price: 8, desc: "Add egg.", image: "" },
   ]},
   { category: "Local Drinks", items: [
-    { name: "Obolo Sobolo Can", price: 40, desc: "Sobolo drink." },
-    { name: "Biggie Bissap Can", price: 30, desc: "Sobolo drink." },
-    { name: "Smallie Sobolo Can", price: 20, desc: "Small Sobolo drink." },
-    { name: "Obolo Pine Can", price: 40, desc: "Pineapple drink." },
-    { name: "Biggie Pine Can", price: 30, desc: "Pineapple drink." },
-    { name: "Smallie Pine Can", price: 20, desc: "Small pineapple drink." },
+    { name: "Obolo Sobolo Can", price: 40, desc: "", image: "" },
+    { name: "Biggie Bissap Can", price: 30, desc: "", image: "" },
+    { name: "Smallie Can", price: 20, desc: "", image: "" },
+    { name: "Obolo Pine Can", price: 40, desc: "Pineapple drink.", image: "" },
+    { name: "Biggie Pine Can", price: 30, desc: "Pineapple drink.", image: "" },
+    { name: "Smallie Pine Can", price: 20, desc: "Small pineapple drink.", image: "" },
   ]},
 ];
 
+let MENU = JSON.parse(JSON.stringify(FALLBACK_MENU));
+
 /* =========================
-   STATE + HELPERS
+   HELPERS + STATE
 ========================= */
 const cart = new Map();
 const fmt = n => `GHS ${Number(n || 0).toFixed(2)}`;
 
 const statusEl = document.getElementById("status");
 const payBtn = document.getElementById("payBtn");
+const menuMeta = document.getElementById("menuMeta");
 
 function setStatus(msg){ statusEl.textContent = msg || ""; }
 function setBusy(b){
@@ -728,6 +774,8 @@ let deliveryFeeGhs = 0;
 let deliveryDistanceKm = null;
 let deliveryDurationText = "";
 let deliveryPlace = null;
+
+/* Origin */
 let shopLatLng = null;
 
 function calcSuggestedFee(distanceKm){
@@ -735,9 +783,40 @@ function calcSuggestedFee(distanceKm){
   const capped = Math.min(DELIVERY_MAX, Math.max(DELIVERY_MIN, raw));
   return Math.round(capped * 10) / 10;
 }
+
 function orderMode(){ return document.getElementById("mode").value; }
-function deliveryFee(){ return (orderMode() === "Delivery") ? (Number(deliveryFeeGhs) || 0) : 0; }
+function deliveryFee(){
+  return (orderMode() === "Delivery") ? (Number(deliveryFeeGhs) || 0) : 0;
+}
 function grandTotal(){ return cartSubtotal() + deliveryFee(); }
+
+/* =========================
+   LOAD MENU FROM BACKEND
+========================= */
+async function loadMenuFromBackend(){
+  try{
+    const r = await fetch(`${BACKEND_BASE_URL}/api/menu`, { cache: "no-store" });
+    if(!r.ok) throw new Error("Menu fetch failed");
+    const data = await r.json();
+
+    // expected: { categories: [{ name, items: [{name,price,desc,image}] }] }
+    if(!data || !Array.isArray(data.categories)) throw new Error("Menu format invalid");
+
+    MENU = data.categories.map(c => ({
+      category: c.name,
+      items: (c.items || []).map(it => ({
+        name: String(it.name || ""),
+        price: Number(it.price || 0),
+        desc: String(it.desc || ""),
+        image: String(it.image || "")
+      }))
+    }));
+
+    menuMeta.textContent = `Updated: ${new Date(data.updatedAt || Date.now()).toLocaleString()}`;
+  }catch(e){
+    menuMeta.textContent = "Using offline menu (admin can publish live menu).";
+  }
+}
 
 /* =========================
    CATEGORIES + PRODUCTS
@@ -765,6 +844,15 @@ function renderCategories(){
   });
 }
 
+function safeImg(url){
+  if(!url) return "";
+  try{
+    const u = new URL(url);
+    if(u.protocol !== "http:" && u.protocol !== "https:") return "";
+    return u.toString();
+  }catch(_){ return ""; }
+}
+
 function renderProducts(){
   const q = (document.getElementById("search").value || "").trim().toLowerCase();
   productGrid.innerHTML = "";
@@ -788,17 +876,21 @@ function renderProducts(){
   items.forEach(it => {
     const key = `${it.category}::${it.name}`;
     const inCart = cart.get(key);
+    const img = safeImg(it.image);
 
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
+      <div class="thumb">
+        ${img ? `<img src="${img}" alt="${escapeHtml(it.name)}" loading="lazy" />` : `<div class="ph">Flavour Hub</div>`}
+      </div>
       <div class="cardInner">
-        <p class="title">${it.name}</p>
-        <p class="desc">${it.desc || ""}</p>
+        <p class="title">${escapeHtml(it.name)}</p>
+        <p class="desc">${escapeHtml(it.desc || "")}</p>
         <div class="spacer"></div>
         <div class="meta">
           <div class="price">${fmt(it.price)}</div>
-          <div class="tag">${it.category}</div>
+          <div class="tag">${escapeHtml(it.category)}</div>
         </div>
         <div class="actions">
           <button class="btn primary" type="button">Add</button>
@@ -813,6 +905,10 @@ function renderProducts(){
 
     productGrid.appendChild(card);
   });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 }
 
 document.getElementById("search").addEventListener("input", renderProducts);
@@ -832,7 +928,9 @@ const grandTotalEl = document.getElementById("grandTotal");
 
 function addToCart(key, it){
   if (cart.has(key)) cart.get(key).qty += 1;
-  else cart.set(key, { name: it.name, price: it.price, qty: 1, category: it.category });
+  else cart.set(key, {
+    name: it.name, price: it.price, qty: 1, category: it.category, image: it.image || ""
+  });
 
   renderCartUI();
   renderProducts();
@@ -878,12 +976,16 @@ function renderCartUI(){
   }
 
   entries.forEach(([key, v]) => {
+    const img = safeImg(v.image);
     const row = document.createElement("div");
     row.className = "cartRow";
     row.innerHTML = `
+      <div class="cThumb">
+        ${img ? `<img src="${img}" alt="" loading="lazy" />` : `FH`}
+      </div>
       <div>
-        <div class="cName">${v.name}</div>
-        <div class="cMeta">${v.category} • ${fmt(v.price)} each • Line: <b>${fmt(v.price*v.qty)}</b></div>
+        <div class="cName">${escapeHtml(v.name)}</div>
+        <div class="cMeta">${escapeHtml(v.category)} • ${fmt(v.price)} each • Line: <b>${fmt(v.price*v.qty)}</b></div>
       </div>
       <div class="qty">
         <button type="button">−</button>
@@ -922,9 +1024,6 @@ document.getElementById("barReview").addEventListener("click", openDrawer);
 document.getElementById("clearCartBtn").addEventListener("click", clearCart);
 document.getElementById("clearCartTop").addEventListener("click", clearCart);
 document.getElementById("barClear").addEventListener("click", clearCart);
-document.getElementById("barReview").addEventListener("click", openDrawer);
-document.getElementById("barClear").addEventListener("click", clearCart);
-document.getElementById("barReview").addEventListener("click", openDrawer);
 
 /* =========================
    DELIVERY (Map + Ghana-only Places)
@@ -934,6 +1033,7 @@ const deliveryMeta = document.getElementById("deliveryMeta");
 const deliveryAddressInput = document.getElementById("deliveryAddress");
 
 let gmap = null;
+let shopMarker = null;
 let destMarker = null;
 let directionsService = null;
 let directionsRenderer = null;
@@ -975,10 +1075,12 @@ async function routeAndPrice(){
         }
 
         const leg = result.routes[0].legs[0];
-        const km = (leg.distance?.value || 0) / 1000;
+        const meters = leg.distance?.value || 0;
+        const km = meters / 1000;
+        const durationText = leg.duration?.text || "";
 
         deliveryDistanceKm = Math.round(km * 10) / 10;
-        deliveryDurationText = leg.duration?.text || "";
+        deliveryDurationText = durationText;
         deliveryFeeGhs = calcSuggestedFee(km);
 
         directionsRenderer.setDirections(result);
@@ -1003,9 +1105,12 @@ window.initMap = function(){
   });
 
   directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer({ map: gmap, suppressMarkers: true });
+  directionsRenderer = new google.maps.DirectionsRenderer({
+    map: gmap,
+    suppressMarkers: true
+  });
 
-  new google.maps.Marker({
+  shopMarker = new google.maps.Marker({
     map: gmap,
     position: shopLatLng,
     title: "Flavour Hub Shawarma (Lin-Mart Executive Hostel, Haatso)"
@@ -1016,7 +1121,10 @@ window.initMap = function(){
     componentRestrictions: { country: "gh" }
   });
 
-  const biasCircle = new google.maps.Circle({ center: shopLatLng, radius: 35000 });
+  const biasCircle = new google.maps.Circle({
+    center: shopLatLng,
+    radius: 35000
+  });
   autocomplete.setBounds(biasCircle.getBounds());
 
   autocomplete.addListener("place_changed", async () => {
@@ -1031,15 +1139,20 @@ window.initMap = function(){
     document.getElementById("location").value = deliveryPlace.address || "";
 
     if (destMarker) destMarker.setMap(null);
-    destMarker = new google.maps.Marker({ map: gmap, position: deliveryPlace.location, title: "Delivery destination" });
+    destMarker = new google.maps.Marker({
+      map: gmap,
+      position: deliveryPlace.location,
+      title: "Delivery destination"
+    });
 
     const bounds = new google.maps.LatLngBounds();
     bounds.extend(shopLatLng);
     bounds.extend(deliveryPlace.location);
     gmap.fitBounds(bounds);
 
-    try{ await routeAndPrice(); }
-    catch(e){
+    try{
+      await routeAndPrice();
+    }catch(e){
       deliveryFeeGhs = 0;
       deliveryMeta.textContent = "Could not calculate distance. Please try another address.";
       renderCartUI();
@@ -1059,8 +1172,52 @@ document.getElementById("mode").addEventListener("change", () => {
 });
 
 /* =========================
-   PAYSTACK (Matched to backend routes)
+   PAYSTACK (robust: tries /api and non-/api)
 ========================= */
+async function postInit(payload){
+  const paths = [
+    "/api/paystack/initialize",
+    "/paystack/initialize"
+  ];
+  let lastErr = null;
+
+  for (const p of paths){
+    try{
+      const r = await fetch(`${BACKEND_BASE_URL}${p}`, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await r.json().catch(()=> ({}));
+      if (!r.ok) throw new Error(data?.error || `Init failed (${r.status})`);
+      return data;
+    }catch(e){
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error("Payment init failed");
+}
+
+async function getVerify(reference){
+  const paths = [
+    `/api/paystack/verify/${encodeURIComponent(reference)}`,
+    `/paystack/verify/${encodeURIComponent(reference)}`
+  ];
+  let lastErr = null;
+
+  for (const p of paths){
+    try{
+      const r = await fetch(`${BACKEND_BASE_URL}${p}`);
+      const data = await r.json().catch(()=> ({}));
+      if (!r.ok) throw new Error(data?.error || `Verify failed (${r.status})`);
+      return data;
+    }catch(e){
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error("Verification failed");
+}
+
 async function payOnline(){
   try{
     setStatus("");
@@ -1089,12 +1246,12 @@ async function payOnline(){
     }
 
     const items = Array.from(cart.values()).map(v => ({
-      name: v.name, qty: v.qty, unit_price: v.price, category: v.category
+      name: v.name, qty: v.qty, unit_price: v.price, category: v.category, image: v.image || ""
     }));
 
     const payload = {
       email,
-      amount: Math.round(grandTotal() * 100), // pesewas
+      amount: Math.round(grandTotal() * 100),
       currency: "GHS",
       customer: { name, phone },
       order: {
@@ -1113,34 +1270,29 @@ async function payOnline(){
     };
 
     setStatus("Initializing payment...");
-    const initRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/initialize`, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const initData = await initRes.json().catch(()=> ({}));
-    if (!initRes.ok) throw new Error(initData?.error || "Failed to initialize payment.");
+    const initData = await postInit(payload);
 
     const reference = initData.reference;
     const public_key = initData.public_key;
+    const access_code = initData.access_code || "";
+
     if (!reference || !public_key) throw new Error("Payment init response missing reference/public key.");
 
     setStatus("Opening Paystack checkout...");
+
     const handler = window.PaystackPop.setup({
       key: public_key,
       email,
       amount: payload.amount,
       currency: "GHS",
       ref: reference,
+      ...(access_code ? { access_code } : {}),
 
       callback: function(response){
         (async () => {
           try{
             setStatus("Verifying payment...");
-            const verifyRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/verify/${encodeURIComponent(response.reference)}`);
-            const verifyData = await verifyRes.json().catch(()=> ({}));
-            if (!verifyRes.ok) throw new Error(verifyData?.error || "Verification failed.");
+            const verifyData = await getVerify(response.reference);
 
             if (verifyData.status === "success"){
               const paidOrder = {
@@ -1165,7 +1317,6 @@ async function payOnline(){
               window.location.href = `success.html?ref=${encodeURIComponent(response.reference)}`;
               return;
             }
-
             throw new Error("Payment not successful.");
           }catch(err){
             console.error(err);
@@ -1198,15 +1349,25 @@ document.getElementById("payBtn").addEventListener("click", payOnline);
    INIT
 ========================= */
 document.getElementById("year").textContent = new Date().getFullYear();
-renderCategories();
-renderProducts();
-renderCartUI();
-setDeliveryUI(false);
+
+(async function init(){
+  await loadMenuFromBackend();
+  renderCategories();
+  renderProducts();
+  renderCartUI();
+  setDeliveryUI(false);
+})();
 </script>
 
-<!-- Google Maps: replace YOUR_GOOGLE_MAPS_KEY with your key -->
+<!-- Google Maps
+  IMPORTANT:
+  Replace YOUR_GOOGLE_MAPS_KEY with your real key.
+  Also add referrer restrictions:
+    https://flavourhubs.com/*
+    https://www.flavourhubs.com/*
+-->
 <script
-  src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_KEY&libraries=places&callback=initMap"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOBRv9knyRPlGPteyNDkfm_0VK8V6gvSg&libraries=places&callback=initMap"
   async defer></script>
 
 </body>
