@@ -6,9 +6,6 @@
   <title>Flavour Hub Shawarma — Order Online</title>
   <meta name="description" content="Flavour Hub Shawarma — order pickup or delivery, delivery fee by distance, pay with Paystack." />
 
-  <!-- FREE MAP (No API key): OpenStreetMap + Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
   <style>
     :root{
       --bg:#ffffff;
@@ -33,7 +30,7 @@
     }
 
     header{
-      position:sticky; top:0; z-index:100;
+      position:sticky; top:0; z-index:50;
       background:rgba(255,255,255,.92);
       backdrop-filter: blur(10px);
       border-bottom:1px solid var(--line);
@@ -104,7 +101,6 @@
     }
 
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 16px 96px;}
-
     .hero{
       margin-top:12px;
       background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(249,115,22,.08), rgba(15,23,42,.02));
@@ -130,7 +126,6 @@
     }
     .chip b{color:var(--ink)}
 
-    /* ===== Layout improved so categories always show ===== */
     .layout{
       margin-top:14px;
       display:grid;
@@ -138,9 +133,9 @@
       gap:14px;
       align-items:start;
     }
-    @media (max-width: 1080px){
-      .layout{grid-template-columns: 1fr}
-      .sideCats{position:static !important}
+    @media (max-width: 980px){
+      .layout{grid-template-columns:1fr}
+      .sideCats{position:static !important; max-height:none !important}
     }
 
     .panel{
@@ -160,18 +155,11 @@
     .panelBd{padding:12px 14px 14px}
 
     .sideCats{
-      position:sticky;
-      top:78px;
+      position:sticky; top:78px;
       max-height: calc(100vh - 110px);
       overflow:auto;
     }
-
-    /* Category list as pills (better UX + visible) */
-    .catList{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
+    .catList{display:flex; flex-direction:column; gap:10px}
     .catBtn{
       width:100%;
       text-align:left;
@@ -184,18 +172,14 @@
       font-size:13px;
       color:var(--ink);
       display:flex;
-      justify-content:space-between;
       align-items:center;
+      justify-content:space-between;
       gap:10px;
     }
     .catBtn .badge{
-      min-width:26px;
-      height:26px;
-      border-radius:999px;
-      display:grid;
-      place-items:center;
-      font-size:12px;
-      font-weight:900;
+      min-width:26px;height:26px;border-radius:999px;
+      display:grid;place-items:center;
+      font-size:12px;font-weight:900;
       border:1px solid var(--line);
       color:var(--muted);
       background:#fff;
@@ -241,9 +225,8 @@
       border-radius: var(--r2);
       overflow:hidden;
       box-shadow: 0 1px 0 rgba(2,6,23,.04);
-      display:flex;
-      flex-direction:column;
-      min-height: 246px;
+      display:flex; flex-direction:column;
+      min-height: 248px;
     }
     .cardMedia{
       height: 168px;
@@ -315,7 +298,7 @@
       background:rgba(255,255,255,.92);
       backdrop-filter: blur(10px);
       border-top:1px solid var(--line);
-      z-index:120;
+      z-index:60;
     }
     .barInner{
       max-width:var(--max);
@@ -344,12 +327,13 @@
       color:#fff;
       box-shadow: 0 12px 24px rgba(239,68,68,.18);
     }
+    .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
     .drawerMask{
       position:fixed; inset:0;
       background:rgba(2,6,23,.45);
       display:none;
-      z-index:180;
+      z-index:80;
     }
     .drawer{
       position:fixed;
@@ -361,7 +345,7 @@
       box-shadow: var(--shadow);
       transform: translateX(100%);
       transition: transform .18s ease;
-      z-index:190;
+      z-index:90;
       display:flex; flex-direction:column;
     }
     .drawer.open{transform: translateX(0)}
@@ -426,11 +410,8 @@
       font-weight:950;
       font-size:11px;
     }
-    .cThumb img{
-      width:100%; height:100%;
-      object-fit:cover;
-      display:block;
-    }
+    .cThumb img{width:100%;height:100%;object-fit:cover;display:block}
+
     .cartRow .cName{font-weight:950; font-size:13px}
     .cartRow .cMeta{margin-top:2px; color:var(--muted); font-size:12px}
     .qty{display:flex; align-items:center; gap:8px}
@@ -495,32 +476,12 @@
     #map{
       margin-top:10px;
       width:100%;
-      height:260px;
+      height:240px;
       border-radius:14px;
       border:1px solid var(--line);
       background:#fff;
       overflow:hidden;
     }
-
-    .suggestBox{
-      margin-top:8px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:#fff;
-      overflow:hidden;
-      display:none;
-    }
-    .suggestBox.show{display:block}
-    .suggestItem{
-      padding:10px 12px;
-      font-size:12.5px;
-      cursor:pointer;
-      border-top:1px solid var(--line);
-    }
-    .suggestItem:first-child{border-top:none}
-    .suggestItem:hover{background:var(--soft)}
-    .suggestTitle{font-weight:900; color:var(--ink)}
-    .suggestSub{margin-top:2px; color:var(--muted); font-size:12px}
 
     .drawerFt{
       border-top:1px solid var(--line);
@@ -550,7 +511,16 @@
       font-weight:950;
       cursor:pointer;
     }
+    .drawerFt button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
+    .status{
+      margin-top:10px;
+      font-size:12.5px;
+      color:var(--muted);
+      min-height:18px;
+      line-height:1.4;
+      word-break: break-word;
+    }
     footer{
       margin-top:18px;
       text-align:center;
@@ -589,15 +559,15 @@
     <div>
       <h2>Order online</h2>
       <p>
-        Add items, review your order, choose Pickup or Delivery. For Delivery, type an address (Ghana-only) and select a suggestion,
-        or tap the free map to drop a pin. Delivery fee is calculated by distance.
+        Add items, review your order, choose Pickup or Delivery. For Delivery, select an address (Ghana only) and the system will calculate
+        distance, ETA, and a suggested delivery fee automatically.
       </p>
     </div>
     <div class="chips">
       <div class="chip"><b>Currency:</b> GHS</div>
       <div class="chip"><b>Delivery:</b> Ghana only</div>
-      <div class="chip"><b>Map:</b> Free (OSM)</div>
       <div class="chip"><b>Payment:</b> Paystack</div>
+      <div class="chip"><b>Map:</b> Google Maps</div>
     </div>
   </section>
 
@@ -605,7 +575,7 @@
     <aside class="panel sideCats">
       <div class="panelHd">
         <h3>Categories</h3>
-        <small>Tap to filter</small>
+        <small>Browse</small>
       </div>
       <div class="panelBd">
         <div class="catList" id="catList"></div>
@@ -616,7 +586,7 @@
       <div class="panelHd">
         <div>
           <h3>Menu</h3>
-          <small id="menuSub">Select items to add to order</small>
+          <small>Select items to add to order</small>
         </div>
         <button class="clearSmall" id="clearCartTop" type="button">Clear order</button>
       </div>
@@ -692,14 +662,11 @@
       <div class="deliveryBox" id="deliveryBox">
         <div class="field">
           <label for="deliveryAddress">Delivery address (Ghana only)</label>
-          <input id="deliveryAddress" placeholder="Type location then pick a suggestion (or tap map)" autocomplete="off" />
-          <div class="suggestBox" id="suggestBox"></div>
+          <input id="deliveryAddress" placeholder="Type location (e.g., UPSA, Madina, Legon...)" />
         </div>
-
         <div class="deliveryMeta" id="deliveryMeta">
-          Type an address and choose a suggestion, or tap on the map to drop a pin.
+          Select an address to calculate distance and delivery fee.
         </div>
-
         <div id="map"></div>
       </div>
 
@@ -724,7 +691,6 @@
 </aside>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 /* =========================
@@ -733,138 +699,62 @@
 const BUSINESS_NAME = "Flavour Hub Shawarma";
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
 const WHATSAPP_LOCAL = "0543748208";
+
+/* LOCKED shop coordinates */
 const SHOP_FIXED = { lat: 5.6677055, lng: -0.1971199 };
 
+/* Delivery pricing model */
 const DELIVERY_BASE_FEE = 8;
 const DELIVERY_PER_KM   = 2.5;
 const DELIVERY_MIN      = 8;
 const DELIVERY_MAX      = 60;
 
-const ETA_KMH = 25;
-
 /* =========================
-   FULL MENU (fallback)
+   MENU (Loaded from backend)
+   Backend returns:
+   { updatedAt, categories:[{name, items:[{..., image:""}]}] }
 ========================= */
-const MENU_FALLBACK = [
-  { category: "Shawarma", items: [
-    { name: "Sizzling Shawarma (Chicken)", price: 50, desc: "Classic chicken shawarma.", img: "" },
-    { name: "Minced with Flavour (Minced Meat)", price: 60, desc: "Minced meat shawarma with signature flavour.", img: "" },
-    { name: "Flavor Twist (Shredded Beef)", price: 80, desc: "Shredded beef shawarma.", img: "" },
-    { name: "Flavor Twist (Shredded Beef & Chicken)", price: 90, desc: "Mixed shredded beef and chicken.", img: "" },
-  ]},
-  { category: "Shawarma + Fries", items: [
-    { name: "Chic ’n’ Chips (Chicken Shawarma + Fries)", price: 65, desc: "Chicken shawarma served with fries.", img: "" },
-    { name: "Beef ’n’ Fries Fusion (Minced Meat + Fries)", price: 75, desc: "Minced meat shawarma with fries.", img: "" },
-    { name: "Beef ’n’ Fries Fusion (Shredded Beef + Fries)", price: 90, desc: "Shredded beef shawarma with fries.", img: "" },
-  ]},
-  { category: "Noodles", items: [
-    { name: "Budget Bowl Series — Medium", price: 40, desc: "Corned beef, egg & sausage.", img: "" },
-    { name: "Budget Bowl Series — Large", price: 60, desc: "Corned beef, egg & sausage.", img: "" },
-    { name: "Golden Chicken Strings (Chicken Only)", price: 70, desc: "Chicken-only noodles.", img: "" },
-    { name: "Street Beef Vibes (Beef Only)", price: 90, desc: "Beef-only noodles.", img: "" },
-  ]},
-  { category: "Spaghetti", items: [
-    { name: "Quick Prep — Medium", price: 40, desc: "Corned beef, egg & sausage.", img: "" },
-    { name: "Quick Prep — Large", price: 60, desc: "Corned beef, egg & sausage.", img: "" },
-    { name: "Savory Beef Bowl", price: 80, desc: "Beef spaghetti bowl.", img: "" },
-    { name: "Chicken Royal (Chicken Only)", price: 60, desc: "Chicken-only spaghetti.", img: "" },
-  ]},
-  { category: "Loaded Fries", items: [
-    { name: "Flavour Burst Fries", price: 100, desc: "Fries with beef or chicken & cheese.", img: "" },
-    { name: "Melt and Crunch", price: 130, desc: "Fries with beef or chicken, extra cheese.", img: "" },
-  ]},
-  { category: "Special Combos", items: [
-    { name: "Obolo Bia Ye Guy (Chicken & Beef Shawarma with Fries)", price: 150, desc: "Chicken & beef shawarma with fries.", img: "" },
-    { name: "Big Man (Chicken & Beef Noodles)", price: 140, desc: "Chicken & beef noodles.", img: "" },
-    { name: "Full Flavour (Chicken & Beef Spaghetti)", price: 100, desc: "Chicken & beef spaghetti.", img: "" },
-  ]},
-  { category: "Extras", items: [
-    { name: "Fries", price: 20, desc: "Extra fries.", img: "" },
-    { name: "Wings (6 pcs)", price: 50, desc: "Six pieces of wings.", img: "" },
-    { name: "Cheese", price: 20, desc: "Extra cheese.", img: "" },
-    { name: "Bacon", price: 18, desc: "Add bacon.", img: "" },
-    { name: "Egg", price: 8, desc: "Add egg.", img: "" },
-  ]},
-  { category: "Local Drinks", items: [
-    { name: "Obolo Sobolo Can", price: 40, desc: "Sobolo drink.", img: "" },
-    { name: "Biggie Bissap Can", price: 30, desc: "Sobolo drink.", img: "" },
-    { name: "Smallie Sobolo Can", price: 20, desc: "Small Sobolo drink.", img: "" },
-    { name: "Obolo Pine Can", price: 40, desc: "Pineapple drink.", img: "" },
-    { name: "Biggie Pine Can", price: 30, desc: "Pineapple drink.", img: "" },
-    { name: "Smallie Pine Can", price: 20, desc: "Small pineapple drink.", img: "" },
-  ]},
-];
-
 let MENU = [];
 
 /* =========================
-   SAFE / ROBUST IMAGE & MENU
+   SAFE helpers
 ========================= */
-function getItemImage(it){
-  const cand =
-    it?.img ?? it?.image ?? it?.imageUrl ?? it?.imageURL ?? it?.photo ?? it?.picture ?? it?.pic ??
-    it?.thumbnail ?? it?.thumb ?? it?.url ?? it?.img_url ?? it?.imgUrl ?? "";
-  let u = String(cand || "").trim();
-  if (!u) return "";
-  try { u = encodeURI(u); } catch {}
-  return u;
+function escapeHtml(s){
+  return String(s ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
 }
+function escapeAttr(s){ return escapeHtml(s); }
 
-function normalizeMenu(raw){
-  let m = raw;
-
-  if (Array.isArray(m) && m.length && !m[0]?.items && (m[0]?.name || m[0]?.category)){
-    const buckets = new Map();
-    for (const it of m){
-      const cat = String(it.category || "Menu").trim() || "Menu";
-      if (!buckets.has(cat)) buckets.set(cat, []);
-      buckets.get(cat).push({
-        name: it.name || "Item",
-        price: Number(it.price || 0),
-        desc: it.desc || "",
-        img: getItemImage(it)
-      });
-    }
-    return Array.from(buckets.entries()).map(([category, items]) => ({ category, items }));
-  }
-
-  if (Array.isArray(m)){
-    return m.map(c => ({
-      category: String(c.category || "Menu"),
-      items: Array.isArray(c.items) ? c.items.map(it => ({
-        name: it.name || "Item",
-        price: Number(it.price || 0),
-        desc: it.desc || "",
-        img: getItemImage(it)
-      })) : []
-    })).filter(c => c.items.length);
-  }
-
-  return [];
+function getItemImage(it){
+  const u = String(it?.image || "").trim();
+  if (!u) return "";
+  try { return encodeURI(u); } catch { return u; }
 }
 
 async function loadMenuFromBackend(){
   try{
-    const res = await fetch(`${BACKEND_BASE_URL}/api/menu`, { cache: "no-store" });
-    const rawText = await res.text();
-    let data = {};
-    try { data = JSON.parse(rawText); } catch { data = {}; }
+    const res = await fetch(`${BACKEND_BASE_URL}/api/menu`, { cache:"no-store" });
+    const data = await res.json().catch(()=>null);
 
-    const rawMenu =
-      data.menu ??
-      data.data?.menu ??
-      data.MENU ??
-      data.data?.MENU ??
-      data.categories ??
-      data.data?.categories ??
-      data.items ??
-      data.data?.items ??
-      null;
+    const cats = Array.isArray(data?.categories) ? data.categories : [];
+    MENU = cats.map(c => {
+      const category = String(c?.name || "").trim() || "Menu";
+      const items = Array.isArray(c?.items) ? c.items : [];
+      return {
+        category,
+        items: items.map(it => ({
+          id: String(it?.id || ""),
+          name: String(it?.name || "Item"),
+          price: Number(it?.price || 0),
+          desc: String(it?.desc || ""),
+          img: getItemImage(it)
+        })).filter(x => x.name)
+      };
+    }).filter(c => c.items.length);
 
-    const nm = normalizeMenu(rawMenu);
-    MENU = nm.length ? nm : normalizeMenu(MENU_FALLBACK);
   }catch{
-    MENU = normalizeMenu(MENU_FALLBACK);
+    MENU = [];
   }
 }
 
@@ -886,10 +776,12 @@ function setBusy(b){
 function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
 function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price * v.qty; return s; }
 
+/* Delivery state */
 let deliveryFeeGhs = 0;
 let deliveryDistanceKm = null;
 let deliveryDurationText = "";
 let deliveryPlace = null;
+let shopLatLng = null;
 
 function calcSuggestedFee(distanceKm){
   const raw = DELIVERY_BASE_FEE + (distanceKm * DELIVERY_PER_KM);
@@ -901,31 +793,24 @@ function deliveryFee(){ return (orderMode() === "Delivery") ? (Number(deliveryFe
 function grandTotal(){ return cartSubtotal() + deliveryFee(); }
 
 /* =========================
-   CATEGORY + PRODUCT RENDER (FIXED)
+   CATEGORIES + PRODUCTS
 ========================= */
 let activeCategory = "All";
+function categories(){ return ["All", ...MENU.map(m => m.category)]; }
+
 const catList = document.getElementById("catList");
 const productGrid = document.getElementById("productGrid");
 const activeCatLabel = document.getElementById("activeCatLabel");
 const countHint = document.getElementById("countHint");
 
-function categories(){ return ["All", ...MENU.map(m => m.category)]; }
-
 function countItemsInCategory(cat){
-  if (cat === "All") return MENU.reduce((n, c) => n + (c.items?.length || 0), 0);
-  const found = MENU.find(x => x.category === cat);
-  return found?.items?.length || 0;
+  if (cat === "All") return MENU.reduce((n,c)=> n + (c.items?.length||0), 0);
+  return (MENU.find(x=>x.category===cat)?.items?.length) || 0;
 }
 
 function renderCategories(){
   catList.innerHTML = "";
-
   const cats = categories();
-  if (!cats.length){
-    catList.innerHTML = `<div style="color:var(--muted);font-size:13px">No categories yet.</div>`;
-    return;
-  }
-
   cats.forEach(cat => {
     const btn = document.createElement("button");
     btn.className = "catBtn" + (cat === activeCategory ? " active" : "");
@@ -938,10 +823,6 @@ function renderCategories(){
       activeCategory = cat;
       renderCategories();
       renderProducts();
-      // Scroll to menu on mobile after choosing category
-      if (window.matchMedia("(max-width: 1080px)").matches){
-        document.querySelector(".layout").scrollIntoView({ behavior:"smooth", block:"start" });
-      }
     });
     catList.appendChild(btn);
   });
@@ -955,11 +836,10 @@ function renderProducts(){
   let items = [];
   for (const c of MENU){
     if (activeCategory !== "All" && c.category !== activeCategory) continue;
-    for (const it of (c.items || [])){
-      const img = getItemImage(it);
+    for (const it of c.items){
       const hay = `${c.category} ${it.name} ${it.desc || ""}`.toLowerCase();
       if (q && !hay.includes(q)) continue;
-      items.push({ ...it, category: c.category, img });
+      items.push({ ...it, category: c.category });
     }
   }
 
@@ -968,7 +848,7 @@ function renderProducts(){
   if (!items.length){
     productGrid.innerHTML = `
       <div style="border:1px dashed var(--line);background:var(--soft);border-radius:16px;padding:14px;color:var(--muted);font-size:13px;text-align:center">
-        No items found for this category/search.
+        No items found.
       </div>`;
     return;
   }
@@ -1026,9 +906,9 @@ const deliveryFeeEl = document.getElementById("deliveryFee");
 const grandTotalEl = document.getElementById("grandTotal");
 
 function addToCart(key, it){
-  const img = getItemImage(it);
   if (cart.has(key)) cart.get(key).qty += 1;
-  else cart.set(key, { name: it.name, price: it.price, qty: 1, category: it.category, img });
+  else cart.set(key, { name: it.name, price: it.price, qty: 1, category: it.category, img: it.img || "" });
+
   renderCartUI();
   renderProducts();
 }
@@ -1076,7 +956,7 @@ function renderCartUI(){
     const row = document.createElement("div");
     row.className = "cartRow";
 
-    const img = (v.img || "").trim();
+    const img = String(v.img || "").trim();
     const thumb = img
       ? `<div class="cThumb"><img src="${escapeAttr(img)}" alt="${escapeAttr(v.name)}" loading="lazy" referrerpolicy="no-referrer"></div>`
       : `<div class="cThumb">IMG</div>`;
@@ -1126,21 +1006,20 @@ document.getElementById("clearCartTop").addEventListener("click", clearCart);
 document.getElementById("barClear").addEventListener("click", clearCart);
 
 /* =========================
-   DELIVERY (FREE MAP + GH ONLY SEARCH)
+   DELIVERY (Google Maps + Ghana-only Places)
 ========================= */
 const deliveryBox = document.getElementById("deliveryBox");
 const deliveryMeta = document.getElementById("deliveryMeta");
 const deliveryAddressInput = document.getElementById("deliveryAddress");
-const suggestBox = document.getElementById("suggestBox");
 
-let mapReady = false;
-let map = null;
-let shopMarker = null;
+let gmap = null;
 let destMarker = null;
+let directionsService = null;
+let directionsRenderer = null;
+let autocomplete = null;
 
 function setDeliveryUI(show){
   deliveryBox.classList.toggle("show", !!show);
-  if (show) ensureMapInit();
 }
 
 function resetDeliveryPricing(keepAddress=false){
@@ -1149,141 +1028,109 @@ function resetDeliveryPricing(keepAddress=false){
   deliveryDurationText = "";
   deliveryPlace = null;
 
-  deliveryMeta.textContent = "Type an address and choose a suggestion, or tap on the map to drop a pin.";
+  deliveryMeta.textContent = "Select an address to calculate distance and delivery fee.";
   if (!keepAddress) deliveryAddressInput.value = "";
 
-  hideSuggestions();
-  if (destMarker && map){ map.removeLayer(destMarker); destMarker = null; }
-  renderCartUI();
-}
-
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-function estimateEtaText(distanceKm){
-  const mins = Math.max(10, Math.round((distanceKm / ETA_KMH) * 60));
-  if (mins < 60) return `${mins} mins`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return `${h} hr${h>1?"s":""} ${m} mins`;
-}
-
-function ensureMapInit(){
-  if (mapReady) {
-    setTimeout(() => { try{ map.invalidateSize(); }catch{} }, 50);
-    return;
-  }
-  mapReady = true;
-
-  map = L.map("map", { zoomControl: true }).setView([SHOP_FIXED.lat, SHOP_FIXED.lng], 14);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap"
-  }).addTo(map);
-
-  shopMarker = L.marker([SHOP_FIXED.lat, SHOP_FIXED.lng], { title: "Flavour Hub Shawarma" }).addTo(map);
-
-  map.on("click", (e) => {
-    if (orderMode() !== "Delivery") return;
-    const { lat, lng } = e.latlng;
-    setDestination({ address: `Pinned location (${lat.toFixed(5)}, ${lng.toFixed(5)})`, lat, lng });
-  });
-
-  setTimeout(() => { try{ map.invalidateSize(); }catch{} }, 120);
-}
-
-function setDestination(place){
-  deliveryPlace = place;
-
-  if (destMarker && map) map.removeLayer(destMarker);
-  destMarker = L.marker([place.lat, place.lng], { title: "Delivery destination" }).addTo(map);
-
-  const group = L.featureGroup([shopMarker, destMarker]);
-  try{ map.fitBounds(group.getBounds().pad(0.25)); }catch{}
-
-  document.getElementById("location").value = place.address || "";
-
-  const km = haversineKm(SHOP_FIXED.lat, SHOP_FIXED.lng, place.lat, place.lng);
-  deliveryDistanceKm = Math.round(km * 10) / 10;
-  deliveryFeeGhs = calcSuggestedFee(km);
-  deliveryDurationText = estimateEtaText(km);
-
-  deliveryMeta.innerHTML =
-    `Distance: <b>${deliveryDistanceKm} km</b> • ETA: <b>${deliveryDurationText}</b><br>` +
-    `Suggested delivery fee: <b>${fmt(deliveryFeeGhs)}</b>`;
+  if (destMarker) { destMarker.setMap(null); destMarker = null; }
+  if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
 
   renderCartUI();
 }
 
-/* Ghana-only search (free) */
-let searchTimer = null;
-deliveryAddressInput.addEventListener("input", () => {
+async function routeAndPrice(){
   if (orderMode() !== "Delivery") return;
-  const q = deliveryAddressInput.value.trim();
-  if (!q || q.length < 3) { hideSuggestions(); return; }
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => searchAddressGh(q), 350);
-});
+  if (!deliveryPlace?.location) return;
 
-async function searchAddressGh(q){
-  try{
-    const url =
-      `https://nominatim.openstreetmap.org/search?` +
-      `format=json&limit=6&countrycodes=gh&addressdetails=1&` +
-      `q=${encodeURIComponent(q)}`;
+  return new Promise((resolve, reject) => {
+    directionsService.route(
+      {
+        origin: shopLatLng,
+        destination: deliveryPlace.location,
+        travelMode: google.maps.TravelMode.DRIVING
+      },
+      (result, status) => {
+        if (status !== "OK" || !result.routes?.[0]?.legs?.[0]) {
+          reject(new Error("Could not calculate route"));
+          return;
+        }
 
-    const res = await fetch(url, { headers: { "Accept":"application/json" } });
-    const data = await res.json().catch(()=>[]);
-    if (!Array.isArray(data) || !data.length) { hideSuggestions(); return; }
+        const leg = result.routes[0].legs[0];
+        const km = (leg.distance?.value || 0) / 1000;
 
-    showSuggestions(data.map(d => ({
-      lat: Number(d.lat),
-      lng: Number(d.lon),
-      address: d.display_name || ""
-    })));
-  }catch{
-    hideSuggestions();
-  }
-}
+        deliveryDistanceKm = Math.round(km * 10) / 10;
+        deliveryDurationText = leg.duration?.text || "";
+        deliveryFeeGhs = calcSuggestedFee(km);
 
-function showSuggestions(list){
-  suggestBox.innerHTML = "";
-  list.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "suggestItem";
-    row.innerHTML = `
-      <div class="suggestTitle">${escapeHtml(item.address.split(",")[0] || item.address)}</div>
-      <div class="suggestSub">${escapeHtml(item.address)}</div>
-    `;
-    row.addEventListener("click", () => {
-      deliveryAddressInput.value = item.address;
-      hideSuggestions();
-      setDestination({ address: item.address, lat: item.lat, lng: item.lng });
-    });
-    suggestBox.appendChild(row);
+        directionsRenderer.setDirections(result);
+
+        deliveryMeta.innerHTML =
+          `Distance: <b>${deliveryDistanceKm} km</b> • ETA: <b>${deliveryDurationText || "—"}</b><br>` +
+          `Suggested delivery fee: <b>${fmt(deliveryFeeGhs)}</b>`;
+
+        renderCartUI();
+        resolve(true);
+      }
+    );
   });
-  suggestBox.classList.add("show");
 }
-function hideSuggestions(){
-  suggestBox.classList.remove("show");
-  suggestBox.innerHTML = "";
-}
-document.addEventListener("click", (e) => {
-  if (!suggestBox.contains(e.target) && e.target !== deliveryAddressInput) hideSuggestions();
-});
+
+window.initMap = function(){
+  shopLatLng = new google.maps.LatLng(SHOP_FIXED.lat, SHOP_FIXED.lng);
+
+  gmap = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: SHOP_FIXED.lat, lng: SHOP_FIXED.lng },
+    zoom: 14
+  });
+
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer({ map: gmap, suppressMarkers: true });
+
+  new google.maps.Marker({
+    map: gmap,
+    position: shopLatLng,
+    title: "Flavour Hub Shawarma (Lin-Mart Executive Hostel, Haatso)"
+  });
+
+  autocomplete = new google.maps.places.Autocomplete(deliveryAddressInput, {
+    fields: ["geometry","formatted_address","name"],
+    componentRestrictions: { country: "gh" }
+  });
+
+  const biasCircle = new google.maps.Circle({ center: shopLatLng, radius: 35000 });
+  autocomplete.setBounds(biasCircle.getBounds());
+
+  autocomplete.addListener("place_changed", async () => {
+    const place = autocomplete.getPlace();
+    if (!place || !place.geometry || !place.geometry.location) return;
+
+    deliveryPlace = {
+      address: place.formatted_address || place.name || deliveryAddressInput.value,
+      location: place.geometry.location
+    };
+
+    document.getElementById("location").value = deliveryPlace.address || "";
+
+    if (destMarker) destMarker.setMap(null);
+    destMarker = new google.maps.Marker({ map: gmap, position: deliveryPlace.location, title: "Delivery destination" });
+
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(shopLatLng);
+    bounds.extend(deliveryPlace.location);
+    gmap.fitBounds(bounds);
+
+    try{ await routeAndPrice(); }
+    catch(e){
+      deliveryFeeGhs = 0;
+      deliveryMeta.textContent = "Could not calculate distance. Please try another address.";
+      renderCartUI();
+    }
+  });
+};
 
 document.getElementById("mode").addEventListener("change", () => {
   if (orderMode() === "Delivery") {
     setDeliveryUI(true);
-    if (deliveryPlace?.lat && deliveryPlace?.lng) setDestination(deliveryPlace);
+    if (deliveryPlace?.location) routeAndPrice().catch(()=>{});
   } else {
     setDeliveryUI(false);
     resetDeliveryPricing(true);
@@ -1292,7 +1139,7 @@ document.getElementById("mode").addEventListener("change", () => {
 });
 
 /* =========================
-   PAYSTACK (unchanged)
+   PAYSTACK (matched to backend routes)
 ========================= */
 async function payOnline(){
   try{
@@ -1312,8 +1159,13 @@ async function payOnline(){
     if (!phone) { setBusy(false); return alert("Phone number is required."); }
 
     if (mode === "Delivery") {
-      if (!deliveryPlace?.lat || !deliveryPlace?.lng) { setBusy(false); return alert("Please select a delivery address (or tap the map)."); }
-      if (!deliveryFeeGhs || deliveryFeeGhs <= 0) { setBusy(false); return alert("Delivery fee not calculated. Choose another address or pin."); }
+      if (!deliveryPlace?.location) { setBusy(false); return alert("Please select a delivery address."); }
+      if (!deliveryFeeGhs || deliveryFeeGhs <= 0) { setBusy(false); return alert("Delivery fee not calculated. Choose another address."); }
+    }
+
+    if (typeof window.PaystackPop === "undefined" || typeof window.PaystackPop.setup !== "function") {
+      setBusy(false);
+      return alert("Paystack failed to load. Refresh and try again.");
     }
 
     const items = Array.from(cart.values()).map(v => ({
@@ -1322,7 +1174,7 @@ async function payOnline(){
 
     const payload = {
       email,
-      amount: Math.round(grandTotal() * 100),
+      amount: Math.round(grandTotal() * 100), // pesewas
       currency: "GHS",
       customer: { name, phone },
       order: {
@@ -1332,11 +1184,8 @@ async function payOnline(){
         note,
         items,
         delivery: {
-          address: (mode === "Delivery") ? (deliveryPlace?.address || loc) : "",
-          lat: (mode === "Delivery") ? deliveryPlace?.lat : null,
-          lng: (mode === "Delivery") ? deliveryPlace?.lng : null,
-          distance_km: (mode === "Delivery") ? deliveryDistanceKm : null,
-          eta: (mode === "Delivery") ? deliveryDurationText : "",
+          distance_km: deliveryDistanceKm,
+          eta: deliveryDurationText,
           fee_ghs: (mode === "Delivery") ? deliveryFee() : 0
         },
         totals: { subtotal: cartSubtotal(), delivery: deliveryFee(), total: grandTotal() }
@@ -1350,11 +1199,8 @@ async function payOnline(){
       body: JSON.stringify(payload)
     });
 
-    const raw = await initRes.text();
-    let initData = {};
-    try { initData = JSON.parse(raw); } catch { initData = { raw }; }
-
-    if (!initRes.ok) throw new Error(initData?.error || initData?.message || `Failed to initialize payment (${initRes.status}).`);
+    const initData = await initRes.json().catch(()=> ({}));
+    if (!initRes.ok) throw new Error(initData?.error || "Failed to initialize payment.");
 
     const reference = initData.reference;
     const public_key = initData.public_key;
@@ -1373,17 +1219,10 @@ async function payOnline(){
           try{
             setStatus("Verifying payment...");
             const verifyRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/verify/${encodeURIComponent(response.reference)}`);
-            const vRaw = await verifyRes.text();
-            let verifyData = {};
-            try { verifyData = JSON.parse(vRaw); } catch { verifyData = { raw: vRaw }; }
-            if (!verifyRes.ok) throw new Error(verifyData?.error || verifyData?.message || "Verification failed.");
+            const verifyData = await verifyRes.json().catch(()=> ({}));
+            if (!verifyRes.ok) throw new Error(verifyData?.error || "Verification failed.");
 
-            const paid =
-              verifyData?.status === "success" ||
-              verifyData?.data?.status === "success" ||
-              verifyData?.data?.gateway_response === "Successful";
-
-            if (paid){
+            if (verifyData.status === "success"){
               const paidOrder = {
                 reference: response.reference,
                 business: BUSINESS_NAME,
@@ -1393,8 +1232,12 @@ async function payOnline(){
                 location: loc,
                 note,
                 items,
-                delivery: payload.order.delivery,
-                totals: payload.order.totals,
+                delivery: {
+                  distance_km: deliveryDistanceKm,
+                  eta: deliveryDurationText,
+                  fee_ghs: (mode === "Delivery") ? deliveryFee() : 0
+                },
+                totals: { subtotal: cartSubtotal(), delivery: deliveryFee(), total: grandTotal() },
                 paidAt: new Date().toISOString()
               };
               localStorage.setItem("fh_last_paid_order", JSON.stringify(paidOrder));
@@ -1402,6 +1245,7 @@ async function payOnline(){
               window.location.href = `success.html?ref=${encodeURIComponent(response.reference)}`;
               return;
             }
+
             throw new Error("Payment not successful.");
           }catch(err){
             console.error(err);
@@ -1433,34 +1277,20 @@ document.getElementById("payBtn").addEventListener("click", payOnline);
 /* =========================
    INIT
 ========================= */
-document.getElementById("year").textContent = new Date().getFullYear();
-
 (async () => {
+  document.getElementById("year").textContent = new Date().getFullYear();
   await loadMenuFromBackend();
-
-  // If backend returned nothing, still show fallback
-  if (!MENU.length) MENU = normalizeMenu(MENU_FALLBACK);
-
-  // Ensure active category is valid
-  const cats = categories();
-  if (!cats.includes(activeCategory)) activeCategory = "All";
-
   renderCategories();
   renderProducts();
   renderCartUI();
   setDeliveryUI(false);
 })();
-
-/* =========================
-   ESCAPES
-========================= */
-function escapeHtml(s){
-  return String(s ?? "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
-}
-function escapeAttr(s){ return escapeHtml(s); }
 </script>
+
+<!-- Google Maps: replace YOUR_GOOGLE_MAPS_KEY with your key -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_KEY&libraries=places&callback=initMap"
+  async defer></script>
 
 </body>
 </html>
