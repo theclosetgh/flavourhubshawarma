@@ -1,13 +1,18 @@
+<!-- =========================
+     index.html (FULL)
+     OPTION A: Delivery via Bolt/Yango (customer pays rider)
+     - Restaurant menu style (clean, fast browsing)
+     - Images supported from your admin menu JSON (item.image)
+     - No map, no distance pricing
+     - Paystack charges FOOD ONLY
+========================= -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Flavour Hub Shawarma — Order Online</title>
-  <meta name="description" content="Flavour Hub Shawarma — order pickup or delivery, delivery fee by distance, pay with Paystack." />
-
-  <!-- FREE MAP: Leaflet + OpenStreetMap (no API key) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <meta name="description" content="Flavour Hub Shawarma — order pickup or delivery (Bolt/Yango). Pay food online with Paystack." />
 
   <style>
     :root{
@@ -32,7 +37,6 @@
       background:var(--bg);
     }
 
-    /* ---------- Header ---------- */
     header{
       position:sticky; top:0; z-index:60;
       background:rgba(255,255,255,.92);
@@ -104,7 +108,6 @@
       .pill{order:2}
     }
 
-    /* ---------- Tabs (Categories) ---------- */
     .tabsWrap{
       border-top:1px solid var(--line);
       background:rgba(255,255,255,.92);
@@ -151,7 +154,6 @@
       background: rgba(239,68,68,.10);
     }
 
-    /* ---------- Page ---------- */
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 16px 108px;}
     .hero{
       margin-top:12px;
@@ -165,7 +167,7 @@
       gap:12px;
     }
     .hero h2{margin:0; font-size:20px}
-    .hero p{margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.45; max-width:860px}
+    .hero p{margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.45; max-width:880px}
     .chips{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
     .chip{
       background:#fff;
@@ -212,9 +214,7 @@
       font-size:12px;
     }
 
-    /* ---------- Restaurant list rows ---------- */
     .menuList{display:flex; flex-direction:column; gap:10px}
-
     .catHeader{
       margin:14px 0 6px;
       display:flex;
@@ -222,15 +222,8 @@
       justify-content:space-between;
       gap:10px;
     }
-    .catHeader h4{
-      margin:0;
-      font-size:13px;
-      letter-spacing:.2px;
-    }
-    .catHeader .sub{
-      color:var(--muted);
-      font-size:12px;
-    }
+    .catHeader h4{margin:0; font-size:13px; letter-spacing:.2px;}
+    .catHeader .sub{color:var(--muted); font-size:12px;}
 
     .rowCard{
       border:1px solid var(--line);
@@ -244,9 +237,7 @@
       padding:10px;
     }
     @media (max-width: 640px){
-      .rowCard{
-        grid-template-columns: 84px 1fr auto;
-      }
+      .rowCard{grid-template-columns: 84px 1fr auto;}
     }
 
     .thumb{
@@ -254,19 +245,16 @@
       border:1px solid var(--line);
       overflow:hidden;
       background:var(--soft);
-      display:grid;
-      place-items:center;
-      flex:0 0 auto;
+      display:grid; place-items:center;
     }
     @media (max-width: 640px){
       .thumb{width:84px;height:66px}
     }
-
     .thumb img{
       width:100%;
       height:100%;
       display:block;
-      object-fit:cover;     /* fixed premium look */
+      object-fit:cover;
       object-position:center;
     }
     .thumb .ph{
@@ -326,7 +314,6 @@
       padding:9px 12px;
     }
 
-    /* ---------- Checkout Bar ---------- */
     .checkoutBar{
       position:fixed;
       left:0; right:0; bottom:0;
@@ -364,7 +351,6 @@
     }
     .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
-    /* ---------- Drawer ---------- */
     .drawerMask{
       position:fixed; inset:0;
       background:rgba(2,6,23,.45);
@@ -389,10 +375,7 @@
 
     @media (max-width: 760px){
       .drawer{
-        top:auto;
-        right:auto;
-        left:0;
-        bottom:0;
+        top:auto; right:auto; left:0; bottom:0;
         width:100%;
         height:86vh;
         border-left:none;
@@ -440,8 +423,7 @@
       overflow:hidden;
       border:1px solid var(--line);
       background:#fff;
-      display:grid;
-      place-items:center;
+      display:grid; place-items:center;
       color:var(--muted);
       font-weight:950;
       font-size:11px;
@@ -502,22 +484,17 @@
       display:none;
     }
     .deliveryBox.show{display:block}
-    .deliveryMeta{
+    .notice{
       margin-top:8px;
       font-size:12.5px;
       color:var(--muted);
-      line-height:1.4;
-    }
-    .deliveryMeta b{color:var(--ink)}
-    #map{
-      margin-top:10px;
-      width:100%;
-      height:260px;
-      border-radius:14px;
-      border:1px solid var(--line);
+      line-height:1.45;
       background:#fff;
-      overflow:hidden;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      padding:10px;
     }
+    .notice b{color:var(--ink)}
 
     .drawerFt{
       border-top:1px solid var(--line);
@@ -574,7 +551,7 @@
       <div class="logo">FH</div>
       <div>
         <h1>Flavour Hub Shawarma</h1>
-        <p>Lin-Mart Executive Hostel • Haatso • Delivery by distance</p>
+        <p>Lin-Mart Executive Hostel • Haatso • Delivery via Bolt/Yango</p>
       </div>
     </div>
 
@@ -589,7 +566,6 @@
     </div>
   </div>
 
-  <!-- Category Tabs -->
   <div class="tabsWrap">
     <div class="tabs" id="tabs"></div>
   </div>
@@ -600,14 +576,14 @@
     <div>
       <h2>Order online</h2>
       <p>
-        Browse the menu by category, add items, review your order, then choose Pickup or Delivery.
-        For Delivery, drop a pin on the map for an exact location and the system will suggest a delivery fee.
+        Choose items, review your order, and pay online for the food. For Delivery, we dispatch with
+        <b>Bolt/Yango</b> — the <b>delivery fee is paid directly to the rider</b> on delivery.
       </p>
     </div>
     <div class="chips">
       <div class="chip"><b>Currency:</b> GHS</div>
-      <div class="chip"><b>Delivery:</b> Ghana</div>
-      <div class="chip"><b>Payment:</b> Paystack</div>
+      <div class="chip"><b>Delivery:</b> Bolt/Yango</div>
+      <div class="chip"><b>Payment:</b> Paystack (food only)</div>
     </div>
   </section>
 
@@ -660,9 +636,9 @@
     <div class="cartList" id="cartList"></div>
 
     <div class="totals">
-      <div class="row"><span>Subtotal</span><strong id="subTotal">GHS 0.00</strong></div>
-      <div class="row"><span>Delivery fee</span><strong id="deliveryFee">GHS 0.00</strong></div>
-      <div class="row"><span>Total</span><strong id="grandTotal">GHS 0.00</strong></div>
+      <div class="row"><span>Subtotal (food)</span><strong id="subTotal">GHS 0.00</strong></div>
+      <div class="row"><span>Delivery fee</span><strong>Paid to rider</strong></div>
+      <div class="row"><span>Total to pay online</span><strong id="grandTotal">GHS 0.00</strong></div>
     </div>
 
     <div class="form">
@@ -685,24 +661,38 @@
         <label for="mode">Order Type</label>
         <select id="mode">
           <option value="Pickup">Pickup</option>
-          <option value="Delivery">Delivery</option>
+          <option value="Delivery">Delivery (Bolt/Yango)</option>
         </select>
       </div>
 
       <div class="deliveryBox" id="deliveryBox">
         <div class="field">
-          <label for="deliveryAddress">Delivery address label (optional)</label>
-          <input id="deliveryAddress" placeholder="Optional: Block/Room/Landmark (e.g., Block A, Room 12)" />
+          <label for="deliveryArea">Delivery Area</label>
+          <select id="deliveryArea">
+            <option value="">Select area</option>
+            <option>Haatso</option>
+            <option>UPSA / Legon</option>
+            <option>Madina</option>
+            <option>Atomic</option>
+            <option>Achimota</option>
+            <option>Other</option>
+          </select>
         </div>
-        <div class="deliveryMeta" id="deliveryMeta">
-          Tap the map to drop a pin (or drag the pin) to set the delivery location.
-        </div>
-        <div id="map"></div>
-      </div>
 
-      <div class="field">
-        <label for="location">Delivery/Pickup Location (optional text)</label>
-        <input id="location" placeholder="UPSA Hostel / Madina / Legon..." />
+        <div class="field">
+          <label for="deliveryAddress">Address / Hostel / Block</label>
+          <input id="deliveryAddress" placeholder="e.g., Lin-Mart Hostel, Block A, Room 12" />
+        </div>
+
+        <div class="field">
+          <label for="landmark">Landmark (important)</label>
+          <input id="landmark" placeholder="e.g., Near security post / blue gate / opposite shop" />
+        </div>
+
+        <div class="notice">
+          Delivery is dispatched via <b>Bolt/Yango</b>. Delivery fee is <b>paid directly to the rider</b> on delivery.
+          After payment, you can send your details to WhatsApp for faster dispatch.
+        </div>
       </div>
 
       <div class="field">
@@ -721,7 +711,6 @@
 </aside>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 /* =========================
@@ -731,17 +720,8 @@ const BUSINESS_NAME = "Flavour Hub Shawarma";
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
 const WHATSAPP_LOCAL = "0543748208";
 
-/* LOCKED shop coordinates */
-const SHOP_FIXED = { lat: 5.6677055, lng: -0.1971199 };
-
-/* Delivery pricing model */
-const DELIVERY_BASE_FEE = 8;
-const DELIVERY_PER_KM   = 2.5;
-const DELIVERY_MIN      = 8;
-const DELIVERY_MAX      = 60;
-
 /* =========================
-   MENU (Loaded from backend)
+   MENU (Loaded from backend /api/menu)
 ========================= */
 let MENU = [];
 
@@ -797,23 +777,11 @@ function setBusy(b){
 function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
 function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price * v.qty; return s; }
 
-/* Delivery state */
-let deliveryFeeGhs = 0;
-let deliveryDistanceKm = null;
-let deliveryDurationText = "";
-let deliveryPlace = null; // { location:{lat,lng}, address:"" }
-
-function calcSuggestedFee(distanceKm){
-  const raw = DELIVERY_BASE_FEE + (distanceKm * DELIVERY_PER_KM);
-  const capped = Math.min(DELIVERY_MAX, Math.max(DELIVERY_MIN, raw));
-  return Math.round(capped * 10) / 10;
-}
 function orderMode(){ return document.getElementById("mode").value; }
-function deliveryFee(){ return (orderMode() === "Delivery") ? (Number(deliveryFeeGhs) || 0) : 0; }
-function grandTotal(){ return cartSubtotal() + deliveryFee(); }
+function grandTotal(){ return cartSubtotal(); } // food only (Option A)
 
 /* =========================
-   TABS + MENU LIST (Restaurant style)
+   TABS + MENU LIST
 ========================= */
 let activeCategory = "All";
 const tabsEl = document.getElementById("tabs");
@@ -847,7 +815,6 @@ function renderTabs(){
 function buildVisibleItems(){
   const q = (document.getElementById("search").value || "").trim().toLowerCase();
 
-  // If "All", we keep them grouped by category for a real restaurant feel.
   if (activeCategory === "All"){
     return MENU.map(cat => {
       const items = cat.items.filter(it => {
@@ -858,7 +825,6 @@ function buildVisibleItems(){
     }).filter(group => group.items.length);
   }
 
-  // Single category view
   const cat = MENU.find(x => x.category === activeCategory);
   const items = (cat?.items || []).filter(it => {
     const hay = `${activeCategory} ${it.name} ${it.desc || ""}`.toLowerCase();
@@ -885,7 +851,6 @@ function renderMenuList(){
   }
 
   for (const group of groups){
-    // Category header only when All
     if (activeCategory === "All"){
       const hd = document.createElement("div");
       hd.className = "catHeader";
@@ -941,7 +906,6 @@ const drawerItemsLabel = document.getElementById("drawerItemsLabel");
 
 const cartListEl = document.getElementById("cartList");
 const subTotalEl = document.getElementById("subTotal");
-const deliveryFeeEl = document.getElementById("deliveryFee");
 const grandTotalEl = document.getElementById("grandTotal");
 
 function addToCart(key, it, category){
@@ -965,7 +929,6 @@ function dec(key){
 function clearCart(){
   cart.clear();
   setStatus("");
-  resetDeliveryPricing(true);
   renderCartUI();
   renderMenuList();
 }
@@ -978,7 +941,6 @@ function renderCartUI(){
   drawerItemsLabel.textContent = `${count} item${count===1?"":"s"}`;
 
   subTotalEl.textContent = fmt(cartSubtotal());
-  deliveryFeeEl.textContent = fmt(deliveryFee());
   grandTotalEl.textContent = fmt(grandTotal());
 
   cartListEl.innerHTML = "";
@@ -1029,7 +991,6 @@ function openDrawer(){
   mask.classList.add("show");
   drawer.classList.add("open");
   drawer.setAttribute("aria-hidden","false");
-  setTimeout(() => { try { window.__fh_map && window.__fh_map.invalidateSize(); } catch{} }, 200);
 }
 function closeDrawer(){
   drawer.classList.remove("open");
@@ -1045,118 +1006,17 @@ document.getElementById("barReview").addEventListener("click", openDrawer);
 document.getElementById("clearCartBtn").addEventListener("click", clearCart);
 document.getElementById("clearCartTop").addEventListener("click", clearCart);
 document.getElementById("barClear").addEventListener("click", clearCart);
+document.getElementById("barReview").addEventListener("click", openDrawer);
 
 /* =========================
-   DELIVERY (FREE: Leaflet + OSM) — Pin location
+   DELIVERY UI (Option A)
 ========================= */
 const deliveryBox = document.getElementById("deliveryBox");
-const deliveryMeta = document.getElementById("deliveryMeta");
-const deliveryAddressInput = document.getElementById("deliveryAddress");
-
-let map = null;
-let shopMarker = null;
-let destMarker = null;
-
-function setDeliveryUI(show){
-  deliveryBox.classList.toggle("show", !!show);
-  if (show) setTimeout(() => { try { map && map.invalidateSize(); } catch{} }, 150);
-}
-
-function haversineKm(lat1, lon1, lat2, lon2){
-  const R = 6371;
-  const dLat = (lat2-lat1) * Math.PI/180;
-  const dLon = (lon2-lon1) * Math.PI/180;
-  const a =
-    Math.sin(dLat/2)**2 +
-    Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
-    Math.sin(dLon/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-function formatEtaFromKm(km){
-  const mins = Math.max(8, Math.round((km / 22) * 60 + 6));
-  return `${mins} mins`;
-}
-
-function resetDeliveryPricing(keepAddress=false){
-  deliveryFeeGhs = 0;
-  deliveryDistanceKm = null;
-  deliveryDurationText = "";
-  deliveryPlace = null;
-
-  deliveryMeta.innerHTML = "Tap the map to drop a pin (or drag the pin) to set the delivery location.";
-  if (!keepAddress) deliveryAddressInput.value = "";
-
-  if (destMarker && map) { map.removeLayer(destMarker); destMarker = null; }
-  renderCartUI();
-}
-
-async function setDestination(lat, lng){
-  const km = haversineKm(SHOP_FIXED.lat, SHOP_FIXED.lng, lat, lng);
-  deliveryDistanceKm = Math.round(km * 10) / 10;
-  deliveryDurationText = formatEtaFromKm(km);
-  deliveryFeeGhs = calcSuggestedFee(km);
-
-  deliveryPlace = { location: { lat, lng }, address: "" };
-
-  if (destMarker && map) map.removeLayer(destMarker);
-  destMarker = L.marker([lat, lng], { draggable:true }).addTo(map);
-
-  destMarker.on("dragend", async () => {
-    const p = destMarker.getLatLng();
-    await setDestination(p.lat, p.lng);
-  });
-
-  const label = (deliveryAddressInput.value || "").trim();
-  const locInput = document.getElementById("location");
-  if (label){
-    deliveryPlace.address = label;
-    if (locInput) locInput.value = label;
-  } else {
-    const coordLabel = `Pin: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-    if (locInput) locInput.value = coordLabel;
-  }
-
-  deliveryMeta.innerHTML =
-    `Distance (approx): <b>${deliveryDistanceKm} km</b> • ETA (estimate): <b>${deliveryDurationText}</b><br>` +
-    `Suggested delivery fee: <b>${fmt(deliveryFeeGhs)}</b><br>` +
-    `<span style="color:var(--muted)">Tip: drag the pin to adjust exactly.</span>`;
-
-  renderCartUI();
-}
-
-function initFreeMap(){
-  if (map) return;
-
-  map = L.map("map", { scrollWheelZoom: true }).setView([SHOP_FIXED.lat, SHOP_FIXED.lng], 13);
-  window.__fh_map = map;
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap"
-  }).addTo(map);
-
-  shopMarker = L.marker([SHOP_FIXED.lat, SHOP_FIXED.lng]).addTo(map).bindPopup("Flavour Hub Shawarma");
-
-  map.on("click", async (e) => {
-    if (orderMode() !== "Delivery") return;
-    await setDestination(e.latlng.lat, e.latlng.lng);
-  });
-
-  deliveryMeta.innerHTML = "Tap the map to drop a pin (or drag the pin) to set the delivery location.";
-}
-
-document.getElementById("mode").addEventListener("change", () => {
-  if (orderMode() === "Delivery") {
-    setDeliveryUI(true);
-    initFreeMap();
-  } else {
-    setDeliveryUI(false);
-    resetDeliveryPricing(true);
-  }
-  renderCartUI();
-});
+function setDeliveryUI(show){ deliveryBox.classList.toggle("show", !!show); }
+document.getElementById("mode").addEventListener("change", () => setDeliveryUI(orderMode() === "Delivery"));
 
 /* =========================
-   PAYSTACK
+   PAYSTACK (FOOD ONLY)
 ========================= */
 async function payOnline(){
   try{
@@ -1169,16 +1029,19 @@ async function payOnline(){
     const phone = document.getElementById("custPhone").value.trim();
     const email = document.getElementById("custEmail").value.trim();
     const mode = orderMode();
-    const loc = document.getElementById("location").value.trim();
     const note = document.getElementById("note").value.trim();
+
+    const deliveryArea = (document.getElementById("deliveryArea")?.value || "").trim();
+    const deliveryAddress = (document.getElementById("deliveryAddress")?.value || "").trim();
+    const landmark = (document.getElementById("landmark")?.value || "").trim();
 
     if (!email) { setBusy(false); return alert("Email is required for Paystack."); }
     if (!phone) { setBusy(false); return alert("Phone number is required."); }
 
     if (mode === "Delivery") {
-      const hasPin = !!(deliveryPlace?.location?.lat && deliveryPlace?.location?.lng);
-      if (!hasPin) { setBusy(false); return alert("Please drop a pin on the map for delivery location."); }
-      if (!deliveryFeeGhs || deliveryFeeGhs <= 0) { setBusy(false); return alert("Delivery fee not calculated. Drop the pin again."); }
+      if (!deliveryArea) { setBusy(false); return alert("Please select a delivery area."); }
+      if (!deliveryAddress) { setBusy(false); return alert("Please enter delivery address/hostel/block."); }
+      if (!landmark) { setBusy(false); return alert("Please enter a landmark (very important)."); }
     }
 
     if (typeof window.PaystackPop === "undefined" || typeof window.PaystackPop.setup !== "function") {
@@ -1190,25 +1053,26 @@ async function payOnline(){
       name: v.name, qty: v.qty, unit_price: v.price, category: v.category
     }));
 
+    const amountPesewas = Math.round(cartSubtotal() * 100);
+
     const payload = {
       email,
-      amount: Math.round(grandTotal() * 100),
+      amount: amountPesewas,
       currency: "GHS",
       customer: { name, phone },
       order: {
         business: BUSINESS_NAME,
         mode,
-        location: loc,
-        note,
         items,
-        delivery: {
-          distance_km: deliveryDistanceKm,
-          eta: deliveryDurationText,
-          fee_ghs: (mode === "Delivery") ? deliveryFee() : 0,
-          lat: deliveryPlace?.location?.lat || null,
-          lng: deliveryPlace?.location?.lng || null
-        },
-        totals: { subtotal: cartSubtotal(), delivery: deliveryFee(), total: grandTotal() }
+        note,
+        delivery: (mode === "Delivery") ? {
+          provider: "Bolt/Yango",
+          area: deliveryArea,
+          address: deliveryAddress,
+          landmark: landmark,
+          fee_note: "Delivery fee is paid directly to the rider."
+        } : null,
+        totals: { subtotal: cartSubtotal(), total: cartSubtotal() }
       }
     };
 
@@ -1230,7 +1094,7 @@ async function payOnline(){
     const handler = window.PaystackPop.setup({
       key: public_key,
       email,
-      amount: payload.amount,
+      amount: amountPesewas,
       currency: "GHS",
       ref: reference,
 
@@ -1249,19 +1113,19 @@ async function payOnline(){
                 whatsapp: WHATSAPP_LOCAL,
                 customer: { name, phone, email },
                 mode,
-                location: loc,
-                note,
                 items,
-                delivery: {
-                  distance_km: deliveryDistanceKm,
-                  eta: deliveryDurationText,
-                  fee_ghs: (mode === "Delivery") ? deliveryFee() : 0,
-                  lat: deliveryPlace?.location?.lat || null,
-                  lng: deliveryPlace?.location?.lng || null
-                },
-                totals: { subtotal: cartSubtotal(), delivery: deliveryFee(), total: grandTotal() },
+                note,
+                delivery: (mode === "Delivery") ? {
+                  provider: "Bolt/Yango",
+                  area: deliveryArea,
+                  address: deliveryAddress,
+                  landmark: landmark,
+                  fee_note: "Delivery fee is paid directly to the rider."
+                } : null,
+                totals: { subtotal: cartSubtotal(), total: cartSubtotal() },
                 paidAt: new Date().toISOString()
               };
+
               localStorage.setItem("fh_last_paid_order", JSON.stringify(paidOrder));
               closeDrawer();
               window.location.href = `success.html?ref=${encodeURIComponent(response.reference)}`;
@@ -1303,7 +1167,6 @@ document.getElementById("payBtn").addEventListener("click", payOnline);
   document.getElementById("year").textContent = new Date().getFullYear();
 
   await loadMenuFromBackend();
-  // If backend returns empty for some reason, still show something helpful
   if (!MENU.length){
     document.getElementById("menuList").innerHTML =
       `<div style="border:1px dashed var(--line);background:var(--soft);border-radius:16px;padding:14px;color:var(--muted);font-size:13px;text-align:center">
