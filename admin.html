@@ -22,6 +22,7 @@
     background:rgba(255,255,255,.06);color:var(--ink);cursor:pointer;font-weight:900
   }
   button.primary{border:none;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  button.small{padding:8px 10px;border-radius:10px;font-weight:900}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .row3{display:grid;grid-template-columns:2fr 1fr 2fr;gap:10px}
   @media(max-width:900px){.row,.row3{grid-template-columns:1fr}}
@@ -51,6 +52,7 @@
     font-size:12px;
   }
   .preview img{width:100%;height:100%;object-fit:cover;display:block}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-top:10px}
 </style>
 </head>
 <body>
@@ -59,7 +61,7 @@
     <div class="topbar">
       <div>
         <h2>Admin — Menu Manager</h2>
-        <div class="muted">Edit menu + add pictures (use image URLs). Save publishes instantly to customers.</div>
+        <div class="muted">Edit menu + upload pictures from your device to Cloudinary. Save publishes instantly.</div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button onclick="openSite()">Open Site</button>
@@ -96,6 +98,7 @@
 
 <script>
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
+
 let token = localStorage.getItem("fh_admin_token") || "";
 let menu = null;
 
@@ -111,7 +114,8 @@ function logout(){
 async function login(){
   const password = document.getElementById("pw").value.trim();
   const r = await fetch(`${BACKEND_BASE_URL}/api/admin/login`, {
-    method:"POST", headers:{ "Content-Type":"application/json" },
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({ password })
   });
   const data = await r.json().catch(()=>({}));
@@ -129,8 +133,10 @@ async function reloadMenu(){
   setStatus("Loading menu...");
   const r = await fetch(`${BACKEND_BASE_URL}/api/menu`, { cache:"no-store" });
   menu = await r.json();
+
   document.getElementById("loginCard").style.display = "none";
   document.getElementById("editorCard").style.display = "block";
+
   setStatus(`Loaded. Updated: ${new Date(menu.updatedAt || Date.now()).toLocaleString()}`);
   render();
 }
@@ -164,9 +170,29 @@ function safeImg(url){
   }catch(_){ return ""; }
 }
 
+/* Upload image to Cloudinary via your backend */
+async function uploadImage(file){
+  if(!token) throw new Error("Login required");
+
+  const fd = new FormData();
+  fd.append("image", file);
+
+  const r = await fetch(`${BACKEND_BASE_URL}/api/admin/upload`, {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${token}` },
+    body: fd
+  });
+
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(data.error || "Upload failed");
+  if(!data.url) throw new Error("Upload did not return URL");
+  return data.url;
+}
+
 function render(){
   const cats = document.getElementById("cats");
   cats.innerHTML = "";
+
   menu.categories.forEach((cat, ci) => {
     const wrap = document.createElement("div");
     wrap.className = "cat";
@@ -187,24 +213,36 @@ function render(){
       const div = document.createElement("div");
       div.className = "item";
       const img = safeImg(it.image || "");
+      const inputId = `file_${ci}_${ii}`;
+
       div.innerHTML = `
         <div class="row3">
           <div>
             <div class="muted">Item name</div>
-            <input value="${escapeHtml(it.name||"")}" oninput="menu.categories[${ci}].items[${ii}].name=this.value" />
+            <input value="${escapeHtml(it.name||"")}"
+                   oninput="menu.categories[${ci}].items[${ii}].name=this.value" />
           </div>
           <div>
             <div class="muted">Price (GHS)</div>
-            <input type="number" value="${Number(it.price||0)}" oninput="menu.categories[${ci}].items[${ii}].price=Number(this.value||0)" />
+            <input type="number" value="${Number(it.price||0)}"
+                   oninput="menu.categories[${ci}].items[${ii}].price=Number(this.value||0)" />
           </div>
           <div>
-            <div class="muted">Image URL (https://...jpg/png)</div>
-            <input value="${escapeHtml(it.image||"")}" oninput="menu.categories[${ci}].items[${ii}].image=this.value; refreshPreview(this, ${ci}, ${ii})" />
+            <div class="muted">Image URL (auto-filled by upload)</div>
+            <input value="${escapeHtml(it.image||"")}"
+                   oninput="menu.categories[${ci}].items[${ii}].image=this.value; refreshPreview(this, ${ci}, ${ii})" />
           </div>
         </div>
 
-        <div class="preview" data-preview="1">
+        <div class="preview">
           ${img ? `<img src="${img}" alt="" />` : `No Image`}
+        </div>
+
+        <div class="actions">
+          <input id="${inputId}" type="file" accept="image/jpeg,image/png,image/webp" style="display:none" />
+          <button class="small" onclick="document.getElementById('${inputId}').click()">Upload from device</button>
+          <button class="small" onclick="clearImage(${ci},${ii})">Remove image</button>
+          <button class="small" onclick="delItem(${ci},${ii})">Remove item</button>
         </div>
 
         <div style="margin-top:10px">
@@ -212,15 +250,49 @@ function render(){
           <textarea oninput="menu.categories[${ci}].items[${ii}].desc=this.value">${escapeHtml(it.desc||"")}</textarea>
         </div>
 
-        <div style="margin-top:10px;display:flex;justify-content:flex-end">
-          <button onclick="delItem(${ci},${ii})">Remove item</button>
-        </div>
+        <div class="muted" style="margin-top:8px" data-msg="1"></div>
       `;
+
+      // Wire upload handler
+      setTimeout(() => {
+        const fileEl = document.getElementById(inputId);
+        const msgEl = div.querySelector('[data-msg="1"]');
+
+        fileEl.addEventListener("change", async () => {
+          const f = fileEl.files?.[0];
+          if(!f) return;
+
+          msgEl.textContent = "Uploading...";
+          try{
+            const url = await uploadImage(f);
+            menu.categories[ci].items[ii].image = url;
+
+            // update URL input and preview
+            const inputs = div.querySelectorAll("input");
+            inputs[inputs.length - 1].value = url;
+
+            const prev = div.querySelector(".preview");
+            prev.innerHTML = `<img src="${url}" alt="" />`;
+
+            msgEl.textContent = "Uploaded. Click “Save Menu” to publish.";
+          }catch(e){
+            msgEl.textContent = "Upload failed: " + (e.message || "Error");
+          }finally{
+            fileEl.value = "";
+          }
+        });
+      }, 0);
+
       wrap.appendChild(div);
     });
 
     cats.appendChild(wrap);
   });
+}
+
+function clearImage(ci, ii){
+  menu.categories[ci].items[ii].image = "";
+  render();
 }
 
 function refreshPreview(input, ci, ii){
@@ -233,6 +305,7 @@ function refreshPreview(input, ci, ii){
 async function saveMenu(){
   if(!token){ alert("Login first"); return; }
   setStatus("Saving...");
+
   const r = await fetch(`${BACKEND_BASE_URL}/api/admin/menu`, {
     method:"PUT",
     headers:{
@@ -241,12 +314,14 @@ async function saveMenu(){
     },
     body: JSON.stringify(menu)
   });
+
   const data = await r.json().catch(()=>({}));
   if(!r.ok){
     setStatus(data.error || "Save failed");
     if((data.error||"").includes("Invalid/expired")) logout();
     return;
   }
+
   menu = data;
   setStatus(`Saved. Updated: ${new Date(menu.updatedAt || Date.now()).toLocaleString()}`);
   render();
