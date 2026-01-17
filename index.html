@@ -6,6 +6,9 @@
   <title>Flavour Hub Shawarma — Order Online</title>
   <meta name="description" content="Flavour Hub Shawarma — order pickup or delivery, delivery fee by distance, pay with Paystack." />
 
+  <!-- FREE MAP: Leaflet + OpenStreetMap (no API key) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
   <style>
     :root{
       --bg:#ffffff;
@@ -123,8 +126,20 @@
       font-size:12px;
       color:var(--muted);
       box-shadow: 0 1px 0 rgba(2,6,23,.04);
+      display:flex;
+      align-items:center;
+      gap:6px;
     }
     .chip b{color:var(--ink)}
+    .chip button{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:999px;
+      padding:6px 10px;
+      font-weight:900;
+      font-size:12px;
+      cursor:pointer;
+    }
 
     .layout{
       margin-top:14px;
@@ -211,13 +226,16 @@
       font-size:12px;
     }
 
+    /* NEW PROFESSIONAL MENU LAYOUT:
+       - Desktop: image left, details right
+       - Mobile: image top, details below
+    */
     .grid{
       display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap:12px;
     }
-    @media (max-width: 1120px){ .grid{grid-template-columns: repeat(2, minmax(0, 1fr));} }
-    @media (max-width: 640px){ .grid{grid-template-columns: 1fr;} }
+    @media (max-width: 980px){ .grid{grid-template-columns: 1fr;} }
 
     .card{
       border:1px solid var(--line);
@@ -225,23 +243,35 @@
       border-radius: var(--r2);
       overflow:hidden;
       box-shadow: 0 1px 0 rgba(2,6,23,.04);
-      display:flex; flex-direction:column;
-      min-height: 248px;
+      display:grid;
+      grid-template-columns: 210px 1fr;
+      min-height: 170px;
     }
+    @media (max-width: 640px){
+      .card{grid-template-columns: 1fr; }
+    }
+
     .cardMedia{
-      height: 168px;
-      background: var(--soft);
-      border-bottom: 1px solid var(--line);
+      background:var(--soft);
+      border-right:1px solid var(--line);
       overflow:hidden;
       display:flex;
       align-items:center;
       justify-content:center;
+      position:relative;
+      aspect-ratio: 4 / 3;
     }
+    @media (min-width: 641px){
+      .cardMedia{ aspect-ratio: auto; }
+    }
+
+    /* THIS IS WHERE YOU CONTROL "FULL" VS "CROP" */
     .cardMedia img{
       width:100%;
       height:100%;
-      object-fit: cover;
       display:block;
+      object-fit: var(--imgFit, cover); /* cover=crop, contain=full image */
+      object-position: center;
     }
     .cardMedia .ph{
       color: var(--muted);
@@ -249,16 +279,15 @@
       font-weight: 900;
     }
 
-    .cardInner{padding:14px; display:flex; flex-direction:column; height:100%}
+    .cardInner{padding:14px; display:flex; flex-direction:column;}
     .title{margin:0; font-weight:950; font-size:14px; letter-spacing:.1px}
     .desc{
       margin:7px 0 0;
       color:var(--muted);
       font-size:12.5px;
       line-height:1.4;
-      min-height: 38px;
+      min-height: 34px;
     }
-    .spacer{flex:1}
     .meta{margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px}
     .price{font-weight:950; font-size:13.5px}
     .tag{
@@ -270,7 +299,7 @@
       color:var(--muted);
       white-space:nowrap;
     }
-    .actions{margin-top:12px; display:flex; gap:10px}
+    .actions{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap}
     .btn{
       border:none;
       cursor:pointer;
@@ -284,6 +313,7 @@
       color:#fff;
       box-shadow: 0 10px 22px rgba(239,68,68,.18);
       flex:1;
+      min-width: 150px;
     }
     .btn.ghost{
       border:1px solid var(--line);
@@ -476,7 +506,7 @@
     #map{
       margin-top:10px;
       width:100%;
-      height:240px;
+      height:260px;
       border-radius:14px;
       border:1px solid var(--line);
       background:#fff;
@@ -559,15 +589,20 @@
     <div>
       <h2>Order online</h2>
       <p>
-        Add items, review your order, choose Pickup or Delivery. For Delivery, select an address (Ghana only) and the system will calculate
-        distance, ETA, and a suggested delivery fee automatically.
+        Add items, review your order, choose Pickup or Delivery. For Delivery, drop a pin on the map (free) for an exact location.
+        The system calculates distance and suggests a delivery fee.
       </p>
     </div>
     <div class="chips">
       <div class="chip"><b>Currency:</b> GHS</div>
       <div class="chip"><b>Delivery:</b> Ghana only</div>
       <div class="chip"><b>Payment:</b> Paystack</div>
-      <div class="chip"><b>Map:</b> Google Maps</div>
+
+      <!-- Image Fit Toggle -->
+      <div class="chip">
+        <b>Images:</b>
+        <button type="button" id="imgFitBtn" title="Toggle crop/full image">Crop</button>
+      </div>
     </div>
   </section>
 
@@ -661,11 +696,11 @@
 
       <div class="deliveryBox" id="deliveryBox">
         <div class="field">
-          <label for="deliveryAddress">Delivery address (Ghana only)</label>
-          <input id="deliveryAddress" placeholder="Type location (e.g., UPSA, Madina, Legon...)" />
+          <label for="deliveryAddress">Delivery address label (optional)</label>
+          <input id="deliveryAddress" placeholder="Optional: describe the place (e.g., Block A, Room 12)" />
         </div>
         <div class="deliveryMeta" id="deliveryMeta">
-          Select an address to calculate distance and delivery fee.
+          Tap the map to drop a pin (or drag the pin) to set the delivery location.
         </div>
         <div id="map"></div>
       </div>
@@ -691,6 +726,7 @@
 </aside>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 /* =========================
@@ -710,15 +746,29 @@ const DELIVERY_MIN      = 8;
 const DELIVERY_MAX      = 60;
 
 /* =========================
+   IMAGE FIT (Crop vs Full)
+   - Crop = object-fit: cover (looks premium)
+   - Full = object-fit: contain (shows whole image)
+========================= */
+function applyImgFit(mode){
+  const fit = (mode === "contain") ? "contain" : "cover";
+  document.documentElement.style.setProperty("--imgFit", fit);
+  localStorage.setItem("fh_img_fit", fit);
+  const btn = document.getElementById("imgFitBtn");
+  if (btn) btn.textContent = (fit === "cover") ? "Crop" : "Full";
+}
+document.getElementById("imgFitBtn").addEventListener("click", () => {
+  const cur = localStorage.getItem("fh_img_fit") || "cover";
+  applyImgFit(cur === "cover" ? "contain" : "cover");
+});
+
+/* =========================
    MENU (Loaded from backend)
    Backend returns:
    { updatedAt, categories:[{name, items:[{..., image:""}]}] }
 ========================= */
 let MENU = [];
 
-/* =========================
-   SAFE helpers
-========================= */
 function escapeHtml(s){
   return String(s ?? "").replace(/[&<>"']/g, m => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -780,8 +830,7 @@ function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price * 
 let deliveryFeeGhs = 0;
 let deliveryDistanceKm = null;
 let deliveryDurationText = "";
-let deliveryPlace = null;
-let shopLatLng = null;
+let deliveryPlace = null; // { location:{lat,lng}, address:"" }
 
 function calcSuggestedFee(distanceKm){
   const raw = DELIVERY_BASE_FEE + (distanceKm * DELIVERY_PER_KM);
@@ -810,8 +859,7 @@ function countItemsInCategory(cat){
 
 function renderCategories(){
   catList.innerHTML = "";
-  const cats = categories();
-  cats.forEach(cat => {
+  categories().forEach(cat => {
     const btn = document.createElement("button");
     btn.className = "catBtn" + (cat === activeCategory ? " active" : "");
     btn.type = "button";
@@ -870,7 +918,6 @@ function renderProducts(){
       <div class="cardInner">
         <p class="title">${escapeHtml(it.name)}</p>
         <p class="desc">${escapeHtml(it.desc || "")}</p>
-        <div class="spacer"></div>
         <div class="meta">
           <div class="price">${fmt(it.price)}</div>
           <div class="tag">${escapeHtml(it.category)}</div>
@@ -989,6 +1036,8 @@ function openDrawer(){
   mask.classList.add("show");
   drawer.classList.add("open");
   drawer.setAttribute("aria-hidden","false");
+  // map needs size recalculation when drawer opens
+  setTimeout(() => { try { window.__fh_map && window.__fh_map.invalidateSize(); } catch{} }, 200);
 }
 function closeDrawer(){
   drawer.classList.remove("open");
@@ -1006,20 +1055,35 @@ document.getElementById("clearCartTop").addEventListener("click", clearCart);
 document.getElementById("barClear").addEventListener("click", clearCart);
 
 /* =========================
-   DELIVERY (Google Maps + Ghana-only Places)
+   DELIVERY (FREE: Leaflet + OSM) — Pin location (precise)
 ========================= */
 const deliveryBox = document.getElementById("deliveryBox");
 const deliveryMeta = document.getElementById("deliveryMeta");
 const deliveryAddressInput = document.getElementById("deliveryAddress");
 
-let gmap = null;
+let map = null;
+let shopMarker = null;
 let destMarker = null;
-let directionsService = null;
-let directionsRenderer = null;
-let autocomplete = null;
 
 function setDeliveryUI(show){
   deliveryBox.classList.toggle("show", !!show);
+  if (show) setTimeout(() => { try { map && map.invalidateSize(); } catch{} }, 150);
+}
+
+function haversineKm(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+  const a =
+    Math.sin(dLat/2)**2 +
+    Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+    Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function formatEtaFromKm(km){
+  const mins = Math.max(8, Math.round((km / 22) * 60 + 6)); // simple estimate
+  return `${mins} mins`;
 }
 
 function resetDeliveryPricing(keepAddress=false){
@@ -1028,109 +1092,73 @@ function resetDeliveryPricing(keepAddress=false){
   deliveryDurationText = "";
   deliveryPlace = null;
 
-  deliveryMeta.textContent = "Select an address to calculate distance and delivery fee.";
+  deliveryMeta.innerHTML = "Tap the map to drop a pin (or drag the pin) to set the delivery location.";
   if (!keepAddress) deliveryAddressInput.value = "";
 
-  if (destMarker) { destMarker.setMap(null); destMarker = null; }
-  if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+  if (destMarker && map) { map.removeLayer(destMarker); destMarker = null; }
+  renderCartUI();
+}
+
+async function setDestination(lat, lng){
+  const km = haversineKm(SHOP_FIXED.lat, SHOP_FIXED.lng, lat, lng);
+  deliveryDistanceKm = Math.round(km * 10) / 10;
+  deliveryDurationText = formatEtaFromKm(km);
+  deliveryFeeGhs = calcSuggestedFee(km);
+
+  deliveryPlace = { location: { lat, lng }, address: "" };
+
+  if (destMarker && map) map.removeLayer(destMarker);
+  destMarker = L.marker([lat, lng], { draggable:true }).addTo(map);
+
+  destMarker.on("dragend", async () => {
+    const p = destMarker.getLatLng();
+    await setDestination(p.lat, p.lng);
+  });
+
+  // Use user's label text if provided, otherwise show coordinates
+  const label = (deliveryAddressInput.value || "").trim();
+  const locInput = document.getElementById("location");
+
+  if (label){
+    deliveryPlace.address = label;
+    if (locInput) locInput.value = label;
+  } else {
+    const coordLabel = `Pin: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    if (locInput) locInput.value = coordLabel;
+  }
+
+  deliveryMeta.innerHTML =
+    `Distance (approx): <b>${deliveryDistanceKm} km</b> • ETA (estimate): <b>${deliveryDurationText}</b><br>` +
+    `Suggested delivery fee: <b>${fmt(deliveryFeeGhs)}</b><br>` +
+    `<span style="color:var(--muted)">Tip: drag the pin to adjust exactly.</span>`;
 
   renderCartUI();
 }
 
-async function routeAndPrice(){
-  if (orderMode() !== "Delivery") return;
-  if (!deliveryPlace?.location) return;
+function initFreeMap(){
+  if (map) return;
 
-  return new Promise((resolve, reject) => {
-    directionsService.route(
-      {
-        origin: shopLatLng,
-        destination: deliveryPlace.location,
-        travelMode: google.maps.TravelMode.DRIVING
-      },
-      (result, status) => {
-        if (status !== "OK" || !result.routes?.[0]?.legs?.[0]) {
-          reject(new Error("Could not calculate route"));
-          return;
-        }
+  map = L.map("map", { scrollWheelZoom: true }).setView([SHOP_FIXED.lat, SHOP_FIXED.lng], 13);
+  window.__fh_map = map;
 
-        const leg = result.routes[0].legs[0];
-        const km = (leg.distance?.value || 0) / 1000;
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap"
+  }).addTo(map);
 
-        deliveryDistanceKm = Math.round(km * 10) / 10;
-        deliveryDurationText = leg.duration?.text || "";
-        deliveryFeeGhs = calcSuggestedFee(km);
+  shopMarker = L.marker([SHOP_FIXED.lat, SHOP_FIXED.lng]).addTo(map).bindPopup("Flavour Hub Shawarma");
 
-        directionsRenderer.setDirections(result);
-
-        deliveryMeta.innerHTML =
-          `Distance: <b>${deliveryDistanceKm} km</b> • ETA: <b>${deliveryDurationText || "—"}</b><br>` +
-          `Suggested delivery fee: <b>${fmt(deliveryFeeGhs)}</b>`;
-
-        renderCartUI();
-        resolve(true);
-      }
-    );
+  map.on("click", async (e) => {
+    if (orderMode() !== "Delivery") return;
+    await setDestination(e.latlng.lat, e.latlng.lng);
   });
+
+  deliveryMeta.innerHTML = "Tap the map to drop a pin (or drag the pin) to set the delivery location.";
 }
-
-window.initMap = function(){
-  shopLatLng = new google.maps.LatLng(SHOP_FIXED.lat, SHOP_FIXED.lng);
-
-  gmap = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: SHOP_FIXED.lat, lng: SHOP_FIXED.lng },
-    zoom: 14
-  });
-
-  directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer({ map: gmap, suppressMarkers: true });
-
-  new google.maps.Marker({
-    map: gmap,
-    position: shopLatLng,
-    title: "Flavour Hub Shawarma (Lin-Mart Executive Hostel, Haatso)"
-  });
-
-  autocomplete = new google.maps.places.Autocomplete(deliveryAddressInput, {
-    fields: ["geometry","formatted_address","name"],
-    componentRestrictions: { country: "gh" }
-  });
-
-  const biasCircle = new google.maps.Circle({ center: shopLatLng, radius: 35000 });
-  autocomplete.setBounds(biasCircle.getBounds());
-
-  autocomplete.addListener("place_changed", async () => {
-    const place = autocomplete.getPlace();
-    if (!place || !place.geometry || !place.geometry.location) return;
-
-    deliveryPlace = {
-      address: place.formatted_address || place.name || deliveryAddressInput.value,
-      location: place.geometry.location
-    };
-
-    document.getElementById("location").value = deliveryPlace.address || "";
-
-    if (destMarker) destMarker.setMap(null);
-    destMarker = new google.maps.Marker({ map: gmap, position: deliveryPlace.location, title: "Delivery destination" });
-
-    const bounds = new google.maps.LatLngBounds();
-    bounds.extend(shopLatLng);
-    bounds.extend(deliveryPlace.location);
-    gmap.fitBounds(bounds);
-
-    try{ await routeAndPrice(); }
-    catch(e){
-      deliveryFeeGhs = 0;
-      deliveryMeta.textContent = "Could not calculate distance. Please try another address.";
-      renderCartUI();
-    }
-  });
-};
 
 document.getElementById("mode").addEventListener("change", () => {
   if (orderMode() === "Delivery") {
     setDeliveryUI(true);
-    if (deliveryPlace?.location) routeAndPrice().catch(()=>{});
+    initFreeMap();
   } else {
     setDeliveryUI(false);
     resetDeliveryPricing(true);
@@ -1159,8 +1187,9 @@ async function payOnline(){
     if (!phone) { setBusy(false); return alert("Phone number is required."); }
 
     if (mode === "Delivery") {
-      if (!deliveryPlace?.location) { setBusy(false); return alert("Please select a delivery address."); }
-      if (!deliveryFeeGhs || deliveryFeeGhs <= 0) { setBusy(false); return alert("Delivery fee not calculated. Choose another address."); }
+      const hasPin = !!(deliveryPlace?.location?.lat && deliveryPlace?.location?.lng);
+      if (!hasPin) { setBusy(false); return alert("Please drop a pin on the map for delivery location."); }
+      if (!deliveryFeeGhs || deliveryFeeGhs <= 0) { setBusy(false); return alert("Delivery fee not calculated. Drop the pin again."); }
     }
 
     if (typeof window.PaystackPop === "undefined" || typeof window.PaystackPop.setup !== "function") {
@@ -1186,7 +1215,9 @@ async function payOnline(){
         delivery: {
           distance_km: deliveryDistanceKm,
           eta: deliveryDurationText,
-          fee_ghs: (mode === "Delivery") ? deliveryFee() : 0
+          fee_ghs: (mode === "Delivery") ? deliveryFee() : 0,
+          lat: deliveryPlace?.location?.lat || null,
+          lng: deliveryPlace?.location?.lng || null
         },
         totals: { subtotal: cartSubtotal(), delivery: deliveryFee(), total: grandTotal() }
       }
@@ -1235,7 +1266,9 @@ async function payOnline(){
                 delivery: {
                   distance_km: deliveryDistanceKm,
                   eta: deliveryDurationText,
-                  fee_ghs: (mode === "Delivery") ? deliveryFee() : 0
+                  fee_ghs: (mode === "Delivery") ? deliveryFee() : 0,
+                  lat: deliveryPlace?.location?.lat || null,
+                  lng: deliveryPlace?.location?.lng || null
                 },
                 totals: { subtotal: cartSubtotal(), delivery: deliveryFee(), total: grandTotal() },
                 paidAt: new Date().toISOString()
@@ -1279,6 +1312,11 @@ document.getElementById("payBtn").addEventListener("click", payOnline);
 ========================= */
 (async () => {
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  // set image fit from last choice (default crop)
+  const savedFit = localStorage.getItem("fh_img_fit") || "cover";
+  applyImgFit(savedFit);
+
   await loadMenuFromBackend();
   renderCategories();
   renderProducts();
@@ -1286,11 +1324,6 @@ document.getElementById("payBtn").addEventListener("click", payOnline);
   setDeliveryUI(false);
 })();
 </script>
-
-<!-- Google Maps: replace YOUR_GOOGLE_MAPS_KEY with your key -->
-<script
-  src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_KEY&libraries=places&callback=initMap"
-  async defer></script>
 
 </body>
 </html>
