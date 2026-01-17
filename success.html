@@ -1,75 +1,302 @@
+<!-- =========================
+     success.html (FULL)
+     OPTION A: Delivery via Bolt/Yango
+     - Shows reference + items + totals
+     - Button: Send full order to WhatsApp
+     - Button: Ask customer to share live location on WhatsApp
+========================= -->
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Payment Successful — Flavour Hub</title>
-<style>
-  :root{--bg:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--soft:#f8fafc;--r:18px;--accent:#ef4444;--accent2:#f97316;--max:900px}
-  *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
-  .wrap{max-width:var(--max);margin:0 auto;padding:18px}
-  .card{border:1px solid var(--line);border-radius:var(--r);background:#fff;box-shadow:0 10px 24px rgba(2,6,23,.06);overflow:hidden}
-  .hd{padding:16px;border-bottom:1px solid var(--line);background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(249,115,22,.08), rgba(15,23,42,.02))}
-  .hd h1{margin:0;font-size:18px}
-  .hd p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
-  .bd{padding:16px}
-  .row{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--line);background:var(--soft);border-radius:14px;padding:12px;margin-top:10px;font-size:13px}
-  .row b{font-weight:950}
-  .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-  a.btn{display:inline-block;text-decoration:none;border-radius:14px;padding:12px 14px;font-weight:950;font-size:13px;border:1px solid var(--line);color:var(--ink);background:#fff}
-  a.btn.primary{border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-  .muted{color:var(--muted)}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Order Confirmed — Flavour Hub Shawarma</title>
+  <meta name="description" content="Payment successful. View your order and contact Flavour Hub via WhatsApp." />
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --soft:#f8fafc;
+      --shadow: 0 16px 40px rgba(2,6,23,.08);
+      --r2:22px;
+      --accent:#ef4444;
+      --accent2:#f97316;
+      --max:920px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--ink);
+      background:var(--bg);
+    }
+    .wrap{max-width:var(--max); margin:0 auto; padding:18px 16px 28px;}
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--r2);
+      background:#fff;
+      box-shadow: 0 1px 0 rgba(2,6,23,.04);
+      overflow:hidden;
+    }
+    .hd{
+      padding:16px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(249,115,22,.08), rgba(15,23,42,.02));
+    }
+    .hd h1{margin:0; font-size:18px}
+    .hd p{margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.45}
+    .bd{padding:16px}
+    .row{display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
+    .pill{
+      display:inline-flex; gap:8px; align-items:center;
+      border:1px solid var(--line);
+      background:var(--soft);
+      border-radius:999px;
+      padding:8px 10px;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .pill b{color:var(--ink)}
+    .list{margin-top:14px; display:flex; flex-direction:column; gap:10px}
+    .item{
+      border:1px solid var(--line);
+      background:var(--soft);
+      border-radius:16px;
+      padding:10px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .item .name{font-weight:950; font-size:13px}
+    .item .meta{margin-top:3px; color:var(--muted); font-size:12px}
+    .item .price{font-weight:950; font-size:13px; white-space:nowrap}
+    .totals{
+      margin-top:14px;
+      border-top:1px dashed var(--line);
+      padding-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      font-size:13px;
+    }
+    .totals .r{display:flex; justify-content:space-between; gap:12px}
+    .totals span{color:var(--muted)}
+    .totals strong{font-size:15px}
+    .note{
+      margin-top:12px;
+      border:1px dashed var(--line);
+      background:#fff;
+      border-radius:16px;
+      padding:12px;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.5;
+    }
+    .note b{color:var(--ink)}
+    .btns{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      flex:1;
+      min-width: 220px;
+      border:none;
+      cursor:pointer;
+      border-radius:16px;
+      padding:12px 14px;
+      font-weight:950;
+      font-size:13px;
+    }
+    .btn.primary{
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#fff;
+      box-shadow: 0 12px 24px rgba(239,68,68,.18);
+    }
+    .btn.ghost{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
+    }
+    .foot{
+      margin-top:14px;
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+    }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <div class="hd">
-      <h1>Payment Successful</h1>
-      <p>Your order has been received. Use WhatsApp to confirm delivery details if needed.</p>
-    </div>
-    <div class="bd">
-      <div class="row"><span>Reference</span><b id="ref">—</b></div>
-      <div class="row"><span>Status</span><b>Paid</b></div>
-      <div class="row"><span>Next step</span><b class="muted">We’ll start preparing your order</b></div>
+  <div class="wrap">
+    <div class="card">
+      <div class="hd">
+        <h1>Payment successful</h1>
+        <p>Your order has been confirmed. If you selected Delivery, we dispatch via <b>Bolt/Yango</b> and you pay the rider directly on delivery.</p>
+      </div>
 
-      <div class="btns">
-        <a class="btn primary" id="wa" href="#">Open WhatsApp</a>
-        <a class="btn" href="index.html">Back to Home</a>
+      <div class="bd">
+        <div class="row">
+          <div class="pill"><b>Reference:</b> <span id="ref">—</span></div>
+          <div class="pill"><b>Status:</b> Confirmed</div>
+          <div class="pill"><b>Total paid:</b> <span id="paid">—</span></div>
+        </div>
+
+        <div class="list" id="items"></div>
+
+        <div class="totals">
+          <div class="r"><span>Subtotal (food)</span><strong id="subtotal">—</strong></div>
+          <div class="r"><span>Delivery fee</span><strong>Paid to rider</strong></div>
+          <div class="r"><span>Total paid online</span><strong id="total">—</strong></div>
+        </div>
+
+        <div class="note" id="deliveryInfo" style="display:none"></div>
+
+        <div class="btns">
+          <button class="btn primary" id="waOrder" type="button">Send order to WhatsApp</button>
+          <button class="btn ghost" id="waLocation" type="button">Share live location on WhatsApp</button>
+        </div>
+
+        <div class="foot">
+          Need help? Contact us on WhatsApp.
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 <script>
-const WHATSAPP_LOCAL = "0543748208";
+  function fmt(n){ return `GHS ${Number(n||0).toFixed(2)}`; }
+  function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m])); }
 
-const params = new URLSearchParams(location.search);
-const ref = params.get("ref") || "";
-
-document.getElementById("ref").textContent = ref || "N/A";
-
-const last = localStorage.getItem("fh_last_paid_order");
-let msg = "Hello Flavour Hub, I have made payment.";
-try{
-  if(last){
-    const o = JSON.parse(last);
-    msg =
-      `Hello Flavour Hub, my payment is successful.\n` +
-      `Reference: ${o.reference || ref}\n` +
-      `Name: ${o.customer?.name || ""}\n` +
-      `Phone: ${o.customer?.phone || ""}\n` +
-      `Order Type: ${o.mode || ""}\n` +
-      `Location: ${o.location || ""}\n` +
-      `Total: GHS ${(o.totals?.total ?? 0).toFixed(2)}\n` +
-      `Items:\n` +
-      (o.items || []).map(i => `- ${i.qty} x ${i.name}`).join("\n");
+  function getRefFromQuery(){
+    const u = new URL(window.location.href);
+    return u.searchParams.get("ref") || "";
   }
-}catch(_){}
 
-const waLink = `https://wa.me/233${WHATSAPP_LOCAL.replace(/^0/,"")}?text=${encodeURIComponent(msg)}`;
-document.getElementById("wa").href = waLink;
+  function normalizePhoneToWhatsApp(localPhone){
+    let p = String(localPhone || "").trim().replace(/\s+/g,"");
+    p = p.replace(/[^\d+]/g,"");
+    if (p.startsWith("0")) p = "233" + p.slice(1);
+    if (p.startsWith("+")) p = p.slice(1);
+    return p;
+  }
+
+  function waLink(phone, message){
+    const p = normalizePhoneToWhatsApp(phone);
+    const text = encodeURIComponent(message);
+    return `https://wa.me/${p}?text=${text}`;
+  }
+
+  function buildOrderMessage(order){
+    const lines = [];
+    lines.push(`Hello ${order.business || "Flavour Hub"} 👋`);
+    lines.push(`Order Ref: ${order.reference || getRefFromQuery() || "—"}`);
+    lines.push("");
+
+    if (order.customer?.name) lines.push(`Customer: ${order.customer.name}`);
+    if (order.customer?.phone) lines.push(`Phone: ${order.customer.phone}`);
+    if (order.customer?.email) lines.push(`Email: ${order.customer.email}`);
+
+    lines.push("");
+    lines.push(`Order Type: ${order.mode || "Pickup"}`);
+
+    if (order.mode === "Delivery" && order.delivery){
+      lines.push(`Delivery: Bolt/Yango (fee paid to rider)`);
+      if (order.delivery.area) lines.push(`Area: ${order.delivery.area}`);
+      if (order.delivery.address) lines.push(`Address: ${order.delivery.address}`);
+      if (order.delivery.landmark) lines.push(`Landmark: ${order.delivery.landmark}`);
+    }
+
+    lines.push("");
+    lines.push("Items:");
+    (order.items || []).forEach(it => {
+      const qty = Number(it.qty || 0);
+      const unit = Number(it.unit_price || 0);
+      const line = qty * unit;
+      lines.push(`- ${qty} × ${it.name} = ${fmt(line)}`);
+    });
+
+    lines.push("");
+    lines.push(`Total paid online (food): ${fmt(order.totals?.total || order.totals?.subtotal || 0)}`);
+
+    if (order.note) {
+      lines.push("");
+      lines.push(`Note: ${order.note}`);
+    }
+
+    lines.push("");
+    lines.push("Thank you.");
+    return lines.join("\n");
+  }
+
+  function buildLocationMessage(order){
+    const lines = [];
+    lines.push(`Hello ${order.business || "Flavour Hub"} 👋`);
+    lines.push(`Order Ref: ${order.reference || getRefFromQuery() || "—"}`);
+    lines.push("");
+    lines.push("I am sharing my live location for delivery. Please use this to dispatch Bolt/Yango.");
+    return lines.join("\n");
+  }
+
+  const refFromQuery = getRefFromQuery();
+  const raw = localStorage.getItem("fh_last_paid_order");
+  const order = raw ? JSON.parse(raw) : null;
+
+  document.getElementById("ref").textContent = order?.reference || refFromQuery || "—";
+  document.getElementById("subtotal").textContent = fmt(order?.totals?.subtotal || 0);
+  document.getElementById("total").textContent = fmt(order?.totals?.total || 0);
+  document.getElementById("paid").textContent = fmt(order?.totals?.total || 0);
+
+  const itemsEl = document.getElementById("items");
+  if (order?.items?.length){
+    itemsEl.innerHTML = order.items.map(it => {
+      const qty = Number(it.qty || 0);
+      const unit = Number(it.unit_price || 0);
+      const line = qty * unit;
+      return `
+        <div class="item">
+          <div>
+            <div class="name">${esc(it.name)}</div>
+            <div class="meta">${esc(it.category || "")} • ${qty} × ${fmt(unit)}</div>
+          </div>
+          <div class="price">${fmt(line)}</div>
+        </div>
+      `;
+    }).join("");
+  } else {
+    itemsEl.innerHTML = `
+      <div class="note">
+        We could not load your order details from this device. If needed, message us with your reference: <b>${esc(refFromQuery || "—")}</b>.
+      </div>
+    `;
+  }
+
+  const deliveryInfo = document.getElementById("deliveryInfo");
+  if (order?.mode === "Delivery" && order?.delivery){
+    deliveryInfo.style.display = "block";
+    deliveryInfo.innerHTML =
+      `<b>Delivery via Bolt/Yango</b><br>` +
+      `Delivery fee is <b>paid directly to the rider</b>.<br><br>` +
+      `<b>Area:</b> ${esc(order.delivery.area || "—")}<br>` +
+      `<b>Address:</b> ${esc(order.delivery.address || "—")}<br>` +
+      `<b>Landmark:</b> ${esc(order.delivery.landmark || "—")}<br>`;
+  }
+
+  const whatsapp = order?.whatsapp || "0543748208";
+
+  document.getElementById("waOrder").addEventListener("click", () => {
+    const msg = buildOrderMessage(order || { business:"Flavour Hub Shawarma", reference: refFromQuery, totals:{total:0}, items:[] });
+    window.location.href = waLink(whatsapp, msg);
+  });
+
+  document.getElementById("waLocation").addEventListener("click", () => {
+    const msg = buildLocationMessage(order || { business:"Flavour Hub Shawarma", reference: refFromQuery });
+    window.location.href = waLink(whatsapp, msg);
+  });
 </script>
 </body>
 </html>
