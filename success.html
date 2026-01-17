@@ -3,137 +3,133 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Payment Successful — Flavour Hub Shawarma</title>
+  <title>Payment Successful — Flavour Hub</title>
   <style>
-    :root{
-      --bg:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc;
-      --r2:22px; --accent:#ef4444; --accent2:#f97316; --max:900px;
-    }
+    :root{--bg:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--soft:#f8fafc;--r:18px;--accent:#ef4444;--accent2:#f97316;--max:900px}
     *{box-sizing:border-box}
-    body{margin:0;font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;background:var(--bg);color:var(--ink)}
-    .wrap{max-width:var(--max);margin:0 auto;padding:20px 16px}
-    .card{
-      margin-top:18px;
-      border:1px solid var(--line);
-      border-radius: var(--r2);
-      padding:18px;
-      background: linear-gradient(135deg, rgba(239,68,68,.08), rgba(249,115,22,.06), rgba(15,23,42,.01));
-    }
-    h1{margin:0;font-size:18px}
-    p{margin:10px 0 0;color:var(--muted);line-height:1.5}
-    .box{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}
-    .row{display:flex;justify-content:space-between;gap:10px;margin:8px 0;font-size:13px}
-    .row span{color:var(--muted)}
-    .items{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
-    .item{display:flex;justify-content:space-between;gap:10px;font-size:13px}
-    .btns{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
-    .btn{
-      border:none;cursor:pointer;border-radius:14px;padding:12px 14px;font-weight:900;font-size:13px;
-    }
-    .primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
-    .ghost{border:1px solid var(--line);background:#fff;color:var(--ink)}
-    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
-    code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:var(--max);margin:0 auto;padding:18px}
+    .card{border:1px solid var(--line);border-radius:var(--r);background:#fff;padding:16px;margin-top:14px}
+    .ok{display:flex;gap:12px;align-items:center}
+    .badge{width:46px;height:46px;border-radius:16px;display:grid;place-items:center;color:#fff;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+    .muted{color:var(--muted);font-size:13px;line-height:1.45}
+    .row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .items{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+    .it{border:1px solid var(--line);background:var(--soft);border-radius:14px;padding:10px;display:flex;justify-content:space-between;gap:10px}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    a.btn{display:inline-block;text-decoration:none;font-weight:900;padding:12px 14px;border-radius:14px;border:1px solid var(--line);color:var(--ink);background:#fff}
+    a.btn.primary{border:none;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2))}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Payment successful</h1>
-      <p>Your payment has been confirmed. Send your order details to Flavour Hub on WhatsApp to speed up preparation and delivery.</p>
+<div class="wrap">
+  <div class="card">
+    <div class="ok">
+      <div class="badge">FH</div>
+      <div>
+        <h2 style="margin:0">Payment Successful</h2>
+        <div class="muted" id="refLine">Reference: —</div>
+      </div>
+    </div>
+  </div>
 
-      <div class="box" id="box"></div>
-
-      <div class="btns">
-        <button class="btn primary" id="waBtn">Send to WhatsApp</button>
-        <a class="btn ghost" href="./index.html" style="text-decoration:none;display:inline-block;">Back to Home</a>
-        <button class="btn ghost" id="clearBtn">Clear saved order</button>
+  <div class="card" id="orderCard" style="display:none">
+    <div class="row">
+      <div>
+        <div style="font-weight:950">Order Summary</div>
+        <div class="muted" id="who"></div>
+      </div>
+      <div style="text-align:right">
+        <div class="muted">Total</div>
+        <div style="font-weight:950;font-size:18px" id="total">GHS 0.00</div>
       </div>
     </div>
 
-    <footer>Flavour Hub Shawarma • Lin-Mart Executive Hostel • Haatso</footer>
+    <div class="items" id="items"></div>
+
+    <div class="row" style="margin-top:10px">
+      <div class="muted" id="delivery"></div>
+      <div class="muted" id="paidAt"></div>
+    </div>
+
+    <div class="btns">
+      <a class="btn primary" id="wa" href="#" target="_blank" rel="noreferrer">Send Order on WhatsApp</a>
+      <a class="btn" href="index.html">Back to Menu</a>
+    </div>
   </div>
 
+  <div class="card muted" id="emptyCard" style="display:none">
+    Could not load your order details (maybe you cleared browser storage). If you have your payment reference, contact Flavour Hub on WhatsApp.
+  </div>
+</div>
+
 <script>
-(function(){
-  const params = new URLSearchParams(location.search);
-  const ref = params.get("ref") || "";
-  const raw = localStorage.getItem("fh_last_paid_order");
-  const order = raw ? JSON.parse(raw) : null;
+const WHATSAPP_WA = "233543748208"; // wa.me format
+const fmt = n => `GHS ${Number(n || 0).toFixed(2)}`;
 
-  const box = document.getElementById("box");
-  if (!order){
-    box.innerHTML = `
-      <div class="row"><span>Status</span><b>No saved order found</b></div>
-      <p style="margin:10px 0 0;color:var(--muted);font-size:13px">
-        If you just paid, please go back and try again. Reference: <code>${ref || "—"}</code>
-      </p>`;
-    return;
-  }
+const params = new URLSearchParams(location.search);
+const ref = params.get("ref") || "";
+document.getElementById("refLine").textContent = `Reference: ${ref || "—"}`;
 
-  const whatsapp = order.whatsapp || "0543748208";
-  const totals = order.totals || {};
-  const items = order.items || [];
-  const delivery = order.delivery || {};
+const raw = localStorage.getItem("fh_last_paid_order");
+if(!raw){
+  document.getElementById("emptyCard").style.display = "block";
+} else {
+  const o = JSON.parse(raw);
+  document.getElementById("orderCard").style.display = "block";
 
-  const itemsHtml = items.map(i => `
-    <div class="item">
-      <div>${i.qty} × ${i.name}</div>
-      <div><b>GHS ${(i.unit_price * i.qty).toFixed(2)}</b></div>
-    </div>`).join("");
+  document.getElementById("who").textContent =
+    `${o.customer?.name || ""} • ${o.customer?.phone || ""} • ${o.customer?.email || ""}`;
 
-  box.innerHTML = `
-    <div class="row"><span>Reference</span><b><code>${order.reference || ref || "—"}</code></b></div>
-    <div class="row"><span>Customer</span><b>${order.customer?.name || "—"}</b></div>
-    <div class="row"><span>Phone</span><b>${order.customer?.phone || "—"}</b></div>
-    <div class="row"><span>Mode</span><b>${order.mode || "—"}</b></div>
-    <div class="row"><span>Location</span><b>${order.location || "—"}</b></div>
-    <div class="row"><span>Note</span><b>${order.note || "—"}</b></div>
+  document.getElementById("total").textContent = fmt(o.totals?.total || 0);
 
-    <div class="items">${itemsHtml}</div>
-
-    <div style="margin-top:10px;border-top:1px dashed var(--line);padding-top:10px">
-      <div class="row"><span>Subtotal</span><b>GHS ${(totals.subtotal || 0).toFixed(2)}</b></div>
-      <div class="row"><span>Delivery</span><b>GHS ${(totals.delivery || 0).toFixed(2)}</b></div>
-      <div class="row"><span>Total Paid</span><b>GHS ${(totals.total || 0).toFixed(2)}</b></div>
-      <div class="row"><span>Distance</span><b>${delivery.distance_km ? (delivery.distance_km + " km") : "—"}</b></div>
-      <div class="row"><span>ETA</span><b>${delivery.eta || "—"}</b></div>
-    </div>
-  `;
-
-  function buildWhatsAppMessage(){
-    const lines = [];
-    lines.push(`Hello Flavour Hub Shawarma, I have paid.`);
-    lines.push(`Reference: ${order.reference || ref || "—"}`);
-    lines.push(`Name: ${order.customer?.name || "—"}`);
-    lines.push(`Phone: ${order.customer?.phone || "—"}`);
-    lines.push(`Mode: ${order.mode || "—"}`);
-    if (order.location) lines.push(`Location: ${order.location}`);
-    if (order.note) lines.push(`Note: ${order.note}`);
-    lines.push(`Items:`);
-    for (const it of items){
-      lines.push(`- ${it.qty} x ${it.name} (GHS ${(it.unit_price * it.qty).toFixed(2)})`);
-    }
-    lines.push(`Subtotal: GHS ${(totals.subtotal || 0).toFixed(2)}`);
-    lines.push(`Delivery: GHS ${(totals.delivery || 0).toFixed(2)}`);
-    lines.push(`Total: GHS ${(totals.total || 0).toFixed(2)}`);
-    return lines.join("\n");
-  }
-
-  document.getElementById("waBtn").addEventListener("click", () => {
-    const msg = encodeURIComponent(buildWhatsAppMessage());
-    // Use wa.me; Ghana local numbers often need country code for best results.
-    // If you want strict: convert 054... to 23354...
-    const phoneDigits = whatsapp.replace(/\D/g, "");
-    const url = `https://wa.me/${phoneDigits}?text=${msg}`;
-    window.open(url, "_blank");
+  const itemsEl = document.getElementById("items");
+  itemsEl.innerHTML = "";
+  (o.items || []).forEach(it => {
+    const div = document.createElement("div");
+    div.className = "it";
+    div.innerHTML = `
+      <div>
+        <div style="font-weight:900">${escapeHtml(it.name || "")}</div>
+        <div class="muted">${escapeHtml(it.category || "")}</div>
+      </div>
+      <div style="font-weight:900">x${Number(it.qty||0)}</div>
+    `;
+    itemsEl.appendChild(div);
   });
 
-  document.getElementById("clearBtn").addEventListener("click", () => {
-    localStorage.removeItem("fh_last_paid_order");
-    location.reload();
-  });
-})();
+  const d = o.delivery || {};
+  document.getElementById("delivery").textContent =
+    (o.mode === "Delivery")
+      ? `Delivery • ${d.distance_km ?? "—"} km • ETA ${d.eta || "—"} • Fee ${fmt(d.fee_ghs || 0)}`
+      : `Pickup`;
+
+  document.getElementById("paidAt").textContent = o.paidAt ? `Paid: ${new Date(o.paidAt).toLocaleString()}` : "";
+
+  const message =
+`Hello Flavour Hub, I just paid for my order.
+Reference: ${o.reference}
+
+Customer: ${o.customer?.name || ""} (${o.customer?.phone || ""})
+Mode: ${o.mode}
+Location: ${o.location || ""}
+
+Items:
+${(o.items||[]).map(i => `- ${i.name} x${i.qty}`).join("\n")}
+
+Subtotal: ${fmt(o.totals?.subtotal || 0)}
+Delivery: ${fmt(o.totals?.delivery || 0)}
+Total: ${fmt(o.totals?.total || 0)}
+
+Note: ${o.note || "-"}`;
+
+  document.getElementById("wa").href =
+    `https://wa.me/${WHATSAPP_WA}?text=${encodeURIComponent(message)}`;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
 </script>
 </body>
 </html>
