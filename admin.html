@@ -5,48 +5,92 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Flavour Hub — Admin</title>
 <style>
-  body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;background:#0b1220;color:#eaf1ff}
-  .wrap{max-width:1100px;margin:auto;padding:18px}
-  .card{background:#0f172a;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;margin-top:12px}
-  input,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#0b1220;color:#eaf1ff}
-  button{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#111c33;color:#eaf1ff;cursor:pointer;font-weight:800}
+  :root{--bg:#0b1220;--card:#0f172a;--ink:#eaf1ff;--muted:#9fb0d0;--line:rgba(255,255,255,.12);--r:16px;--accent:#ef4444;--accent2:#f97316;--max:1100px}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:var(--max);margin:0 auto;padding:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-top:12px}
+  h2{margin:0}
+  .muted{color:var(--muted);font-size:12px;line-height:1.45}
+  input,textarea{
+    width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(0,0,0,.18);color:var(--ink);outline:none
+  }
+  textarea{min-height:70px;resize:vertical}
+  button{
+    padding:10px 12px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(255,255,255,.06);color:var(--ink);cursor:pointer;font-weight:900
+  }
+  button.primary{border:none;background:linear-gradient(135deg,var(--accent),var(--accent2))}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .row3{display:grid;grid-template-columns:2fr 1fr 2fr;gap:10px}
-  @media(max-width:800px){.row,.row3{grid-template-columns:1fr}}
-  .muted{opacity:.8;font-size:12px}
-  .cat{margin-top:14px}
-  .item{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:10px;align-items:center;margin-top:8px}
-  @media(max-width:900px){.item{grid-template-columns:1fr}}
+  @media(max-width:900px){.row,.row3{grid-template-columns:1fr}}
+  .topbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+  .cats{margin-top:10px}
+  .cat{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;background:rgba(255,255,255,.04)}
+  .catHd{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:flex-end}
+  .item{
+    margin-top:10px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:10px;
+    background:rgba(0,0,0,.16);
+  }
+  .preview{
+    margin-top:8px;
+    width:100%;
+    height:160px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.05);
+    overflow:hidden;
+    display:grid;
+    place-items:center;
+    color:rgba(234,241,255,.7);
+    font-weight:900;
+    font-size:12px;
+  }
+  .preview img{width:100%;height:100%;object-fit:cover;display:block}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h2>Admin — Flavour Hub Menu</h2>
-  <div class="muted">Login, edit items, add image URLs, then Save. Customers will see updates instantly.</div>
+  <div class="card">
+    <div class="topbar">
+      <div>
+        <h2>Admin — Menu Manager</h2>
+        <div class="muted">Edit menu + add pictures (use image URLs). Save publishes instantly to customers.</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button onclick="openSite()">Open Site</button>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
 
   <div class="card" id="loginCard">
     <div class="row">
       <div>
-        <label class="muted">Admin Password</label>
+        <div class="muted">Admin Password</div>
         <input id="pw" type="password" placeholder="Enter admin password" />
       </div>
-      <div style="display:flex;align-items:flex-end;gap:10px">
-        <button onclick="login()">Login</button>
-        <span id="loginMsg" class="muted"></span>
+      <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap">
+        <button class="primary" onclick="login()">Login</button>
+        <div class="muted" id="loginMsg"></div>
       </div>
     </div>
   </div>
 
   <div class="card" id="editorCard" style="display:none">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-      <div class="muted" id="status"></div>
+    <div class="topbar">
+      <div class="muted" id="status">—</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button onclick="addCategory()">+ Category</button>
-        <button onclick="saveMenu()">Save Menu</button>
-        <button onclick="logout()">Logout</button>
+        <button class="primary" onclick="saveMenu()">Save Menu</button>
+        <button onclick="reloadMenu()">Reload</button>
       </div>
     </div>
-    <div id="cats"></div>
+    <div class="cats" id="cats"></div>
   </div>
 </div>
 
@@ -56,6 +100,13 @@ let token = localStorage.getItem("fh_admin_token") || "";
 let menu = null;
 
 function setStatus(msg){ document.getElementById("status").textContent = msg || ""; }
+function openSite(){ window.location.href = "index.html"; }
+
+function logout(){
+  token = "";
+  localStorage.removeItem("fh_admin_token");
+  location.reload();
+}
 
 async function login(){
   const password = document.getElementById("pw").value.trim();
@@ -64,24 +115,23 @@ async function login(){
     body: JSON.stringify({ password })
   });
   const data = await r.json().catch(()=>({}));
-  if(!r.ok){ document.getElementById("loginMsg").textContent = data.error || "Login failed"; return; }
+  if(!r.ok){
+    document.getElementById("loginMsg").textContent = data.error || "Login failed";
+    return;
+  }
   token = data.token;
   localStorage.setItem("fh_admin_token", token);
   document.getElementById("loginMsg").textContent = "Logged in";
-  await loadMenu();
+  await reloadMenu();
 }
 
-function logout(){
-  token = "";
-  localStorage.removeItem("fh_admin_token");
-  location.reload();
-}
-
-async function loadMenu(){
-  const r = await fetch(`${BACKEND_BASE_URL}/api/menu`);
+async function reloadMenu(){
+  setStatus("Loading menu...");
+  const r = await fetch(`${BACKEND_BASE_URL}/api/menu`, { cache:"no-store" });
   menu = await r.json();
   document.getElementById("loginCard").style.display = "none";
   document.getElementById("editorCard").style.display = "block";
+  setStatus(`Loaded. Updated: ${new Date(menu.updatedAt || Date.now()).toLocaleString()}`);
   render();
 }
 
@@ -105,41 +155,79 @@ function delCat(ci){
   render();
 }
 
+function safeImg(url){
+  if(!url) return "";
+  try{
+    const u = new URL(url);
+    if(u.protocol !== "http:" && u.protocol !== "https:") return "";
+    return u.toString();
+  }catch(_){ return ""; }
+}
+
 function render(){
   const cats = document.getElementById("cats");
   cats.innerHTML = "";
   menu.categories.forEach((cat, ci) => {
     const wrap = document.createElement("div");
     wrap.className = "cat";
-
     wrap.innerHTML = `
-      <div class="row">
-        <div>
-          <label class="muted">Category name</label>
+      <div class="catHd">
+        <div style="flex:1">
+          <div class="muted">Category name</div>
           <input value="${escapeHtml(cat.name)}" oninput="menu.categories[${ci}].name=this.value" />
         </div>
-        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button onclick="addItem(${ci})">+ Item</button>
           <button onclick="delCat(${ci})">Delete Category</button>
         </div>
       </div>
     `;
 
-    cat.items.forEach((it, ii) => {
-      const row = document.createElement("div");
-      row.className = "item";
-      row.innerHTML = `
-        <input placeholder="Item name" value="${escapeHtml(it.name||"")}" oninput="menu.categories[${ci}].items[${ii}].name=this.value" />
-        <input placeholder="Price (GHS)" type="number" value="${Number(it.price||0)}" oninput="menu.categories[${ci}].items[${ii}].price=Number(this.value||0)" />
-        <input placeholder="Image URL (https://...jpg)" value="${escapeHtml(it.image||"")}" oninput="menu.categories[${ci}].items[${ii}].image=this.value" />
-        <button onclick="delItem(${ci},${ii})">Remove</button>
-        <textarea style="grid-column:1/-1" placeholder="Description" oninput="menu.categories[${ci}].items[${ii}].desc=this.value">${escapeHtml(it.desc||"")}</textarea>
+    (cat.items || []).forEach((it, ii) => {
+      const div = document.createElement("div");
+      div.className = "item";
+      const img = safeImg(it.image || "");
+      div.innerHTML = `
+        <div class="row3">
+          <div>
+            <div class="muted">Item name</div>
+            <input value="${escapeHtml(it.name||"")}" oninput="menu.categories[${ci}].items[${ii}].name=this.value" />
+          </div>
+          <div>
+            <div class="muted">Price (GHS)</div>
+            <input type="number" value="${Number(it.price||0)}" oninput="menu.categories[${ci}].items[${ii}].price=Number(this.value||0)" />
+          </div>
+          <div>
+            <div class="muted">Image URL (https://...jpg/png)</div>
+            <input value="${escapeHtml(it.image||"")}" oninput="menu.categories[${ci}].items[${ii}].image=this.value; refreshPreview(this, ${ci}, ${ii})" />
+          </div>
+        </div>
+
+        <div class="preview" data-preview="1">
+          ${img ? `<img src="${img}" alt="" />` : `No Image`}
+        </div>
+
+        <div style="margin-top:10px">
+          <div class="muted">Description</div>
+          <textarea oninput="menu.categories[${ci}].items[${ii}].desc=this.value">${escapeHtml(it.desc||"")}</textarea>
+        </div>
+
+        <div style="margin-top:10px;display:flex;justify-content:flex-end">
+          <button onclick="delItem(${ci},${ii})">Remove item</button>
+        </div>
       `;
-      wrap.appendChild(row);
+      wrap.appendChild(div);
     });
 
     cats.appendChild(wrap);
   });
+}
+
+function refreshPreview(input, ci, ii){
+  const card = input.closest(".item");
+  const prev = card.querySelector(".preview");
+  const url = safeImg(menu.categories[ci].items[ii].image || "");
+  prev.innerHTML = url ? `<img src="${url}" alt="" />` : `No Image`;
 }
 
 async function saveMenu(){
@@ -160,7 +248,7 @@ async function saveMenu(){
     return;
   }
   menu = data;
-  setStatus("Saved successfully.");
+  setStatus(`Saved. Updated: ${new Date(menu.updatedAt || Date.now()).toLocaleString()}`);
   render();
 }
 
@@ -170,7 +258,7 @@ function escapeHtml(s){
 
 (async function init(){
   if(token){
-    try{ await loadMenu(); } catch(e){ /* ignore */ }
+    try{ await reloadMenu(); } catch(e){ /* ignore */ }
   }
 })();
 </script>
