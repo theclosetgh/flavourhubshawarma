@@ -33,7 +33,7 @@
     }
 
     header{
-      position:sticky; top:0; z-index:50;
+      position:sticky; top:0; z-index:100;
       background:rgba(255,255,255,.92);
       backdrop-filter: blur(10px);
       border-bottom:1px solid var(--line);
@@ -104,6 +104,7 @@
     }
 
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 16px 96px;}
+
     .hero{
       margin-top:12px;
       background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(249,115,22,.08), rgba(15,23,42,.02));
@@ -129,15 +130,16 @@
     }
     .chip b{color:var(--ink)}
 
+    /* ===== Layout improved so categories always show ===== */
     .layout{
       margin-top:14px;
       display:grid;
-      grid-template-columns: 260px 1fr;
+      grid-template-columns: 300px 1fr;
       gap:14px;
       align-items:start;
     }
-    @media (max-width: 980px){
-      .layout{grid-template-columns:1fr}
+    @media (max-width: 1080px){
+      .layout{grid-template-columns: 1fr}
       .sideCats{position:static !important}
     }
 
@@ -157,24 +159,56 @@
     .panelHd small{color:var(--muted); font-size:12px}
     .panelBd{padding:12px 14px 14px}
 
-    .sideCats{position:sticky; top:78px}
-    .catList{display:flex; flex-direction:column; gap:8px}
+    .sideCats{
+      position:sticky;
+      top:78px;
+      max-height: calc(100vh - 110px);
+      overflow:auto;
+    }
+
+    /* Category list as pills (better UX + visible) */
+    .catList{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
     .catBtn{
       width:100%;
       text-align:left;
-      padding:10px 10px;
-      border-radius:14px;
+      padding:12px 12px;
+      border-radius:16px;
       border:1px solid var(--line);
       background:var(--soft);
       cursor:pointer;
-      font-weight:800;
-      font-size:12.5px;
+      font-weight:900;
+      font-size:13px;
       color:var(--ink);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .catBtn .badge{
+      min-width:26px;
+      height:26px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      font-size:12px;
+      font-weight:900;
+      border:1px solid var(--line);
+      color:var(--muted);
+      background:#fff;
     }
     .catBtn.active{
       border-color: rgba(239,68,68,.35);
       background: rgba(239,68,68,.10);
       color: var(--accent);
+    }
+    .catBtn.active .badge{
+      border-color: rgba(239,68,68,.25);
+      color: var(--accent);
+      background: rgba(239,68,68,.10);
     }
 
     .productsTop{
@@ -189,7 +223,7 @@
       border-radius:999px;
       padding:9px 12px;
       cursor:pointer;
-      font-weight:800;
+      font-weight:900;
       font-size:12px;
     }
 
@@ -209,14 +243,13 @@
       box-shadow: 0 1px 0 rgba(2,6,23,.04);
       display:flex;
       flex-direction:column;
-      min-height: 236px;
+      min-height: 246px;
     }
-    /* Image is in a dedicated area, so it never covers text */
     .cardMedia{
-      height: 156px;
+      height: 168px;
       background: var(--soft);
       border-bottom: 1px solid var(--line);
-      overflow: hidden;
+      overflow:hidden;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -240,7 +273,7 @@
       color:var(--muted);
       font-size:12.5px;
       line-height:1.4;
-      min-height: 36px;
+      min-height: 38px;
     }
     .spacer{flex:1}
     .meta{margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px}
@@ -282,7 +315,7 @@
       background:rgba(255,255,255,.92);
       backdrop-filter: blur(10px);
       border-top:1px solid var(--line);
-      z-index:60;
+      z-index:120;
     }
     .barInner{
       max-width:var(--max);
@@ -311,13 +344,12 @@
       color:#fff;
       box-shadow: 0 12px 24px rgba(239,68,68,.18);
     }
-    .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
     .drawerMask{
       position:fixed; inset:0;
       background:rgba(2,6,23,.45);
       display:none;
-      z-index:80;
+      z-index:180;
     }
     .drawer{
       position:fixed;
@@ -329,7 +361,7 @@
       box-shadow: var(--shadow);
       transform: translateX(100%);
       transition: transform .18s ease;
-      z-index:90;
+      z-index:190;
       display:flex; flex-direction:column;
     }
     .drawer.open{transform: translateX(0)}
@@ -518,16 +550,7 @@
       font-weight:950;
       cursor:pointer;
     }
-    .drawerFt button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
-    .status{
-      margin-top:10px;
-      font-size:12.5px;
-      color:var(--muted);
-      min-height:18px;
-      line-height:1.4;
-      word-break: break-word;
-    }
     footer{
       margin-top:18px;
       text-align:center;
@@ -582,7 +605,7 @@
     <aside class="panel sideCats">
       <div class="panelHd">
         <h3>Categories</h3>
-        <small>Browse</small>
+        <small>Tap to filter</small>
       </div>
       <div class="panelBd">
         <div class="catList" id="catList"></div>
@@ -593,14 +616,14 @@
       <div class="panelHd">
         <div>
           <h3>Menu</h3>
-          <small>Select items to add to order</small>
+          <small id="menuSub">Select items to add to order</small>
         </div>
         <button class="clearSmall" id="clearCartTop" type="button">Clear order</button>
       </div>
       <div class="panelBd">
         <div class="productsTop">
           <div class="hint" id="activeCatLabel">All items</div>
-          <div class="hint">Tap “Add” to place into your order</div>
+          <div class="hint" id="countHint"></div>
         </div>
         <div class="grid" id="productGrid"></div>
       </div>
@@ -717,13 +740,10 @@ const DELIVERY_PER_KM   = 2.5;
 const DELIVERY_MIN      = 8;
 const DELIVERY_MAX      = 60;
 
-/* Free map uses distance estimate (no paid routing) */
 const ETA_KMH = 25;
 
 /* =========================
-   FULL MENU (fallback if backend menu is not reachable)
-   IMPORTANT: Images from admin must appear in one of these keys:
-   img OR image OR imageUrl OR photo OR picture OR url
+   FULL MENU (fallback)
 ========================= */
 const MENU_FALLBACK = [
   { category: "Shawarma", items: [
@@ -778,71 +798,36 @@ const MENU_FALLBACK = [
 let MENU = [];
 
 /* =========================
-   HELPERS
+   SAFE / ROBUST IMAGE & MENU
 ========================= */
-const cart = new Map();
-const fmt = n => `GHS ${Number(n || 0).toFixed(2)}`;
-
-const statusEl = document.getElementById("status");
-const payBtn = document.getElementById("payBtn");
-
-function setStatus(msg){ statusEl.textContent = msg || ""; }
-function setBusy(b){
-  payBtn.disabled = !!b;
-  payBtn.textContent = b ? "Processing..." : "Proceed to Payment";
-}
-
-function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
-function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price * v.qty; return s; }
-
-/* Delivery state */
-let deliveryFeeGhs = 0;
-let deliveryDistanceKm = null;
-let deliveryDurationText = "";
-let deliveryPlace = null; // {address, lat, lng}
-
-function calcSuggestedFee(distanceKm){
-  const raw = DELIVERY_BASE_FEE + (distanceKm * DELIVERY_PER_KM);
-  const capped = Math.min(DELIVERY_MAX, Math.max(DELIVERY_MIN, raw));
-  return Math.round(capped * 10) / 10;
-}
-function orderMode(){ return document.getElementById("mode").value; }
-function deliveryFee(){ return (orderMode() === "Delivery") ? (Number(deliveryFeeGhs) || 0) : 0; }
-function grandTotal(){ return cartSubtotal() + deliveryFee(); }
-
-/* Robust image reader (fixes “pictures don’t show” if admin uses different keys) */
 function getItemImage(it){
   const cand =
-    it?.img ?? it?.image ?? it?.imageUrl ?? it?.photo ?? it?.picture ?? it?.pic ?? it?.thumbnail ?? it?.thumb ?? it?.url ?? "";
+    it?.img ?? it?.image ?? it?.imageUrl ?? it?.imageURL ?? it?.photo ?? it?.picture ?? it?.pic ??
+    it?.thumbnail ?? it?.thumb ?? it?.url ?? it?.img_url ?? it?.imgUrl ?? "";
   let u = String(cand || "").trim();
   if (!u) return "";
-  // Make URL safe if it has spaces
   try { u = encodeURI(u); } catch {}
   return u;
 }
 
-/* Normalize menu from backend (supports different JSON shapes) */
 function normalizeMenu(raw){
   let m = raw;
 
-  // If backend returns flat items, group by category
   if (Array.isArray(m) && m.length && !m[0]?.items && (m[0]?.name || m[0]?.category)){
     const buckets = new Map();
     for (const it of m){
       const cat = String(it.category || "Menu").trim() || "Menu";
       if (!buckets.has(cat)) buckets.set(cat, []);
-      const img = getItemImage(it);
       buckets.get(cat).push({
         name: it.name || "Item",
         price: Number(it.price || 0),
         desc: it.desc || "",
-        img
+        img: getItemImage(it)
       });
     }
     return Array.from(buckets.entries()).map(([category, items]) => ({ category, items }));
   }
 
-  // Expected structure: [{category, items:[...]}]
   if (Array.isArray(m)){
     return m.map(c => ({
       category: String(c.category || "Menu"),
@@ -865,7 +850,6 @@ async function loadMenuFromBackend(){
     let data = {};
     try { data = JSON.parse(rawText); } catch { data = {}; }
 
-    // Support common response shapes
     const rawMenu =
       data.menu ??
       data.data?.menu ??
@@ -885,26 +869,79 @@ async function loadMenuFromBackend(){
 }
 
 /* =========================
-   CATEGORIES + PRODUCTS
+   STATE + HELPERS
+========================= */
+const cart = new Map();
+const fmt = n => `GHS ${Number(n || 0).toFixed(2)}`;
+
+const statusEl = document.getElementById("status");
+const payBtn = document.getElementById("payBtn");
+
+function setStatus(msg){ statusEl.textContent = msg || ""; }
+function setBusy(b){
+  payBtn.disabled = !!b;
+  payBtn.textContent = b ? "Processing..." : "Proceed to Payment";
+}
+
+function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
+function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price * v.qty; return s; }
+
+let deliveryFeeGhs = 0;
+let deliveryDistanceKm = null;
+let deliveryDurationText = "";
+let deliveryPlace = null;
+
+function calcSuggestedFee(distanceKm){
+  const raw = DELIVERY_BASE_FEE + (distanceKm * DELIVERY_PER_KM);
+  const capped = Math.min(DELIVERY_MAX, Math.max(DELIVERY_MIN, raw));
+  return Math.round(capped * 10) / 10;
+}
+function orderMode(){ return document.getElementById("mode").value; }
+function deliveryFee(){ return (orderMode() === "Delivery") ? (Number(deliveryFeeGhs) || 0) : 0; }
+function grandTotal(){ return cartSubtotal() + deliveryFee(); }
+
+/* =========================
+   CATEGORY + PRODUCT RENDER (FIXED)
 ========================= */
 let activeCategory = "All";
-function categories(){ return ["All", ...MENU.map(m => m.category)]; }
-
 const catList = document.getElementById("catList");
 const productGrid = document.getElementById("productGrid");
 const activeCatLabel = document.getElementById("activeCatLabel");
+const countHint = document.getElementById("countHint");
+
+function categories(){ return ["All", ...MENU.map(m => m.category)]; }
+
+function countItemsInCategory(cat){
+  if (cat === "All") return MENU.reduce((n, c) => n + (c.items?.length || 0), 0);
+  const found = MENU.find(x => x.category === cat);
+  return found?.items?.length || 0;
+}
 
 function renderCategories(){
   catList.innerHTML = "";
-  categories().forEach(cat => {
+
+  const cats = categories();
+  if (!cats.length){
+    catList.innerHTML = `<div style="color:var(--muted);font-size:13px">No categories yet.</div>`;
+    return;
+  }
+
+  cats.forEach(cat => {
     const btn = document.createElement("button");
     btn.className = "catBtn" + (cat === activeCategory ? " active" : "");
     btn.type = "button";
-    btn.textContent = cat;
+    btn.innerHTML = `
+      <span>${escapeHtml(cat)}</span>
+      <span class="badge">${countItemsInCategory(cat)}</span>
+    `;
     btn.addEventListener("click", () => {
       activeCategory = cat;
       renderCategories();
       renderProducts();
+      // Scroll to menu on mobile after choosing category
+      if (window.matchMedia("(max-width: 1080px)").matches){
+        document.querySelector(".layout").scrollIntoView({ behavior:"smooth", block:"start" });
+      }
     });
     catList.appendChild(btn);
   });
@@ -918,15 +955,21 @@ function renderProducts(){
   let items = [];
   for (const c of MENU){
     if (activeCategory !== "All" && c.category !== activeCategory) continue;
-    for (const it of c.items){
+    for (const it of (c.items || [])){
+      const img = getItemImage(it);
       const hay = `${c.category} ${it.name} ${it.desc || ""}`.toLowerCase();
       if (q && !hay.includes(q)) continue;
-      items.push({ ...it, category: c.category, img: getItemImage(it) });
+      items.push({ ...it, category: c.category, img });
     }
   }
 
+  countHint.textContent = items.length ? `${items.length} item${items.length===1?"":"s"} showing` : "";
+
   if (!items.length){
-    productGrid.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 2px">No items found.</div>`;
+    productGrid.innerHTML = `
+      <div style="border:1px dashed var(--line);background:var(--soft);border-radius:16px;padding:14px;color:var(--muted);font-size:13px;text-align:center">
+        No items found for this category/search.
+      </div>`;
     return;
   }
 
@@ -1180,7 +1223,7 @@ function setDestination(place){
   renderCartUI();
 }
 
-/* Ghana-only search via Nominatim (free; rate-limited) */
+/* Ghana-only search (free) */
 let searchTimer = null;
 deliveryAddressInput.addEventListener("input", () => {
   if (orderMode() !== "Delivery") return;
@@ -1249,7 +1292,7 @@ document.getElementById("mode").addEventListener("change", () => {
 });
 
 /* =========================
-   PAYSTACK
+   PAYSTACK (unchanged)
 ========================= */
 async function payOnline(){
   try{
@@ -1394,6 +1437,14 @@ document.getElementById("year").textContent = new Date().getFullYear();
 
 (async () => {
   await loadMenuFromBackend();
+
+  // If backend returned nothing, still show fallback
+  if (!MENU.length) MENU = normalizeMenu(MENU_FALLBACK);
+
+  // Ensure active category is valid
+  const cats = categories();
+  if (!cats.includes(activeCategory)) activeCategory = "All";
+
   renderCategories();
   renderProducts();
   renderCartUI();
@@ -1401,7 +1452,7 @@ document.getElementById("year").textContent = new Date().getFullYear();
 })();
 
 /* =========================
-   SAFE HTML ESCAPES
+   ESCAPES
 ========================= */
 function escapeHtml(s){
   return String(s ?? "").replace(/[&<>"']/g, m => ({
