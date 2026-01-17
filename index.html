@@ -209,10 +209,11 @@
       box-shadow: 0 1px 0 rgba(2,6,23,.04);
       display:flex;
       flex-direction:column;
-      min-height: 224px;
+      min-height: 236px;
     }
+    /* Image is in a dedicated area, so it never covers text */
     .cardMedia{
-      height: 150px;
+      height: 156px;
       background: var(--soft);
       border-bottom: 1px solid var(--line);
       overflow: hidden;
@@ -231,6 +232,7 @@
       font-size: 12px;
       font-weight: 900;
     }
+
     .cardInner{padding:14px; display:flex; flex-direction:column; height:100%}
     .title{margin:0; font-weight:950; font-size:14px; letter-spacing:.1px}
     .desc{
@@ -309,6 +311,7 @@
       color:#fff;
       box-shadow: 0 12px 24px rgba(239,68,68,.18);
     }
+    .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
     .drawerMask{
       position:fixed; inset:0;
@@ -515,6 +518,7 @@
       font-weight:950;
       cursor:pointer;
     }
+    .drawerFt button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
     .status{
       margin-top:10px;
@@ -700,6 +704,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+/* =========================
+   CONFIG
+========================= */
 const BUSINESS_NAME = "Flavour Hub Shawarma";
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
 const WHATSAPP_LOCAL = "0543748208";
@@ -710,14 +717,53 @@ const DELIVERY_PER_KM   = 2.5;
 const DELIVERY_MIN      = 8;
 const DELIVERY_MAX      = 60;
 
+/* Free map uses distance estimate (no paid routing) */
 const ETA_KMH = 25;
 
-let MENU_FALLBACK = [
+/* =========================
+   FULL MENU (fallback if backend menu is not reachable)
+   IMPORTANT: Images from admin must appear in one of these keys:
+   img OR image OR imageUrl OR photo OR picture OR url
+========================= */
+const MENU_FALLBACK = [
   { category: "Shawarma", items: [
     { name: "Sizzling Shawarma (Chicken)", price: 50, desc: "Classic chicken shawarma.", img: "" },
     { name: "Minced with Flavour (Minced Meat)", price: 60, desc: "Minced meat shawarma with signature flavour.", img: "" },
     { name: "Flavor Twist (Shredded Beef)", price: 80, desc: "Shredded beef shawarma.", img: "" },
     { name: "Flavor Twist (Shredded Beef & Chicken)", price: 90, desc: "Mixed shredded beef and chicken.", img: "" },
+  ]},
+  { category: "Shawarma + Fries", items: [
+    { name: "Chic ’n’ Chips (Chicken Shawarma + Fries)", price: 65, desc: "Chicken shawarma served with fries.", img: "" },
+    { name: "Beef ’n’ Fries Fusion (Minced Meat + Fries)", price: 75, desc: "Minced meat shawarma with fries.", img: "" },
+    { name: "Beef ’n’ Fries Fusion (Shredded Beef + Fries)", price: 90, desc: "Shredded beef shawarma with fries.", img: "" },
+  ]},
+  { category: "Noodles", items: [
+    { name: "Budget Bowl Series — Medium", price: 40, desc: "Corned beef, egg & sausage.", img: "" },
+    { name: "Budget Bowl Series — Large", price: 60, desc: "Corned beef, egg & sausage.", img: "" },
+    { name: "Golden Chicken Strings (Chicken Only)", price: 70, desc: "Chicken-only noodles.", img: "" },
+    { name: "Street Beef Vibes (Beef Only)", price: 90, desc: "Beef-only noodles.", img: "" },
+  ]},
+  { category: "Spaghetti", items: [
+    { name: "Quick Prep — Medium", price: 40, desc: "Corned beef, egg & sausage.", img: "" },
+    { name: "Quick Prep — Large", price: 60, desc: "Corned beef, egg & sausage.", img: "" },
+    { name: "Savory Beef Bowl", price: 80, desc: "Beef spaghetti bowl.", img: "" },
+    { name: "Chicken Royal (Chicken Only)", price: 60, desc: "Chicken-only spaghetti.", img: "" },
+  ]},
+  { category: "Loaded Fries", items: [
+    { name: "Flavour Burst Fries", price: 100, desc: "Fries with beef or chicken & cheese.", img: "" },
+    { name: "Melt and Crunch", price: 130, desc: "Fries with beef or chicken, extra cheese.", img: "" },
+  ]},
+  { category: "Special Combos", items: [
+    { name: "Obolo Bia Ye Guy (Chicken & Beef Shawarma with Fries)", price: 150, desc: "Chicken & beef shawarma with fries.", img: "" },
+    { name: "Big Man (Chicken & Beef Noodles)", price: 140, desc: "Chicken & beef noodles.", img: "" },
+    { name: "Full Flavour (Chicken & Beef Spaghetti)", price: 100, desc: "Chicken & beef spaghetti.", img: "" },
+  ]},
+  { category: "Extras", items: [
+    { name: "Fries", price: 20, desc: "Extra fries.", img: "" },
+    { name: "Wings (6 pcs)", price: 50, desc: "Six pieces of wings.", img: "" },
+    { name: "Cheese", price: 20, desc: "Extra cheese.", img: "" },
+    { name: "Bacon", price: 18, desc: "Add bacon.", img: "" },
+    { name: "Egg", price: 8, desc: "Add egg.", img: "" },
   ]},
   { category: "Local Drinks", items: [
     { name: "Obolo Sobolo Can", price: 40, desc: "Sobolo drink.", img: "" },
@@ -728,8 +774,12 @@ let MENU_FALLBACK = [
     { name: "Smallie Pine Can", price: 20, desc: "Small pineapple drink.", img: "" },
   ]},
 ];
+
 let MENU = [];
 
+/* =========================
+   HELPERS
+========================= */
 const cart = new Map();
 const fmt = n => `GHS ${Number(n || 0).toFixed(2)}`;
 
@@ -745,10 +795,11 @@ function setBusy(b){
 function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
 function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price * v.qty; return s; }
 
+/* Delivery state */
 let deliveryFeeGhs = 0;
 let deliveryDistanceKm = null;
 let deliveryDurationText = "";
-let deliveryPlace = null;
+let deliveryPlace = null; // {address, lat, lng}
 
 function calcSuggestedFee(distanceKm){
   const raw = DELIVERY_BASE_FEE + (distanceKm * DELIVERY_PER_KM);
@@ -759,38 +810,83 @@ function orderMode(){ return document.getElementById("mode").value; }
 function deliveryFee(){ return (orderMode() === "Delivery") ? (Number(deliveryFeeGhs) || 0) : 0; }
 function grandTotal(){ return cartSubtotal() + deliveryFee(); }
 
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) *
-    Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+/* Robust image reader (fixes “pictures don’t show” if admin uses different keys) */
+function getItemImage(it){
+  const cand =
+    it?.img ?? it?.image ?? it?.imageUrl ?? it?.photo ?? it?.picture ?? it?.pic ?? it?.thumbnail ?? it?.thumb ?? it?.url ?? "";
+  let u = String(cand || "").trim();
+  if (!u) return "";
+  // Make URL safe if it has spaces
+  try { u = encodeURI(u); } catch {}
+  return u;
 }
-function estimateEtaText(distanceKm){
-  const mins = Math.max(10, Math.round((distanceKm / ETA_KMH) * 60));
-  if (mins < 60) return `${mins} mins`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return `${h} hr${h>1?"s":""} ${m} mins`;
+
+/* Normalize menu from backend (supports different JSON shapes) */
+function normalizeMenu(raw){
+  let m = raw;
+
+  // If backend returns flat items, group by category
+  if (Array.isArray(m) && m.length && !m[0]?.items && (m[0]?.name || m[0]?.category)){
+    const buckets = new Map();
+    for (const it of m){
+      const cat = String(it.category || "Menu").trim() || "Menu";
+      if (!buckets.has(cat)) buckets.set(cat, []);
+      const img = getItemImage(it);
+      buckets.get(cat).push({
+        name: it.name || "Item",
+        price: Number(it.price || 0),
+        desc: it.desc || "",
+        img
+      });
+    }
+    return Array.from(buckets.entries()).map(([category, items]) => ({ category, items }));
+  }
+
+  // Expected structure: [{category, items:[...]}]
+  if (Array.isArray(m)){
+    return m.map(c => ({
+      category: String(c.category || "Menu"),
+      items: Array.isArray(c.items) ? c.items.map(it => ({
+        name: it.name || "Item",
+        price: Number(it.price || 0),
+        desc: it.desc || "",
+        img: getItemImage(it)
+      })) : []
+    })).filter(c => c.items.length);
+  }
+
+  return [];
 }
 
 async function loadMenuFromBackend(){
   try{
-    const res = await fetch(`${BACKEND_BASE_URL}/api/menu`);
-    const raw = await res.text();
+    const res = await fetch(`${BACKEND_BASE_URL}/api/menu`, { cache: "no-store" });
+    const rawText = await res.text();
     let data = {};
-    try{ data = JSON.parse(raw); }catch{ data = {}; }
-    const m = Array.isArray(data.menu) ? data.menu : [];
-    MENU = m.length ? m : MENU_FALLBACK;
+    try { data = JSON.parse(rawText); } catch { data = {}; }
+
+    // Support common response shapes
+    const rawMenu =
+      data.menu ??
+      data.data?.menu ??
+      data.MENU ??
+      data.data?.MENU ??
+      data.categories ??
+      data.data?.categories ??
+      data.items ??
+      data.data?.items ??
+      null;
+
+    const nm = normalizeMenu(rawMenu);
+    MENU = nm.length ? nm : normalizeMenu(MENU_FALLBACK);
   }catch{
-    MENU = MENU_FALLBACK;
+    MENU = normalizeMenu(MENU_FALLBACK);
   }
 }
 
+/* =========================
+   CATEGORIES + PRODUCTS
+========================= */
 let activeCategory = "All";
 function categories(){ return ["All", ...MENU.map(m => m.category)]; }
 
@@ -825,7 +921,7 @@ function renderProducts(){
     for (const it of c.items){
       const hay = `${c.category} ${it.name} ${it.desc || ""}`.toLowerCase();
       if (q && !hay.includes(q)) continue;
-      items.push({ ...it, category: c.category });
+      items.push({ ...it, category: c.category, img: getItemImage(it) });
     }
   }
 
@@ -841,9 +937,9 @@ function renderProducts(){
     const card = document.createElement("div");
     card.className = "card";
 
-    const hasImg = (it.img || "").trim().length > 0;
-    const imgHtml = hasImg
-      ? `<div class="cardMedia"><img src="${escapeAttr(it.img)}" alt="${escapeAttr(it.name)}" loading="lazy"></div>`
+    const img = (it.img || "").trim();
+    const imgHtml = img
+      ? `<div class="cardMedia"><img src="${escapeAttr(img)}" alt="${escapeAttr(it.name)}" loading="lazy" referrerpolicy="no-referrer"></div>`
       : `<div class="cardMedia"><div class="ph">No image</div></div>`;
 
     card.innerHTML = `
@@ -873,6 +969,9 @@ function renderProducts(){
 
 document.getElementById("search").addEventListener("input", renderProducts);
 
+/* =========================
+   CART UI
+========================= */
 const cartCountEl = document.getElementById("cartCount");
 const barItemsEl = document.getElementById("barItems");
 const barTotalEl = document.getElementById("barTotal");
@@ -884,8 +983,9 @@ const deliveryFeeEl = document.getElementById("deliveryFee");
 const grandTotalEl = document.getElementById("grandTotal");
 
 function addToCart(key, it){
+  const img = getItemImage(it);
   if (cart.has(key)) cart.get(key).qty += 1;
-  else cart.set(key, { name: it.name, price: it.price, qty: 1, category: it.category, img: it.img || "" });
+  else cart.set(key, { name: it.name, price: it.price, qty: 1, category: it.category, img });
   renderCartUI();
   renderProducts();
 }
@@ -933,8 +1033,9 @@ function renderCartUI(){
     const row = document.createElement("div");
     row.className = "cartRow";
 
-    const thumb = (v.img || "").trim()
-      ? `<div class="cThumb"><img src="${escapeAttr(v.img)}" alt="${escapeAttr(v.name)}" loading="lazy"></div>`
+    const img = (v.img || "").trim();
+    const thumb = img
+      ? `<div class="cThumb"><img src="${escapeAttr(img)}" alt="${escapeAttr(v.name)}" loading="lazy" referrerpolicy="no-referrer"></div>`
       : `<div class="cThumb">IMG</div>`;
 
     row.innerHTML = `
@@ -955,6 +1056,9 @@ function renderCartUI(){
   });
 }
 
+/* =========================
+   DRAWER
+========================= */
 const mask = document.getElementById("mask");
 const drawer = document.getElementById("drawer");
 
@@ -978,6 +1082,9 @@ document.getElementById("clearCartBtn").addEventListener("click", clearCart);
 document.getElementById("clearCartTop").addEventListener("click", clearCart);
 document.getElementById("barClear").addEventListener("click", clearCart);
 
+/* =========================
+   DELIVERY (FREE MAP + GH ONLY SEARCH)
+========================= */
 const deliveryBox = document.getElementById("deliveryBox");
 const deliveryMeta = document.getElementById("deliveryMeta");
 const deliveryAddressInput = document.getElementById("deliveryAddress");
@@ -1005,6 +1112,25 @@ function resetDeliveryPricing(keepAddress=false){
   hideSuggestions();
   if (destMarker && map){ map.removeLayer(destMarker); destMarker = null; }
   renderCartUI();
+}
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+function estimateEtaText(distanceKm){
+  const mins = Math.max(10, Math.round((distanceKm / ETA_KMH) * 60));
+  if (mins < 60) return `${mins} mins`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h} hr${h>1?"s":""} ${m} mins`;
 }
 
 function ensureMapInit(){
@@ -1054,6 +1180,7 @@ function setDestination(place){
   renderCartUI();
 }
 
+/* Ghana-only search via Nominatim (free; rate-limited) */
 let searchTimer = null;
 deliveryAddressInput.addEventListener("input", () => {
   if (orderMode() !== "Delivery") return;
@@ -1121,6 +1248,9 @@ document.getElementById("mode").addEventListener("change", () => {
   renderCartUI();
 });
 
+/* =========================
+   PAYSTACK
+========================= */
 async function payOnline(){
   try{
     setStatus("");
@@ -1257,6 +1387,9 @@ async function payOnline(){
 }
 document.getElementById("payBtn").addEventListener("click", payOnline);
 
+/* =========================
+   INIT
+========================= */
 document.getElementById("year").textContent = new Date().getFullYear();
 
 (async () => {
@@ -1267,6 +1400,9 @@ document.getElementById("year").textContent = new Date().getFullYear();
   setDeliveryUI(false);
 })();
 
+/* =========================
+   SAFE HTML ESCAPES
+========================= */
 function escapeHtml(s){
   return String(s ?? "").replace(/[&<>"']/g, m => ({
     "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
