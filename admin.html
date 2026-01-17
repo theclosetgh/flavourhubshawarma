@@ -64,8 +64,8 @@
         <div class="muted">Edit menu + upload pictures from your device to Cloudinary. Save publishes instantly.</div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button onclick="openSite()">Open Site</button>
-        <button onclick="logout()">Logout</button>
+        <button type="button" onclick="openSite()">Open Site</button>
+        <button type="button" onclick="logout()">Logout</button>
       </div>
     </div>
   </div>
@@ -77,7 +77,7 @@
         <input id="pw" type="password" placeholder="Enter admin password" />
       </div>
       <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap">
-        <button class="primary" onclick="login()">Login</button>
+        <button class="primary" type="button" onclick="login()">Login</button>
         <div class="muted" id="loginMsg"></div>
       </div>
     </div>
@@ -87,9 +87,9 @@
     <div class="topbar">
       <div class="muted" id="status">—</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button onclick="addCategory()">+ Category</button>
-        <button class="primary" onclick="saveMenu()">Save Menu</button>
-        <button onclick="reloadMenu()">Reload</button>
+        <button type="button" onclick="addCategory()">+ Category</button>
+        <button class="primary" type="button" onclick="saveMenu()">Save Menu</button>
+        <button type="button" onclick="reloadMenu()">Reload</button>
       </div>
     </div>
     <div class="cats" id="cats"></div>
@@ -203,8 +203,8 @@ function render(){
           <input value="${escapeHtml(cat.name)}" oninput="menu.categories[${ci}].name=this.value" />
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button onclick="addItem(${ci})">+ Item</button>
-          <button onclick="delCat(${ci})">Delete Category</button>
+          <button type="button" onclick="addItem(${ci})">+ Item</button>
+          <button type="button" onclick="delCat(${ci})">Delete Category</button>
         </div>
       </div>
     `;
@@ -213,7 +213,7 @@ function render(){
       const div = document.createElement("div");
       div.className = "item";
       const img = safeImg(it.image || "");
-      const inputId = `file_${ci}_${ii}`;
+      const fileId = `file_${ci}_${ii}`;
 
       div.innerHTML = `
         <div class="row3">
@@ -229,7 +229,8 @@ function render(){
           </div>
           <div>
             <div class="muted">Image URL (auto-filled by upload)</div>
-            <input value="${escapeHtml(it.image||"")}"
+            <input data-role="imageUrl"
+                   value="${escapeHtml(it.image||"")}"
                    oninput="menu.categories[${ci}].items[${ii}].image=this.value; refreshPreview(this, ${ci}, ${ii})" />
           </div>
         </div>
@@ -239,10 +240,10 @@ function render(){
         </div>
 
         <div class="actions">
-          <input id="${inputId}" type="file" accept="image/jpeg,image/png,image/webp" style="display:none" />
-          <button class="small" onclick="document.getElementById('${inputId}').click()">Upload from device</button>
-          <button class="small" onclick="clearImage(${ci},${ii})">Remove image</button>
-          <button class="small" onclick="delItem(${ci},${ii})">Remove item</button>
+          <input id="${fileId}" type="file" accept="image/jpeg,image/png,image/webp" style="display:none" />
+          <button class="small" type="button" onclick="document.getElementById('${fileId}').click()">Upload from device</button>
+          <button class="small" type="button" onclick="clearImage(${ci},${ii})">Remove image</button>
+          <button class="small" type="button" onclick="delItem(${ci},${ii})">Remove item</button>
         </div>
 
         <div style="margin-top:10px">
@@ -250,13 +251,15 @@ function render(){
           <textarea oninput="menu.categories[${ci}].items[${ii}].desc=this.value">${escapeHtml(it.desc||"")}</textarea>
         </div>
 
-        <div class="muted" style="margin-top:8px" data-msg="1"></div>
+        <div class="muted" style="margin-top:8px" data-msg="uploadMsg"></div>
       `;
 
-      // Wire upload handler
+      // Wire upload handler (IMPORTANT: never set file input value to URL)
       setTimeout(() => {
-        const fileEl = document.getElementById(inputId);
-        const msgEl = div.querySelector('[data-msg="1"]');
+        const fileEl = document.getElementById(fileId);
+        const msgEl = div.querySelector('[data-msg="uploadMsg"]');
+        const urlInput = div.querySelector('[data-role="imageUrl"]');
+        const preview = div.querySelector(".preview");
 
         fileEl.addEventListener("change", async () => {
           const f = fileEl.files?.[0];
@@ -265,19 +268,21 @@ function render(){
           msgEl.textContent = "Uploading...";
           try{
             const url = await uploadImage(f);
+
+            // Save URL into the menu item
             menu.categories[ci].items[ii].image = url;
 
-            // update URL input and preview
-            const inputs = div.querySelectorAll("input");
-            inputs[inputs.length - 1].value = url;
+            // Update ONLY the Image URL text input (NOT the file input)
+            urlInput.value = url;
 
-            const prev = div.querySelector(".preview");
-            prev.innerHTML = `<img src="${url}" alt="" />`;
+            // Update preview
+            preview.innerHTML = `<img src="${url}" alt="" />`;
 
             msgEl.textContent = "Uploaded. Click “Save Menu” to publish.";
           }catch(e){
             msgEl.textContent = "Upload failed: " + (e.message || "Error");
           }finally{
+            // Allowed: clear the file input
             fileEl.value = "";
           }
         });
