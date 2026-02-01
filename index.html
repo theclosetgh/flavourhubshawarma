@@ -541,19 +541,35 @@
       font-size:12px;
       padding:10px 0 0;
     }
-</style>
+/* ===== SHOP HOURS STATUS ===== */
+.shop-open{
+  color:#16a34a;
+  font-weight:900;
+}
+.shop-closed{
+  color:#dc2626;
+  font-weight:900;
+}
+button[disabled],
+.btn[disabled]{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+  </style>
 </head>
 
 <body>
 <header>
   <div class="top">
-    <div class="brand">
-      <div class="logo">FH</div>
-      <div>
-        <h1>Flavour Hub Shawarma</h1>
-        <p>Lin-Mart Executive Hostel • Haatso • Delivery via Bolt/Yango</p>
-      </div>
-    </div>
+   <div class="brand">
+  <div class="logo">FH</div>
+  <div>
+    <h1>Flavour Hub Shawarma</h1>
+    <p>Lin-Mart Executive Hostel • Haatso • Delivery via Bolt/Yango</p>
+    <div id="shopStatus" style="margin-top:4px;font-size:12px"></div>
+  </div>
+</div>
 
     <div class="search">
       <span style="color:var(--muted);font-size:12px">Search</span>
@@ -1180,6 +1196,55 @@ document.getElementById("payBtn").addEventListener("click", payOnline);
   renderCartUI();
   setDeliveryUI(false);
 })();
+/* =========================
+   SHOP HOURS (GHANA TIME)
+   Opens: 4:00 PM
+   Closes: 1:00 AM
+========================= */
+const OPEN_HOUR = 16; // 4 PM
+const CLOSE_HOUR = 1;  // 1 AM
+
+function isShopOpen(){
+  const now = new Date();
+  const ghTime = new Date(
+    now.toLocaleString("en-US", { timeZone: "Africa/Accra" })
+  );
+  const hour = ghTime.getHours();
+
+  // Open from 16:00–23:59 OR 00:00–01:00
+  return (hour >= OPEN_HOUR || hour < CLOSE_HOUR);
+}
+
+function updateShopStatus(){
+  const open = isShopOpen();
+  const statusEl = document.getElementById("shopStatus");
+
+  if(!statusEl) return;
+
+  // Disable payment & review
+  document.getElementById("payBtn").disabled = !open;
+  document.getElementById("barReview").disabled = !open;
+
+  // Disable all Add buttons
+  document.querySelectorAll(".btn.primary").forEach(btn=>{
+    if(btn.textContent.trim() === "Add"){
+      btn.disabled = !open;
+    }
+  });
+
+  if(open){
+    statusEl.textContent = "🟢 OPEN — Orders available (4:00 PM – 1:00 AM)";
+    statusEl.className = "shop-open";
+  }else{
+    statusEl.textContent = "🔴 CLOSED — Opens at 4:00 PM";
+    statusEl.className = "shop-closed";
+  }
+}
+
+// Run on load + every minute
+updateShopStatus();
+setInterval(updateShopStatus, 60000);
+
 </script>
 </body>
 </html>
