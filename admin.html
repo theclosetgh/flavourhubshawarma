@@ -63,6 +63,7 @@
         <h2>Admin — Menu Manager</h2>
         <div class="muted">Edit menu + upload pictures from your device to Cloudinary. Save publishes instantly.</div>
       </div>
+      
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button type="button" onclick="openSite()">Open Site</button>
         <button type="button" onclick="logout()">Logout</button>
@@ -86,7 +87,7 @@
   <div class="card" id="editorCard" style="display:none">
     <div class="topbar">
       <div class="muted" id="status">—</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
+   <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button type="button" onclick="addCategory()">+ Category</button>
         <button class="primary" type="button" onclick="saveMenu()">Save Menu</button>
         <button type="button" onclick="reloadMenu()">Reload</button>
@@ -94,8 +95,14 @@
     </div>
     <div class="cats" id="cats"></div>
   </div>
+   <div class="card" id="ordersCard" style="display:none">
+    <div class="topbar">
+      <h2>Orders</h2>
+      <button onclick="loadOrders()">Refresh</button>
+    </div>
+    <div id="orders"></div>
+  </div>
 </div>
-
 <script>
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
 
@@ -139,6 +146,8 @@ async function reloadMenu(){
 
   setStatus(`Loaded. Updated: ${new Date(menu.updatedAt || Date.now()).toLocaleString()}`);
   render();
+  document.getElementById("ordersCard").style.display = "block";
+loadOrders();
 }
 
 function addCategory(){
@@ -341,6 +350,41 @@ function escapeHtml(s){
     try{ await reloadMenu(); } catch(e){ /* ignore */ }
   }
 })();
+let orders = [];
+
+async function loadOrders(){
+  const r = await fetch(`${BACKEND_BASE_URL}/api/orders/admin`, {
+    headers:{ "Authorization": `Bearer ${token}` }
+  });
+  orders = await r.json();
+  renderOrders();
+}
+
+function renderOrders(){
+  const el = document.getElementById("orders");
+  el.innerHTML = "";
+
+  if(!orders.length){
+    el.innerHTML = `<div class="muted">No orders yet</div>`;
+    return;
+  }
+
+  orders.forEach(o=>{
+    const d = document.createElement("div");
+    d.className = "item";
+    d.innerHTML = `
+      <strong>${o.id || o.reference}</strong>
+      <div class="muted">${new Date(o.createdAt).toLocaleString()}</div>
+      <div><b>${o.customer?.name}</b> • ${o.customer?.phone}</div>
+      ${o.delivery ? `<div class="muted">${o.delivery.address}</div>` : `<div class="muted">Pickup</div>`}
+      <ul>
+        ${(o.items||[]).map(i=>`<li>${i.qty} × ${i.name}</li>`).join("")}
+      </ul>
+      <strong>Total: GHS ${o.totals?.total}</strong>
+    `;
+    el.appendChild(d);
+  });
+}
 </script>
 </body>
 </html>
