@@ -1121,32 +1121,42 @@ async function payOnline(){
             const verifyRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/verify/${encodeURIComponent(response.reference)}`);
             const verifyData = await verifyRes.json().catch(()=> ({}));
             if (!verifyRes.ok) throw new Error(verifyData?.error || "Verification failed.");
+ 
+                 if (verifyData.status === "success"){
 
-            if (verifyData.status === "success"){
-              const paidOrder = {
-                reference: response.reference,
-                business: BUSINESS_NAME,
-                whatsapp: WHATSAPP_LOCAL,
-                customer: { name, phone, email },
-                mode,
-                items,
-                note,
-                delivery: (mode === "Delivery") ? {
-                  provider: "Bolt/Yango",
-                  area: deliveryArea,
-                  address: deliveryAddress,
-                  landmark: landmark,
-                  fee_note: "Delivery fee is paid directly to the rider."
-                } : null,
-                totals: { subtotal: cartSubtotal(), total: cartSubtotal() },
-                paidAt: new Date().toISOString()
-              };
+  const paidOrder = {
+    reference: response.reference,
+    business: BUSINESS_NAME,
+    customer: { name, phone, email },
+    mode,
+    items,
+    note,
+    delivery: (mode === "Delivery") ? {
+      area: deliveryArea,
+      address: deliveryAddress,
+      landmark
+    } : null,
+    totals: {
+      subtotal: cartSubtotal(),
+      total: cartSubtotal()
+    },
+    paidAt: new Date().toISOString()
+  };
 
-              localStorage.setItem("fh_last_paid_order", JSON.stringify(paidOrder));
-              closeDrawer();
-              window.location.href = `success.html?ref=${encodeURIComponent(response.reference)}`;
-              return;
-            }
+  // ✅ PASTE THIS PART HERE (SAVE TO BACKEND)
+  await fetch(`${BACKEND_BASE_URL}/api/orders`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(paidOrder)
+  });
+
+  // keep for success page
+  localStorage.setItem("fh_last_paid_order", JSON.stringify(paidOrder));
+
+  closeDrawer();
+  window.location.href = `success.html?ref=${encodeURIComponent(response.reference)}`;
+  return;
+}
 
             throw new Error("Payment not successful.");
           }catch(err){
