@@ -53,6 +53,10 @@
   }
   .preview img{width:100%;height:100%;object-fit:cover;display:block}
   .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-top:10px}
+.nav-active{
+  background: linear-gradient(135deg,var(--accent),var(--accent2));
+  border: none;
+}
 </style>
 </head>
 <body>
@@ -60,13 +64,15 @@
   <div class="card">
     <div class="topbar">
       <div>
-        <h2>Admin — Menu Manager</h2>
-        <div class="muted">Edit menu + upload pictures from your device to Cloudinary. Save publishes instantly.</div>
+        <h2>Admin Dashboard</h2>
+        <div class="muted">Manage menu and view customer orders</div>
       </div>
-      
+
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button type="button" onclick="openSite()">Open Site</button>
-        <button type="button" onclick="logout()">Logout</button>
+        <button id="menuBtn" class="nav-btn" onclick="showMenu()">Menu</button>
+        <button id="ordersBtn" class="nav-btn" onclick="showOrders()">Orders</button>
+        <button onclick="openSite()">Open Site</button>
+        <button onclick="logout()">Logout</button>
       </div>
     </div>
   </div>
@@ -103,11 +109,30 @@
     <div id="orders"></div>
   </div>
 </div>
-<script>
+  <script>
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
 
 let token = localStorage.getItem("fh_admin_token") || "";
 let menu = null;
+function showMenu(){
+  document.getElementById("editorCard").style.display = "block";
+  document.getElementById("ordersCard").style.display = "none";
+  setActive("menuBtn");
+}
+
+function showOrders(){
+  document.getElementById("editorCard").style.display = "none";
+  document.getElementById("ordersCard").style.display = "block";
+  setActive("ordersBtn");
+  loadOrders();
+}
+
+function setActive(id){
+  document.querySelectorAll(".nav-btn").forEach(btn =>
+    btn.classList.remove("nav-active")
+  );
+  document.getElementById(id).classList.add("nav-active");
+}
 
 function setStatus(msg){ document.getElementById("status").textContent = msg || ""; }
 function openSite(){ window.location.href = "index.html"; }
@@ -146,8 +171,7 @@ async function reloadMenu(){
 
   setStatus(`Loaded. Updated: ${new Date(menu.updatedAt || Date.now()).toLocaleString()}`);
   render();
-  document.getElementById("ordersCard").style.display = "block";
-loadOrders();
+showMenu();
 }
 
 function addCategory(){
@@ -351,13 +375,29 @@ function escapeHtml(s){
   }
 })();
 let orders = [];
-
 async function loadOrders(){
-  const r = await fetch(`${BACKEND_BASE_URL}/api/orders/admin`, {
-    headers:{ "Authorization": `Bearer ${token}` }
-  });
-  orders = await r.json();
-  renderOrders();
+  if(!token){
+    document.getElementById("orders").innerHTML =
+      `<div class="muted">Login required to view orders</div>`;
+    return;
+  }
+
+  try{
+    const r = await fetch(`${BACKEND_BASE_URL}/api/orders/admin`, {
+      headers:{ "Authorization": `Bearer ${token}` }
+    });
+
+    if(!r.ok){
+      const err = await r.json().catch(()=>({}));
+      throw new Error(err.error || "Failed to load orders");
+    }
+
+    orders = await r.json();
+    renderOrders();
+  }catch(e){
+    document.getElementById("orders").innerHTML =
+      `<div class="muted">⚠ ${e.message}</div>`;
+  }
 }
 
 function renderOrders(){
@@ -385,6 +425,15 @@ function renderOrders(){
     el.appendChild(d);
   });
 }
+setInterval(() => {
+  if(
+    token &&
+    document.getElementById("ordersCard").style.display === "block"
+  ){
+    loadOrders();
+  }
+}, 20000); // every 20 seconds
+
 </script>
 </body>
 </html>
