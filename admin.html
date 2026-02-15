@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -158,6 +159,14 @@ async function login(){
   token = data.token;
   localStorage.setItem("fh_admin_token", token);
   document.getElementById("loginMsg").textContent = "Logged in";
+  const bell = document.getElementById("newOrderSound");
+if(bell){
+  bell.play().then(()=>{
+    bell.pause();
+    bell.currentTime = 0;
+  }).catch(()=>{});
+}
+
   await reloadMenu();
 }
 
@@ -367,7 +376,16 @@ async function saveMenu(){
 
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  }
+  function playBellSound(){
+  const bell = document.getElementById("newOrderSound");
+  if(!bell) return;
+
+  bell.volume = 1.0; // maximum volume
+  bell.currentTime = 0;
+  bell.play().catch(()=>{});
 }
+
 
 (async function init(){
   if(token){
@@ -375,6 +393,9 @@ function escapeHtml(s){
   }
 })();
 let orders = [];
+let lastOrderCount = 0;
+let hasLoadedOrders = false;
+
 async function loadOrders(){
   if(!token){
     document.getElementById("orders").innerHTML =
@@ -403,6 +424,14 @@ async function loadOrders(){
 function renderOrders(){
   const el = document.getElementById("orders");
   el.innerHTML = "";
+
+  // 🔔 Detect new order
+if(hasLoadedOrders && orders.length > lastOrderCount){
+  playBellSound();
+}
+
+lastOrderCount = orders.length;
+hasLoadedOrders = true;
 
   if(!orders.length){
     el.innerHTML = `<div class="muted">No orders yet</div>`;
@@ -435,5 +464,9 @@ setInterval(() => {
 }, 20000); // every 20 seconds
 
 </script>
+<audio id="newOrderSound" preload="auto">
+  <source src="bell.mp3" type="audio/mpeg">
+</audio>
+
 </body>
 </html>
