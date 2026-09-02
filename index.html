@@ -24,6 +24,7 @@
       --radius:18px;
       --radius-lg:26px;
       --max:1180px;
+      --side-strip:92px;
     }
 
     *{box-sizing:border-box}
@@ -39,19 +40,19 @@
       line-height:1.5;
       -webkit-font-smoothing:antialiased;
       text-rendering:optimizeLegibility;
+      overflow-x:hidden;
     }
 
     a{color:inherit;text-decoration:none}
     img{max-width:100%;display:block}
 
-    /* Decorative wrapper feel from the image */
     body::before{
       content:"";
       position:fixed;
       left:0;
       top:0;
       bottom:0;
-      width:18px;
+      width:var(--side-strip);
       background:
         repeating-linear-gradient(
           to bottom,
@@ -86,6 +87,7 @@
       background:rgba(255,122,0,.92);
       backdrop-filter:blur(10px);
       border-bottom:1px solid rgba(255,255,255,.18);
+      margin-left:var(--side-strip);
     }
 
     .top{
@@ -218,6 +220,7 @@
     .tabsWrap{
       border-top:1px solid rgba(255,255,255,.14);
       background:rgba(255,255,255,.08);
+      margin-left:var(--side-strip);
     }
 
     .tabs{
@@ -266,7 +269,7 @@
     .wrap{
       max-width:var(--max);
       margin:0 auto;
-      padding:14px 16px 104px;
+      padding:14px 16px 104px calc(16px + var(--side-strip));
     }
 
     .hero{
@@ -527,10 +530,11 @@
       left:0;
       right:0;
       bottom:0;
-      background:rgba(255,255,255,.96);
+      background:rgba(255,255,255,.95);
       backdrop-filter:blur(10px);
       border-top:1px solid var(--line-dark);
       z-index:60;
+      margin-left:var(--side-strip);
     }
 
     .barInner{
@@ -853,6 +857,7 @@
       color:rgba(255,255,255,.88);
       font-size:12px;
       padding:10px 0 0;
+      margin-left:var(--side-strip);
     }
 
     footer a{
@@ -871,6 +876,19 @@
     }
 
     @media (max-width: 640px){
+      :root{ --side-strip:0px; }
+
+      header,
+      .tabsWrap,
+      .checkoutBar,
+      footer{
+        margin-left:0;
+      }
+
+      body::before{
+        width:12px;
+      }
+
       .hero{
         padding:14px;
         flex-direction:column;
@@ -919,9 +937,6 @@
       }
       .wrap{
         padding:12px 14px 104px;
-      }
-      body::before{
-        width:14px;
       }
     }
   </style>
@@ -1086,6 +1101,7 @@
 
         <div class="notice">
           Delivery is dispatched via <b>Bolt/Yango</b>. Delivery fee is <b>paid directly to the rider</b> on delivery.
+          After payment, you can send your details to WhatsApp for faster dispatch.
         </div>
       </div>
 
@@ -1109,6 +1125,7 @@
 <script>
 const BUSINESS_NAME = "Flavour Hub Shawarma";
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
+const WHATSAPP_LOCAL = "0543748208";
 
 let MENU = [];
 
@@ -1225,7 +1242,7 @@ function renderMenuList(){
 
   if (!groups.length){
     menuListEl.innerHTML = `
-      <div style="border:1px dashed var(--line);background:#fff; border-radius:16px;padding:14px;color:#7d6c5a;font-size:13px;text-align:center">
+      <div style="border:1px dashed var(--line);background:var(--surface-2);border-radius:16px;padding:14px;color:var(--muted);font-size:13px;text-align:center">
         No items found.
       </div>`;
     return;
@@ -1373,6 +1390,7 @@ function openDrawer(){
   drawer.classList.add("open");
   drawer.setAttribute("aria-hidden","false");
 }
+
 function closeDrawer(){
   drawer.classList.remove("open");
   drawer.setAttribute("aria-hidden","true");
@@ -1451,4 +1469,136 @@ async function payOnline(){
     };
 
     setStatus("Initializing payment...");
-    const initRes = await fetch(`${BACKEND_BASE
+    const initRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/initialize`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const initData = await initRes.json().catch(()=> ({}));
+    if (!initRes.ok) throw new Error(initData?.error || "Failed to initialize payment.");
+
+    const reference = initData.reference;
+    const public_key = initData.public_key;
+    if (!reference || !public_key) throw new Error("Payment init response missing reference/public key.");
+
+    setStatus("Opening Paystack checkout...");
+    const handler = window.PaystackPop.setup({
+      key: public_key,
+      email,
+      amount: amountPesewas,
+      currency: "GHS",
+      ref: reference,
+      callback: function(response){
+        (async () => {
+          try{
+            setStatus("Verifying payment...");
+            const verifyRes = await fetch(`${BACKEND_BASE_URL}/api/paystack/verify/${encodeURIComponent(response.reference)}`);
+            const verifyData = await verifyRes.json().catch(()=> ({}));
+            if (!verifyRes.ok) throw new Error(verifyData?.error || "Verification failed.");
+
+            if (verifyData.status === "success"){
+              const paidOrder = {
+                reference: response.reference,
+                business: BUSINESS_NAME,
+                customer: { name, phone, email },
+                mode,
+                items,
+                note,
+                delivery: (mode === "Delivery") ? {
+                  area: deliveryArea,
+                  address: deliveryAddress,
+                  landmark
+                } : null,
+                totals: { subtotal: cartSubtotal(), total: cartSubtotal() },
+                paidAt: new Date().toISOString()
+              };
+
+              await fetch(`${BACKEND_BASE_URL}/api/orders`, {
+                method:"POST",
+                headers:{ "Content-Type":"application/json" },
+                body: JSON.stringify(paidOrder)
+              });
+
+              localStorage.setItem("fh_last_paid_order", JSON.stringify(paidOrder));
+              closeDrawer();
+              window.location.href = `success.html?ref=${encodeURIComponent(response.reference)}`;
+              return;
+            }
+
+            throw new Error("Payment not successful.");
+          }catch(err){
+            console.error(err);
+            alert("Payment verification failed. Please contact Flavour Hub with your reference.");
+            setStatus("Verification failed. Try again or contact support.");
+          } finally {
+            setBusy(false);
+          }
+        })();
+      },
+      onClose: function(){
+        setStatus("Payment window closed.");
+        setBusy(false);
+      }
+    });
+
+    handler.openIframe();
+  }catch(err){
+    console.error(err);
+    alert(err.message || "Something went wrong.");
+    setStatus("Error: " + (err.message || "Something went wrong."));
+    setBusy(false);
+  }
+}
+document.getElementById("payBtn").addEventListener("click", payOnline);
+
+async function updateShopStatus(){
+  const OPEN_HOUR = 16;
+  const CLOSE_HOUR = 1;
+
+  const now = new Date();
+  const ghTime = new Date(now.toLocaleString("en-US", { timeZone:"Africa/Accra" }));
+  const hour = ghTime.getHours();
+  const open = (hour >= OPEN_HOUR || hour < CLOSE_HOUR);
+
+  const statusBox = document.getElementById("shopStatus");
+  if (!statusBox) return;
+
+  document.getElementById("payBtn").disabled = !open;
+  document.getElementById("barReview").disabled = !open;
+
+  document.querySelectorAll(".btn.primary").forEach(btn => {
+    if (btn.textContent.trim() === "Add") btn.disabled = !open;
+  });
+
+  if (open){
+    statusBox.textContent = "OPEN — Orders available (4:00 PM – 1:00 AM)";
+    statusBox.className = "brandMeta shop-open";
+  }else{
+    statusBox.textContent = "CLOSED — Opens at 4:00 PM";
+    statusBox.className = "brandMeta shop-closed";
+  }
+}
+
+(async () => {
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  await loadMenuFromBackend();
+  if (!MENU.length){
+    document.getElementById("menuList").innerHTML =
+      `<div style="border:1px dashed rgba(255,255,255,.35);background:rgba(255,255,255,.12);border-radius:16px;padding:14px;color:#fff;font-size:13px;text-align:center">
+        Menu failed to load. Check your backend /api/menu.
+      </div>`;
+    return;
+  }
+
+  renderTabs();
+  renderMenuList();
+  renderCartUI();
+  setDeliveryUI(false);
+  updateShopStatus();
+  setInterval(updateShopStatus, 60000);
+})();
+</script>
+</body>
+</html>
