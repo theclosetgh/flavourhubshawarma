@@ -4,27 +4,23 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Flavour Hub Shawarma — Order Online</title>
-  <meta name="description" content="Flavour Hub Shawarma — order pickup or delivery (Bolt/Yango). Pay online with Paystack." />
+  <meta name="description" content="Flavour Hub Shawarma — order pickup or delivery (Bolt/Yango). Pay food online with Paystack." />
 
   <style>
     :root{
-      --bg:#ff7a00;
-      --bg-dark:#ee6f00;
-      --surface:#fffaf5;
-      --surface-2:#ffffff;
-      --ink:#ffffff;
-      --ink-dark:#111111;
-      --muted:rgba(255,255,255,.82);
-      --line:rgba(255,255,255,.22);
-      --line-dark:#ece4db;
-      --accent:#ffffff;
-      --accent-2:#fff1e6;
-      --shadow:0 16px 35px rgba(0,0,0,.12);
-      --shadow-soft:0 8px 20px rgba(0,0,0,.08);
+      --bg:#fafafa;
+      --surface:#ffffff;
+      --surface-2:#fff8f5;
+      --ink:#111111;
+      --muted:#6b7280;
+      --line:#e9e5e1;
+      --accent:#e10600;
+      --accent-2:#ff7a00;
+      --shadow:0 10px 30px rgba(15,23,42,.06);
+      --shadow-2:0 16px 40px rgba(15,23,42,.10);
       --radius:18px;
-      --radius-lg:26px;
+      --radius-lg:24px;
       --max:1180px;
-      --side-strip:92px;
     }
 
     *{box-sizing:border-box}
@@ -33,67 +29,28 @@
       margin:0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--ink);
-      background:
-        radial-gradient(circle at 20% 10%, rgba(255,255,255,.08), transparent 24%),
-        radial-gradient(circle at 80% 20%, rgba(255,255,255,.06), transparent 18%),
-        linear-gradient(180deg, var(--bg) 0%, var(--bg-dark) 100%);
+      background:var(--bg);
       line-height:1.5;
       -webkit-font-smoothing:antialiased;
       text-rendering:optimizeLegibility;
-      overflow-x:hidden;
     }
 
     a{color:inherit;text-decoration:none}
     img{max-width:100%;display:block}
 
-    body::before{
-      content:"";
-      position:fixed;
-      left:0;
-      top:0;
-      bottom:0;
-      width:var(--side-strip);
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,.95) 0 8px,
-          rgba(255,255,255,0) 8px 18px
-        );
-      z-index:0;
-      pointer-events:none;
-      opacity:.95;
-    }
-
-    body::after{
-      content:"";
-      position:fixed;
-      inset:0;
-      background-image:
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,.05) 0 2px, transparent 2px),
-        radial-gradient(circle at 30% 80%, rgba(255,255,255,.04) 0 2px, transparent 2px),
-        radial-gradient(circle at 70% 30%, rgba(255,255,255,.04) 0 2px, transparent 2px);
-      background-size:160px 160px;
-      opacity:.6;
-      pointer-events:none;
-      z-index:0;
-    }
-
-    header, main, footer, .drawerMask, .drawer, .checkoutBar{position:relative; z-index:1}
-
     header{
       position:sticky;
       top:0;
       z-index:70;
-      background:rgba(255,122,0,.92);
+      background:rgba(250,250,250,.92);
       backdrop-filter:blur(10px);
-      border-bottom:1px solid rgba(255,255,255,.18);
-      margin-left:var(--side-strip);
+      border-bottom:1px solid var(--line);
     }
 
     .top{
       max-width:var(--max);
       margin:0 auto;
-      padding:14px 16px;
+      padding:12px 16px;
       display:grid;
       grid-template-columns:auto 1fr auto;
       gap:12px;
@@ -114,18 +71,21 @@
       border-radius:14px;
       background:#fff;
       padding:4px;
-      border:1px solid rgba(255,255,255,.22);
-      box-shadow:0 8px 18px rgba(0,0,0,.10);
+      border:1px solid rgba(225,6,0,.12);
+      box-shadow:0 6px 18px rgba(225,6,0,.10);
       flex:0 0 auto;
     }
 
-    .brandText{min-width:0}
+    .brandText{
+      min-width:0;
+    }
+
     .brandText h1{
       margin:0;
       font-size:15px;
       line-height:1.1;
       font-weight:900;
-      color:#fff;
+      color:var(--accent);
       letter-spacing:-.02em;
       white-space:nowrap;
       overflow:hidden;
@@ -135,7 +95,7 @@
     .brandText p{
       margin:3px 0 0;
       font-size:12px;
-      color:rgba(255,255,255,.9);
+      color:var(--muted);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
@@ -144,26 +104,25 @@
     .brandMeta{
       margin-top:4px;
       font-size:12px;
-      color:rgba(255,255,255,.92);
+      color:var(--muted);
     }
 
     .search{
       display:flex;
       align-items:center;
       gap:10px;
-      background:rgba(255,255,255,.95);
-      border:1px solid rgba(255,255,255,.38);
+      background:#fff;
+      border:1px solid var(--line);
       border-radius:999px;
       padding:10px 14px;
       min-width:0;
-      box-shadow:0 1px 0 rgba(0,0,0,.03);
+      box-shadow:0 1px 0 rgba(15,23,42,.02);
     }
 
     .search span{
-      color:#7c4a1d;
+      color:var(--muted);
       font-size:12px;
       flex:0 0 auto;
-      font-weight:700;
     }
 
     .search input{
@@ -172,7 +131,7 @@
       outline:none;
       background:transparent;
       font-size:13px;
-      color:#111;
+      color:var(--ink);
       min-width:0;
     }
 
@@ -180,19 +139,18 @@
       display:flex;
       align-items:center;
       gap:10px;
-      border:1px solid rgba(255,255,255,.35);
-      background:rgba(255,255,255,.14);
+      border:1px solid rgba(225,6,0,.15);
+      background:linear-gradient(180deg, #fff, #fff7f4);
       border-radius:999px;
       padding:9px 12px;
       cursor:pointer;
       user-select:none;
+      box-shadow:0 1px 0 rgba(15,23,42,.02);
       white-space:nowrap;
-      box-shadow:0 1px 0 rgba(0,0,0,.03);
     }
 
     .orderPill b{
       font-size:13px;
-      color:#fff;
     }
 
     .count{
@@ -201,8 +159,8 @@
       border-radius:999px;
       display:grid;
       place-items:center;
-      background:#fff;
-      color:#ff7a00;
+      background:var(--accent);
+      color:#fff;
       font-weight:900;
       font-size:12px;
     }
@@ -218,9 +176,8 @@
     }
 
     .tabsWrap{
-      border-top:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.08);
-      margin-left:var(--side-strip);
+      border-top:1px solid var(--line);
+      background:rgba(250,250,250,.95);
     }
 
     .tabs{
@@ -234,9 +191,9 @@
     }
 
     .tab{
-      border:1px solid rgba(255,255,255,.22);
-      background:rgba(255,255,255,.12);
-      color:#fff;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
       font-weight:800;
       font-size:12.5px;
       padding:9px 12px;
@@ -256,33 +213,39 @@
       place-items:center;
       font-size:11px;
       font-weight:900;
-      background:rgba(255,255,255,.15);
-      color:#fff;
-      border:1px solid rgba(255,255,255,.18);
+      background:#f8f8f8;
+      color:var(--muted);
+      border:1px solid var(--line);
     }
 
     .tab.active{
-      border-color:rgba(255,255,255,.55);
-      background:rgba(255,255,255,.18);
+      border-color:rgba(225,6,0,.20);
+      background:rgba(225,6,0,.06);
+      color:var(--accent);
+    }
+
+    .tab.active .tBadge{
+      background:rgba(225,6,0,.08);
+      color:var(--accent);
+      border-color:rgba(225,6,0,.14);
     }
 
     .wrap{
       max-width:var(--max);
       margin:0 auto;
-      padding:14px 16px 104px calc(16px + var(--side-strip));
+      padding:14px 16px 104px;
     }
 
     .hero{
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.18);
+      background:var(--surface);
+      border:1px solid var(--line);
       border-radius:var(--radius-lg);
-      box-shadow:var(--shadow-soft);
+      box-shadow:var(--shadow);
       padding:18px;
       display:flex;
       justify-content:space-between;
       gap:16px;
       align-items:flex-start;
-      backdrop-filter:blur(6px);
     }
 
     .heroMain{
@@ -300,8 +263,8 @@
       border-radius:16px;
       background:#fff;
       padding:5px;
-      border:1px solid rgba(255,255,255,.22);
-      box-shadow:0 8px 18px rgba(0,0,0,.10);
+      border:1px solid rgba(225,6,0,.12);
+      box-shadow:0 8px 18px rgba(225,6,0,.10);
       flex:0 0 auto;
     }
 
@@ -310,12 +273,11 @@
       font-size:24px;
       line-height:1.15;
       letter-spacing:-.03em;
-      color:#fff;
     }
 
     .hero p{
       margin:8px 0 0;
-      color:rgba(255,255,255,.9);
+      color:var(--muted);
       font-size:14px;
       line-height:1.55;
       max-width:700px;
@@ -329,52 +291,48 @@
     }
 
     .chip{
-      background:rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.18);
-      color:#fff;
+      background:var(--surface-2);
+      border:1px solid var(--line);
+      color:var(--muted);
       border-radius:999px;
       padding:8px 10px;
       font-size:12px;
       white-space:nowrap;
     }
 
-    .chip b{color:#fff}
+    .chip b{color:var(--ink)}
 
     .panel{
       margin-top:14px;
       background:var(--surface);
-      border:1px solid rgba(255,255,255,.18);
+      border:1px solid var(--line);
       border-radius:var(--radius-lg);
-      box-shadow:var(--shadow-soft);
+      box-shadow:var(--shadow);
       overflow:hidden;
-      color:var(--ink-dark);
     }
 
     .panelHd{
       padding:14px 14px 10px;
-      border-bottom:1px solid var(--line-dark);
+      border-bottom:1px solid var(--line);
       display:flex;
       justify-content:space-between;
       align-items:flex-end;
       gap:10px;
       flex-wrap:wrap;
-      background:#fff;
     }
 
     .panelHd h3{
       margin:0;
       font-size:14px;
-      color:#111;
     }
 
     .panelHd small{
-      color:#6f5d49;
+      color:var(--muted);
       font-size:12px;
     }
 
     .panelBd{
       padding:12px 14px 14px;
-      background:#fff;
     }
 
     .productsTop{
@@ -387,19 +345,18 @@
     }
 
     .productsTop .hint{
-      color:#7d6c5a;
+      color:var(--muted);
       font-size:12px;
     }
 
     .clearSmall{
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       background:#fff;
       border-radius:999px;
       padding:9px 12px;
       cursor:pointer;
       font-weight:800;
       font-size:12px;
-      color:#111;
     }
 
     .menuList{
@@ -420,16 +377,15 @@
       margin:0;
       font-size:13px;
       letter-spacing:.2px;
-      color:#fff;
     }
 
     .catHeader .sub{
-      color:rgba(255,255,255,.85);
+      color:var(--muted);
       font-size:12px;
     }
 
     .rowCard{
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       background:#fff;
       border-radius:18px;
       overflow:hidden;
@@ -445,9 +401,9 @@
       width:86px;
       height:68px;
       border-radius:14px;
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       overflow:hidden;
-      background:#faf7f2;
+      background:#fafafa;
       display:grid;
       place-items:center;
       flex:0 0 auto;
@@ -463,23 +419,24 @@
     .thumb .ph{
       font-size:11px;
       font-weight:800;
-      color:#8d7c68;
+      color:var(--muted);
     }
 
-    .info{min-width:0}
+    .info{
+      min-width:0;
+    }
 
     .name{
       margin:0;
       font-weight:900;
       font-size:14px;
       line-height:1.25;
-      color:#111;
     }
 
     .desc{
       margin:5px 0 0;
       font-size:12.5px;
-      color:#6f6a66;
+      color:var(--muted);
       line-height:1.35;
       display:-webkit-box;
       -webkit-line-clamp:2;
@@ -500,7 +457,6 @@
       font-weight:900;
       font-size:13px;
       white-space:nowrap;
-      color:#111;
     }
 
     .btn{
@@ -514,15 +470,15 @@
     }
 
     .btn.primary{
-      background:#ff7a00;
+      background:linear-gradient(135deg, var(--accent), var(--accent-2));
       color:#fff;
-      box-shadow:0 10px 18px rgba(255,122,0,.18);
+      box-shadow:0 10px 18px rgba(225,6,0,.12);
     }
 
     .btn.ghost{
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       background:#fff;
-      color:#111;
+      color:var(--ink);
     }
 
     .checkoutBar{
@@ -532,9 +488,8 @@
       bottom:0;
       background:rgba(255,255,255,.95);
       backdrop-filter:blur(10px);
-      border-top:1px solid var(--line-dark);
+      border-top:1px solid var(--line);
       z-index:60;
-      margin-left:var(--side-strip);
     }
 
     .barInner{
@@ -545,7 +500,6 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      color:#111;
     }
 
     .barLeft{
@@ -556,7 +510,7 @@
     }
 
     .barLeft .small{
-      color:#7d6c5a;
+      color:var(--muted);
       font-size:12px;
     }
 
@@ -576,16 +530,15 @@
       padding:11px 14px;
       font-weight:800;
       cursor:pointer;
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       background:#fff;
-      color:#111;
     }
 
     .barBtns .go{
       border:none;
       color:#fff;
-      background:#ff7a00;
-      box-shadow:0 10px 18px rgba(255,122,0,.18);
+      background:linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow:0 10px 18px rgba(225,6,0,.12);
     }
 
     .drawerMask{
@@ -603,14 +556,13 @@
       height:100%;
       width:min(520px, 92vw);
       background:#fff;
-      border-left:1px solid var(--line-dark);
-      box-shadow:0 16px 40px rgba(0,0,0,.14);
+      border-left:1px solid var(--line);
+      box-shadow:var(--shadow-2);
       transform:translateX(100%);
       transition:transform .18s ease;
       z-index:90;
       display:flex;
       flex-direction:column;
-      color:#111;
     }
 
     .drawer.open{transform:translateX(0)}
@@ -625,7 +577,7 @@
         width:100%;
         height:86vh;
         border-left:none;
-        border-top:1px solid var(--line-dark);
+        border-top:1px solid var(--line);
         border-radius:20px 20px 0 0;
         transform:translateY(100%);
       }
@@ -634,12 +586,11 @@
 
     .drawerHd{
       padding:14px;
-      border-bottom:1px solid var(--line-dark);
+      border-bottom:1px solid var(--line);
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      background:#fff;
     }
 
     .drawerHd h3{
@@ -651,27 +602,25 @@
       width:36px;
       height:36px;
       border-radius:12px;
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       background:#fff;
       cursor:pointer;
       font-size:18px;
       font-weight:900;
       line-height:1;
-      color:#111;
     }
 
     .drawerBd{
       padding:14px;
       overflow:auto;
       flex:1;
-      background:#fff;
     }
 
     .cartList{display:flex;flex-direction:column;gap:10px}
 
     .cartRow{
-      border:1px solid var(--line-dark);
-      background:#faf7f2;
+      border:1px solid var(--line);
+      background:#fafafa;
       border-radius:16px;
       padding:10px;
       display:grid;
@@ -685,11 +634,11 @@
       height:52px;
       border-radius:14px;
       overflow:hidden;
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       background:#fff;
       display:grid;
       place-items:center;
-      color:#8d7c68;
+      color:var(--muted);
       font-weight:800;
       font-size:11px;
     }
@@ -699,12 +648,11 @@
     .cartRow .cName{
       font-weight:900;
       font-size:13px;
-      color:#111;
     }
 
     .cartRow .cMeta{
       margin-top:2px;
-      color:#6f6a66;
+      color:var(--muted);
       font-size:12px;
     }
 
@@ -718,11 +666,10 @@
       width:30px;
       height:30px;
       border-radius:10px;
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       background:#fff;
       cursor:pointer;
       font-weight:900;
-      color:#111;
     }
 
     .qty span{
@@ -733,7 +680,7 @@
 
     .totals{
       margin-top:12px;
-      border-top:1px dashed var(--line-dark);
+      border-top:1px dashed var(--line);
       padding-top:12px;
       display:flex;
       flex-direction:column;
@@ -747,12 +694,12 @@
       gap:10px;
     }
 
-    .totals .row span{color:#6f6a66}
+    .totals .row span{color:var(--muted)}
     .totals .row strong{font-size:15px}
 
     .form{
       margin-top:12px;
-      border-top:1px solid var(--line-dark);
+      border-top:1px solid var(--line);
       padding-top:12px;
       display:flex;
       flex-direction:column;
@@ -762,7 +709,7 @@
     .field label{
       display:block;
       font-size:12px;
-      color:#6f6a66;
+      color:var(--muted);
       margin-bottom:6px;
     }
 
@@ -772,9 +719,9 @@
       width:100%;
       padding:12px 12px;
       border-radius:12px;
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       background:#fff;
-      color:#111;
+      color:var(--ink);
       outline:none;
       font-size:13px;
     }
@@ -786,8 +733,8 @@
 
     .deliveryBox{
       margin-top:6px;
-      border:1px solid var(--line-dark);
-      background:#fff7f0;
+      border:1px solid var(--line);
+      background:var(--surface-2);
       border-radius:16px;
       padding:12px;
       display:none;
@@ -798,23 +745,22 @@
     .notice{
       margin-top:8px;
       font-size:12.5px;
-      color:#6f6a66;
+      color:var(--muted);
       line-height:1.45;
       background:#fff;
-      border:1px dashed var(--line-dark);
+      border:1px dashed var(--line);
       border-radius:14px;
       padding:10px;
     }
 
-    .notice b{color:#111}
+    .notice b{color:var(--ink)}
 
     .drawerFt{
-      border-top:1px solid var(--line-dark);
+      border-top:1px solid var(--line);
       padding:12px 14px;
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      background:#fff;
     }
 
     .drawerFt .pay{
@@ -825,27 +771,25 @@
       padding:12px 14px;
       font-weight:900;
       cursor:pointer;
-      background:#ff7a00;
-      box-shadow:0 10px 18px rgba(255,122,0,.18);
+      background:linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow:0 10px 18px rgba(225,6,0,.12);
     }
 
     .drawerFt .clear{
       flex:1;
-      border:1px solid var(--line-dark);
+      border:1px solid var(--line);
       background:#fff;
-      color:#111;
+      color:var(--ink);
       border-radius:12px;
       padding:12px 14px;
       font-weight:900;
       cursor:pointer;
     }
 
-    .drawerFt button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
-
     .status{
       margin-top:10px;
       font-size:12.5px;
-      color:#6f6a66;
+      color:var(--muted);
       min-height:18px;
       line-height:1.4;
       word-break:break-word;
@@ -854,20 +798,13 @@
     footer{
       margin-top:18px;
       text-align:center;
-      color:rgba(255,255,255,.88);
+      color:var(--muted);
       font-size:12px;
       padding:10px 0 0;
-      margin-left:var(--side-strip);
     }
 
-    footer a{
-      color:#fff;
-      text-decoration:underline;
-      text-underline-offset:2px;
-    }
-
-    .shop-open{color:#fff;font-weight:900}
-    .shop-closed{color:#fff;font-weight:900}
+    .shop-open{color:#16a34a;font-weight:900}
+    .shop-closed{color:#dc2626;font-weight:900}
 
     button[disabled],
     .btn[disabled]{
@@ -876,19 +813,6 @@
     }
 
     @media (max-width: 640px){
-      :root{ --side-strip:0px; }
-
-      header,
-      .tabsWrap,
-      .checkoutBar,
-      footer{
-        margin-left:0;
-      }
-
-      body::before{
-        width:12px;
-      }
-
       .hero{
         padding:14px;
         flex-direction:column;
@@ -975,10 +899,10 @@
     <div class="heroMain">
       <img src="logo.png" alt="Flavour Hub Shawarma logo" class="heroLogo" />
       <div>
-        <h2>Wrapped in Flavour</h2>
+        <h2>Flavour Hub Shawarma</h2>
         <p>
-          Fresh shawarma, fries, noodles, and drinks made with love.
-          Pickup or delivery via Bolt/Yango — pay online for food only.
+          Order your favourite shawarma, fries, noodles, and drinks online.
+          Fast pickup or delivery via Bolt/Yango. Pay online for food only.
         </p>
       </div>
     </div>
@@ -1349,7 +1273,7 @@ function renderCartUI(){
 
   if (!entries.length){
     cartListEl.innerHTML = `
-      <div style="border:1px dashed var(--line-dark);background:#fff;border-radius:16px;padding:14px;color:#7d6c5a;font-size:13px;text-align:center">
+      <div style="border:1px dashed var(--line);background:var(--surface-2);border-radius:16px;padding:14px;color:var(--muted);font-size:13px;text-align:center">
         Your order is empty. Add items from the menu.
       </div>`;
     return;
@@ -1586,7 +1510,7 @@ async function updateShopStatus(){
   await loadMenuFromBackend();
   if (!MENU.length){
     document.getElementById("menuList").innerHTML =
-      `<div style="border:1px dashed rgba(255,255,255,.35);background:rgba(255,255,255,.12);border-radius:16px;padding:14px;color:#fff;font-size:13px;text-align:center">
+      `<div style="border:1px dashed var(--line);background:var(--surface-2);border-radius:16px;padding:14px;color:var(--muted);font-size:13px;text-align:center">
         Menu failed to load. Check your backend /api/menu.
       </div>`;
     return;
