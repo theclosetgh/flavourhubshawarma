@@ -17,16 +17,18 @@
   <style>
     :root{
       --bg:#ffffff;
-      --ink:#0f172a;
-      --muted:#64748b;
-      --line:#e2e8f0;
-      --soft:#f8fafc;
-      --shadow: 0 16px 40px rgba(2,6,23,.08);
-      --shadow2: 0 10px 24px rgba(2,6,23,.10);
+      --ink:#1a1310;
+      --muted:#7a6f6a;
+      --line:#f0e4e0;
+      --soft:#fff6f2;
+      --card:#ffffff;
+      --shadow: 0 18px 44px rgba(209,29,17,.10);
+      --shadow2: 0 10px 24px rgba(209,29,17,.14);
       --r:16px;
-      --r2:22px;
-      --accent:#ef4444;
-      --accent2:#f97316;
+      --r2:24px;
+      --accent:#d31510;   /* shawarma red */
+      --accent2:#ff8a1e;  /* warm orange */
+      --accent3:#ffb238;
       --max:1200px;
     }
     *{box-sizing:border-box}
@@ -39,7 +41,7 @@
 
     header{
       position:sticky; top:0; z-index:60;
-      background:rgba(255,255,255,.92);
+      background:rgba(255,255,255,.94);
       backdrop-filter: blur(10px);
       border-bottom:1px solid var(--line);
     }
@@ -49,19 +51,20 @@
       padding:12px 16px;
       display:flex;
       align-items:center;
-      gap:12px;
+      gap:14px;
     }
-    .brand{display:flex; align-items:center; gap:10px; min-width: 280px;}
+    .brand{display:flex; align-items:center; gap:12px; min-width: 280px;}
     .logo{
-      width:44px; height:44px; border-radius:14px;
+      width:48px; height:48px; border-radius:14px;
       background:linear-gradient(135deg,var(--accent),var(--accent2));
       box-shadow: var(--shadow2);
       display:grid; place-items:center;
       color:#fff; font-weight:950; letter-spacing:.4px;
       flex:0 0 auto;
+      font-size:15px;
     }
-    .brand h1{margin:0; font-size:15px; line-height:1.15}
-    .brand p{margin:2px 0 0; font-size:12px; color:var(--muted)}
+    .brand h1{margin:0; font-size:16px; line-height:1.15; font-weight:950; color:var(--accent)}
+    .brand p{margin:2px 0 0; font-size:11.5px; color:var(--muted)}
 
     .search{
       flex:1;
@@ -69,8 +72,9 @@
       background:var(--soft);
       border:1px solid var(--line);
       border-radius:999px;
-      padding:10px 12px;
+      padding:11px 14px;
       min-width: 240px;
+      box-shadow: 0 2px 10px rgba(211,21,16,.04);
     }
     .search input{
       width:100%;
@@ -82,21 +86,22 @@
 
     .pill{
       display:flex; align-items:center; gap:10px;
-      background:var(--soft);
-      border:1px solid var(--line);
-      padding:10px 12px;
+      background:linear-gradient(135deg, rgba(211,21,16,.08), rgba(255,138,30,.08));
+      border:1px solid rgba(211,21,16,.16);
+      padding:10px 14px;
       border-radius:999px;
       cursor:pointer;
       user-select:none;
       white-space:nowrap;
+      transition: transform .12s ease;
     }
-    .pill b{font-size:13px}
+    .pill:hover{transform: translateY(-1px)}
+    .pill b{font-size:13px; color:var(--accent)}
     .count{
       min-width:26px; height:26px; border-radius:999px;
       display:grid; place-items:center;
-      background:rgba(239,68,68,.12);
-      border:1px solid rgba(239,68,68,.25);
-      color:var(--accent);
+      background:var(--accent);
+      color:#fff;
       font-weight:950;
       font-size:12px;
     }
@@ -110,7 +115,7 @@
 
     .tabsWrap{
       border-top:1px solid var(--line);
-      background:rgba(255,255,255,.92);
+      background:rgba(255,255,255,.94);
     }
     .tabs{
       max-width:var(--max);
@@ -144,44 +149,69 @@
       background:#fff;
     }
     .tab.active{
-      border-color: rgba(239,68,68,.35);
-      background: rgba(239,68,68,.10);
+      border-color: rgba(211,21,16,.35);
+      background: linear-gradient(135deg, rgba(211,21,16,.12), rgba(255,138,30,.10));
       color: var(--accent);
     }
     .tab.active .tBadge{
-      border-color: rgba(239,68,68,.25);
-      color: var(--accent);
-      background: rgba(239,68,68,.10);
+      border-color: rgba(211,21,16,.25);
+      color: #fff;
+      background: linear-gradient(135deg,var(--accent),var(--accent2));
     }
 
     .wrap{max-width:var(--max); margin:0 auto; padding:16px 16px 108px;}
     .hero{
       margin-top:12px;
-      background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(249,115,22,.08), rgba(15,23,42,.02));
+      background:linear-gradient(135deg, var(--accent) 0%, #b8110d 42%, var(--accent2) 100%);
       border:1px solid var(--line);
       border-radius: var(--r2);
-      padding:18px;
+      padding:22px;
       display:flex;
       align-items:flex-end;
       justify-content:space-between;
-      gap:12px;
+      gap:16px;
+      color:#fff;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
     }
-    .hero h2{margin:0; font-size:20px}
-    .hero p{margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.45; max-width:880px}
-    .chips{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .hero::before{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(420px 220px at 85% -10%, rgba(255,255,255,.22), transparent 70%);
+      pointer-events:none;
+    }
+    .heroBrand{display:flex; align-items:center; gap:14px; position:relative; z-index:1}
+    .heroLogo{
+      width:56px; height:56px; border-radius:16px;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.35);
+      display:grid; place-items:center;
+      color:#fff; font-weight:950; font-size:17px;
+      flex:0 0 auto;
+      backdrop-filter: blur(4px);
+    }
+    .hero h2{margin:0; font-size:21px; letter-spacing:.2px}
+    .hero p{margin:8px 0 0; color:rgba(255,255,255,.92); font-size:13px; line-height:1.5; max-width:640px; position:relative; z-index:1}
+    .chips{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; position:relative; z-index:1}
     .chip{
-      background:#fff;
-      border:1px solid var(--line);
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.35);
       border-radius:999px;
-      padding:8px 10px;
+      padding:8px 12px;
       font-size:12px;
-      color:var(--muted);
-      box-shadow: 0 1px 0 rgba(2,6,23,.04);
+      color:#fff;
+      backdrop-filter: blur(4px);
     }
-    .chip b{color:var(--ink)}
+    .chip b{color:#fff}
+
+    @media (max-width: 720px){
+      .hero{flex-direction:column; align-items:flex-start}
+      .chips{justify-content:flex-start}
+    }
 
     .panel{
-      margin-top:14px;
+      margin-top:16px;
       background:#fff;
       border:1px solid var(--line);
       border-radius: var(--r2);
@@ -189,14 +219,14 @@
       overflow:hidden;
     }
     .panelHd{
-      padding:14px 14px 10px;
+      padding:14px 16px 10px;
       border-bottom:1px solid var(--line);
       display:flex; justify-content:space-between; align-items:flex-end; gap:10px;
       flex-wrap:wrap;
     }
-    .panelHd h3{margin:0; font-size:13px; letter-spacing:.2px}
+    .panelHd h3{margin:0; font-size:14px; letter-spacing:.2px; color:var(--accent); font-weight:950}
     .panelHd small{color:var(--muted); font-size:12px}
-    .panelBd{padding:12px 14px 14px}
+    .panelBd{padding:12px 16px 16px}
 
     .productsTop{
       display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -212,6 +242,7 @@
       cursor:pointer;
       font-weight:950;
       font-size:12px;
+      color:var(--accent);
     }
 
     .menuList{display:flex; flex-direction:column; gap:10px}
@@ -222,7 +253,7 @@
       justify-content:space-between;
       gap:10px;
     }
-    .catHeader h4{margin:0; font-size:13px; letter-spacing:.2px;}
+    .catHeader h4{margin:0; font-size:13px; letter-spacing:.2px; color:var(--ink)}
     .catHeader .sub{color:var(--muted); font-size:12px;}
 
     .rowCard{
@@ -235,6 +266,12 @@
       gap:12px;
       align-items:center;
       padding:10px;
+      transition: box-shadow .15s ease, transform .15s ease, border-color .15s ease;
+    }
+    .rowCard:hover{
+      box-shadow: var(--shadow);
+      border-color: rgba(211,21,16,.22);
+      transform: translateY(-1px);
     }
     @media (max-width: 640px){
       .rowCard{grid-template-columns: 84px 1fr auto;}
@@ -290,7 +327,7 @@
       padding-left:8px;
       min-width: 120px;
     }
-    .price{font-weight:950; font-size:13px; white-space:nowrap}
+    .price{font-weight:950; font-size:13px; white-space:nowrap; color:var(--accent)}
 
     .btn{
       border:none;
@@ -304,7 +341,7 @@
     .btn.primary{
       background:linear-gradient(135deg,var(--accent),var(--accent2));
       color:#fff;
-      box-shadow: 0 10px 22px rgba(239,68,68,.18);
+      box-shadow: 0 10px 22px rgba(211,21,16,.22);
     }
     .btn.ghost{
       border:1px solid var(--line);
@@ -317,10 +354,11 @@
     .checkoutBar{
       position:fixed;
       left:0; right:0; bottom:0;
-      background:rgba(255,255,255,.92);
+      background:rgba(255,255,255,.94);
       backdrop-filter: blur(10px);
       border-top:1px solid var(--line);
       z-index:60;
+      box-shadow: 0 -8px 24px rgba(2,6,23,.06);
     }
     .barInner{
       max-width:var(--max);
@@ -333,7 +371,7 @@
     }
     .barLeft{display:flex; flex-direction:column; gap:2px; min-width:220px}
     .barLeft .small{color:var(--muted); font-size:12px}
-    .barLeft .big{font-weight:950}
+    .barLeft .big{font-weight:950; color:var(--accent)}
     .barBtns{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
     .barBtns button{
       border-radius:14px;
@@ -347,13 +385,13 @@
       border:none;
       background:linear-gradient(135deg,var(--accent),var(--accent2));
       color:#fff;
-      box-shadow: 0 12px 24px rgba(239,68,68,.18);
+      box-shadow: 0 12px 24px rgba(211,21,16,.22);
     }
     .barBtns button[disabled]{opacity:.6; cursor:not-allowed; box-shadow:none}
 
     .drawerMask{
       position:fixed; inset:0;
-      background:rgba(2,6,23,.45);
+      background:rgba(26,19,16,.5);
       display:none;
       z-index:80;
     }
@@ -387,11 +425,12 @@
     }
 
     .drawerHd{
-      padding:14px 14px;
+      padding:14px 16px;
       border-bottom:1px solid var(--line);
       display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background:linear-gradient(135deg, rgba(211,21,16,.06), rgba(255,138,30,.06));
     }
-    .drawerHd h3{margin:0; font-size:14px}
+    .drawerHd h3{margin:0; font-size:14px; color:var(--accent)}
     .xbtn{
       border:1px solid var(--line);
       background:#fff;
@@ -440,6 +479,7 @@
       background:#fff;
       cursor:pointer;
       font-weight:950;
+      color:var(--accent);
     }
     .qty span{min-width:18px;text-align:center;font-weight:950}
 
@@ -452,7 +492,7 @@
     }
     .totals .row{display:flex; justify-content:space-between; gap:10px}
     .totals .row span{color:var(--muted)}
-    .totals .row strong{font-size:15px}
+    .totals .row strong{font-size:15px; color:var(--accent)}
 
     .form{
       margin-top:12px;
@@ -472,6 +512,10 @@
       color:var(--ink);
       outline:none;
       font-size:13px;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus{
+      border-color: rgba(211,21,16,.45);
+      box-shadow: 0 0 0 3px rgba(211,21,16,.10);
     }
     .field textarea{min-height:86px; resize:vertical}
 
@@ -512,7 +556,7 @@
       padding:12px 14px;
       font-weight:950;
       cursor:pointer;
-      box-shadow: 0 12px 24px rgba(239,68,68,.18);
+      box-shadow: 0 12px 24px rgba(211,21,16,.22);
     }
     .drawerFt .clear{
       flex:1;
@@ -535,12 +579,15 @@
       word-break: break-word;
     }
     footer{
-      margin-top:18px;
+      margin-top:22px;
       text-align:center;
       color:var(--muted);
       font-size:12px;
-      padding:10px 0 0;
+      padding:18px 0 0;
+      border-top:1px solid var(--line);
     }
+    footer a{color:var(--accent); text-decoration:none; font-weight:700}
+    footer a:hover{text-decoration:underline}
 /* ===== SHOP HOURS STATUS ===== */
 .shop-open{
   color:#16a34a;
@@ -563,13 +610,13 @@ button[disabled],
 <header>
   <div class="top">
    <div class="brand">
-  <div class="logo">FH</div>
-  <div>
-    <h1>Flavour Hub Shawarma</h1>
-    <p>Lin-Mart Executive Hostel • Haatso • Delivery via Bolt/Yango</p>
-    <div id="shopStatus" style="margin-top:4px;font-size:12px"></div>
-  </div>
-</div>
+     <div class="logo" aria-hidden="true">🌯</div>
+     <div>
+       <h1>Flavour Hub Shawarma</h1>
+       <p>Lin-Mart Executive Hostel • Haatso • Delivery via Bolt/Yango</p>
+       <div id="shopStatus" style="margin-top:4px;font-size:12px"></div>
+     </div>
+   </div>
 
     <div class="search">
       <span style="color:var(--muted);font-size:12px">Search</span>
@@ -590,17 +637,23 @@ button[disabled],
 <main class="wrap">
   <section class="hero">
     <div>
-      <h2>Order online</h2>
-      <p>
-        Choose items, review your order, and pay online for the food. For Delivery, we dispatch with
-        <b>Bolt/Yango</b> — the <b>delivery fee is paid directly to the rider</b> on delivery.
-      </p>
-    </div>
-    <div class="chips">
-      <div class="chip"><b>Currency:</b> GHS</div>
-      <div class="chip"><b>Delivery:</b> Bolt/Yango</div>
-      <div class="chip"><b>Payment:</b> Paystack (food only)</div>
-    </div>
+     <div class="heroBrand">
+       <div class="heroLogo" aria-hidden="true">🌯</div>
+       <div>
+         <h2>Flavour Hub Shawarma</h2>
+         <p style="margin:2px 0 0;color:rgba(255,255,255,.85);font-size:12.5px">Fast, fresh &amp; fully loaded</p>
+       </div>
+     </div>
+     <p>
+       Choose items, review your order, and pay online for the food. For Delivery, we dispatch with
+       <b>Bolt/Yango</b> — the <b>delivery fee is paid directly to the rider</b> on delivery.
+     </p>
+   </div>
+   <div class="chips">
+     <div class="chip"><b>Currency:</b> GHS</div>
+     <div class="chip"><b>Delivery:</b> Bolt/Yango</div>
+     <div class="chip"><b>Payment:</b> Paystack (food only)</div>
+   </div>
   </section>
 
   <section class="panel">
@@ -622,8 +675,8 @@ button[disabled],
     </div>
   </section>
 
-  <footer style="margin-top:18px;text-align:center;color:var(--muted);font-size:12px">
-  © <span id="year"></span> Flavour Hub Shawarma
+  <footer>
+  🌯 <b style="color:var(--ink)">Flavour Hub Shawarma</b> — © <span id="year"></span>
   <br><br>
   <a href="terms.html">Terms & Conditions</a> ·
   <a href="privacy.html">Privacy Policy</a> ·
