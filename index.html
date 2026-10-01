@@ -971,11 +971,22 @@
 
     <div class="totals">
       <div class="row"><span>Subtotal (food)</span><strong id="subTotal">GHS 0.00</strong></div>
+      <div class="row" id="discountRow" style="display:none"><span>Discount (<span id="discountCodeLabel"></span>)</span><strong id="discountAmount">-GHS 0.00</strong></div>
       <div class="row"><span>Delivery fee</span><strong>Paid to rider</strong></div>
       <div class="row"><span>Total to pay online</span><strong id="grandTotal">GHS 0.00</strong></div>
     </div>
 
     <div class="form">
+      <div class="field">
+        <label for="discountCode">Discount code (optional)</label>
+        <div style="display:flex;gap:8px">
+          <input id="discountCode" placeholder="e.g., WELCOME10" style="flex:1" />
+          <button class="btn ghost" id="applyDiscountBtn" type="button">Apply</button>
+          <button class="btn ghost" id="removeDiscountBtn" type="button" style="display:none">Remove</button>
+        </div>
+        <div class="status" id="discountMsg"></div>
+      </div>
+
       <div class="field">
         <label for="custName">Full Name</label>
         <input id="custName" placeholder="e.g., Ama Mensah" />
@@ -1103,7 +1114,10 @@ function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return
 function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price * v.qty; return s; }
 
 function orderMode(){ return document.getElementById("mode").value; }
-function grandTotal(){ return cartSubtotal(); }
+
+let appliedDiscount = null; // { code, type, value, subtotal, discountAmount, total }
+
+function grandTotal(){ return appliedDiscount ? appliedDiscount.total : cartSubtotal(); }
 
 let activeCategory = "All";
 const tabsEl = document.getElementById("tabs");
@@ -1227,6 +1241,14 @@ const cartListEl = document.getElementById("cartList");
 const subTotalEl = document.getElementById("subTotal");
 const grandTotalEl = document.getElementById("grandTotal");
 
+const discountRowEl = document.getElementById("discountRow");
+const discountAmountEl = document.getElementById("discountAmount");
+const discountCodeLabelEl = document.getElementById("discountCodeLabel");
+const discountCodeInput = document.getElementById("discountCode");
+const discountMsgEl = document.getElementById("discountMsg");
+const applyDiscountBtn = document.getElementById("applyDiscountBtn");
+const removeDiscountBtn = document.getElementById("removeDiscountBtn");
+
 function addToCart(key, it, category){
   const cat = category || it.category || activeCategory || "Menu";
   if (cart.has(key)) cart.get(key).qty += 1;
@@ -1234,6 +1256,7 @@ function addToCart(key, it, category){
 
   renderCartUI();
   renderMenuList();
+  revalidateDiscount();
 }
 
 function inc(key){
@@ -1241,6 +1264,7 @@ function inc(key){
   cart.get(key).qty += 1;
   renderCartUI();
   renderMenuList();
+  revalidateDiscount();
 }
 
 function dec(key){
@@ -1249,14 +1273,119 @@ function dec(key){
   if (cart.get(key).qty <= 0) cart.delete(key);
   renderCartUI();
   renderMenuList();
+  revalidateDiscount();
 }
 
 function clearCart(){
   cart.clear();
   setStatus("");
+  clearDiscount({ silent:true });
   renderCartUI();
   renderMenuList();
 }
+
+function renderDiscountUI(){
+  if (appliedDiscount){
+    discountRowEl.style.display = "flex";
+    discountCodeLabelEl.textContent = appliedDiscount.code;
+    discountAmountEl.textContent = `-${fmt(appliedDiscount.discountAmount)}`;
+    discountCodeInput.value = appliedDiscount.code;
+    discountCodeInput.disabled = true;
+    applyDiscountBtn.style.display = "none";
+    removeDiscountBtn.style.display = "inline-block";
+  } else {
+    discountRowEl.style.display = "none";
+    discountCodeInput.disabled = false;
+    applyDiscountBtn.style.display = "inline-block";
+    removeDiscountBtn.style.display = "none";
+  }
+
+  barTotalEl.textContent = `Total: ${fmt(grandTotal())}`;
+  grandTotalEl.textContent = fmt(grandTotal());
+}
+
+function setDiscountMsg(msg){ discountMsgEl.textContent = msg || ""; }
+
+async function applyDiscountCode(){
+  const code = (discountCodeInput.value || "").trim();
+  if (!code) { setDiscountMsg("Enter a discount code."); return; }
+
+  if (cartCount() === 0){
+    setDiscountMsg("Add items to your order before applying a discount.");
+    return;
+  }
+
+  applyDiscountBtn.disabled = true;
+  setDiscountMsg("Checking discount code...");
+
+  try{
+    const res = await fetch(`${BACKEND_BASE_URL}/api/discounts/validate`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ code, subtotal: cartSubtotal() })
+    });
+    const data = await res.json().catch(()=>({}));
+
+    if (!res.ok || !data.valid){
+      appliedDiscount = null;
+      setDiscountMsg(data?.error || "Invalid discount code.");
+      renderDiscountUI();
+      renderCartUI();
+      return;
+    }
+
+    appliedDiscount = data;
+    setDiscountMsg(`Discount applied: ${data.code}`);
+    renderDiscountUI();
+    renderCartUI();
+  }catch(err){
+    console.error(err);
+    setDiscountMsg("Could not validate discount. Try again.");
+  }finally{
+    applyDiscountBtn.disabled = false;
+  }
+}
+
+function clearDiscount({ silent } = {}){
+  appliedDiscount = null;
+  discountCodeInput.value = "";
+  discountCodeInput.disabled = false;
+  if (!silent) setDiscountMsg("");
+  renderDiscountUI();
+}
+
+async function revalidateDiscount(){
+  if (!appliedDiscount) return;
+
+  if (cartCount() === 0){
+    clearDiscount();
+    return;
+  }
+
+  try{
+    const res = await fetch(`${BACKEND_BASE_URL}/api/discounts/validate`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ code: appliedDiscount.code, subtotal: cartSubtotal() })
+    });
+    const data = await res.json().catch(()=>({}));
+
+    if (!res.ok || !data.valid){
+      appliedDiscount = null;
+      setDiscountMsg(data?.error || "Discount no longer applies and was removed.");
+      renderDiscountUI();
+      return;
+    }
+
+    appliedDiscount = data;
+    renderDiscountUI();
+  }catch(err){
+    console.error(err);
+  }
+}
+
+applyDiscountBtn.addEventListener("click", applyDiscountCode);
+removeDiscountBtn.addEventListener("click", () => clearDiscount());
 
 function renderCartUI(){
   const count = cartCount();
@@ -1267,6 +1396,7 @@ function renderCartUI(){
 
   subTotalEl.textContent = fmt(cartSubtotal());
   grandTotalEl.textContent = fmt(grandTotal());
+  renderDiscountUI();
 
   cartListEl.innerHTML = "";
   const entries = Array.from(cart.entries());
@@ -1369,7 +1499,11 @@ async function payOnline(){
       name: v.name, qty: v.qty, unit_price: v.price, category: v.category
     }));
 
-    const amountPesewas = Math.round(cartSubtotal() * 100);
+    const subtotal = cartSubtotal();
+    const discountCode = appliedDiscount ? appliedDiscount.code : "";
+    const discountAmountPaid = appliedDiscount ? appliedDiscount.discountAmount : 0;
+    const total = grandTotal();
+    const amountPesewas = Math.round(total * 100);
 
     const payload = {
       email,
@@ -1388,7 +1522,8 @@ async function payOnline(){
           landmark: landmark,
           fee_note: "Delivery fee is paid directly to the rider."
         } : null,
-        totals: { subtotal: cartSubtotal(), total: cartSubtotal() }
+        discountCode: discountCode || undefined,
+        totals: { subtotal, discount: discountAmountPaid, total }
       }
     };
 
@@ -1434,17 +1569,21 @@ async function payOnline(){
                   address: deliveryAddress,
                   landmark
                 } : null,
-                totals: { subtotal: cartSubtotal(), total: cartSubtotal() },
+                discountCode: discountCode || undefined,
+                subtotal,
+                totals: { subtotal, discount: discountAmountPaid, total },
                 paidAt: new Date().toISOString()
               };
 
-              await fetch(`${BACKEND_BASE_URL}/api/orders`, {
+              const orderRes = await fetch(`${BACKEND_BASE_URL}/api/orders`, {
                 method:"POST",
                 headers:{ "Content-Type":"application/json" },
                 body: JSON.stringify(paidOrder)
               });
+              const orderData = await orderRes.json().catch(()=> ({}));
+              const savedOrder = orderData?.order || paidOrder;
 
-              localStorage.setItem("fh_last_paid_order", JSON.stringify(paidOrder));
+              localStorage.setItem("fh_last_paid_order", JSON.stringify(savedOrder));
               closeDrawer();
               window.location.href = `success.html?ref=${encodeURIComponent(response.reference)}`;
               return;
