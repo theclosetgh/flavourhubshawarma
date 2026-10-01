@@ -566,10 +566,10 @@ async function loadDiscounts(){
     const r = await fetch(`${BACKEND_BASE_URL}/api/admin/discounts`, {
       headers: authHeaders()
     });
-    const data = await r.json().catch(()=>({}));
+    const data = await r.json().catch(()=>([]));
     if(!r.ok) throw new Error(data.error || "Failed to load discounts");
 
-    discounts = Array.isArray(data.discounts) ? data.discounts : [];
+    discounts = Array.isArray(data) ? data : (Array.isArray(data.discounts) ? data.discounts : []);
     renderDiscounts();
   }catch(e){
     el.innerHTML = `<div class="muted">⚠ ${e.message}</div>`;
