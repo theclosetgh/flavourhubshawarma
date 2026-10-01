@@ -969,8 +969,22 @@
   <div class="drawerBd">
     <div class="cartList" id="cartList"></div>
 
+    <div class="field" id="discountField">
+      <label for="discountCode">Discount code (optional)</label>
+      <div style="display:flex;gap:8px">
+        <input id="discountCode" placeholder="e.g., WELCOME10" style="flex:1" autocomplete="off" />
+        <button class="btn ghost" id="applyDiscountBtn" type="button">Apply</button>
+        <button class="btn ghost" id="removeDiscountBtn" type="button" style="display:none">Remove</button>
+      </div>
+      <div class="status" id="discountMsg" style="min-height:0"></div>
+    </div>
+
     <div class="totals">
       <div class="row"><span>Subtotal (food)</span><strong id="subTotal">GHS 0.00</strong></div>
+      <div class="row" id="discountRow" style="display:none">
+        <span>Discount <span id="discountCodeLabel" style="color:var(--ink);font-weight:700"></span></span>
+        <strong id="discountAmountEl">-GHS 0.00</strong>
+      </div>
       <div class="row"><span>Delivery fee</span><strong>Paid to rider</strong></div>
       <div class="row"><span>Total to pay online</span><strong id="grandTotal">GHS 0.00</strong></div>
     </div>
@@ -1103,7 +1117,29 @@ function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return
 function cartSubtotal(){ let s=0; for (const v of cart.values()) s += v.price * v.qty; return s; }
 
 function orderMode(){ return document.getElementById("mode").value; }
-function grandTotal(){ return cartSubtotal(); }
+
+let appliedDiscount = null; // { code, type: "percent"|"fixed", value, minOrder }
+
+function discountIsEligible(){
+  if (!appliedDiscount) return false;
+  const min = Number(appliedDiscount.minOrder || 0);
+  return cartSubtotal() >= min;
+}
+
+function discountAmount(){
+  if (!discountIsEligible()) return 0;
+  const sub = cartSubtotal();
+  let amt = 0;
+  if (appliedDiscount.type === "percent"){
+    amt = sub * (Number(appliedDiscount.value || 0) / 100);
+  } else {
+    amt = Number(appliedDiscount.value || 0);
+  }
+  if (!Number.isFinite(amt) || amt < 0) amt = 0;
+  return Math.min(amt, sub);
+}
+
+function grandTotal(){ return Math.max(0, cartSubtotal() - discountAmount()); }
 
 let activeCategory = "All";
 const tabsEl = document.getElementById("tabs");
@@ -1253,9 +1289,48 @@ function dec(key){
 
 function clearCart(){
   cart.clear();
+  appliedDiscount = null;
+  const codeInput = document.getElementById("discountCode");
+  const msgEl = document.getElementById("discountMsg");
+  if (codeInput) codeInput.value = "";
+  if (msgEl) msgEl.textContent = "";
   setStatus("");
   renderCartUI();
   renderMenuList();
+}
+
+function renderDiscountUI(){
+  const row = document.getElementById("discountRow");
+  const amtEl = document.getElementById("discountAmountEl");
+  const labelEl = document.getElementById("discountCodeLabel");
+  const msgEl = document.getElementById("discountMsg");
+  const applyBtn = document.getElementById("applyDiscountBtn");
+  const removeBtn = document.getElementById("removeDiscountBtn");
+  const codeInput = document.getElementById("discountCode");
+
+  if (!appliedDiscount){
+    row.style.display = "none";
+    removeBtn.style.display = "none";
+    applyBtn.style.display = "";
+    codeInput.disabled = false;
+    return;
+  }
+
+  applyBtn.style.display = "none";
+  removeBtn.style.display = "";
+  codeInput.disabled = true;
+
+  if (!discountIsEligible()){
+    row.style.display = "none";
+    const min = Number(appliedDiscount.minOrder || 0);
+    msgEl.textContent = `Code "${appliedDiscount.code}" needs a minimum order of ${fmt(min)}. It will apply automatically once you reach it.`;
+    return;
+  }
+
+  row.style.display = "flex";
+  labelEl.textContent = `(${appliedDiscount.code})`;
+  amtEl.textContent = `-${fmt(discountAmount())}`;
+  msgEl.textContent = "";
 }
 
 function renderCartUI(){
@@ -1266,6 +1341,7 @@ function renderCartUI(){
   drawerItemsLabel.textContent = `${count} item${count===1?"":"s"}`;
 
   subTotalEl.textContent = fmt(cartSubtotal());
+  renderDiscountUI();
   grandTotalEl.textContent = fmt(grandTotal());
 
   cartListEl.innerHTML = "";
@@ -1334,6 +1410,64 @@ const deliveryBox = document.getElementById("deliveryBox");
 function setDeliveryUI(show){ deliveryBox.classList.toggle("show", !!show); }
 document.getElementById("mode").addEventListener("change", () => setDeliveryUI(orderMode() === "Delivery"));
 
+const discountCodeEl = document.getElementById("discountCode");
+const discountMsgEl = document.getElementById("discountMsg");
+const applyDiscountBtn = document.getElementById("applyDiscountBtn");
+const removeDiscountBtn = document.getElementById("removeDiscountBtn");
+
+async function applyDiscount(){
+  const code = discountCodeEl.value.trim();
+  if (!code){ discountMsgEl.textContent = "Enter a discount code."; return; }
+  if (cartCount() === 0){ discountMsgEl.textContent = "Add items to your order first."; return; }
+
+  applyDiscountBtn.disabled = true;
+  discountMsgEl.textContent = "Checking code...";
+
+  try{
+    const r = await fetch(`${BACKEND_BASE_URL}/api/discounts/validate`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ code, subtotal: cartSubtotal() })
+    });
+    const data = await r.json().catch(()=> ({}));
+    if (!r.ok || !data?.valid){
+      throw new Error(data?.error || "Invalid or expired discount code.");
+    }
+
+    appliedDiscount = {
+      code: String(data.code || code).toUpperCase(),
+      type: data.type === "fixed" ? "fixed" : "percent",
+      value: Number(data.value || 0),
+      minOrder: Number(data.minOrder || 0)
+    };
+
+    discountMsgEl.textContent = discountIsEligible()
+      ? `Discount "${appliedDiscount.code}" applied!`
+      : `Discount "${appliedDiscount.code}" needs a minimum order of ${fmt(appliedDiscount.minOrder)}.`;
+
+    renderCartUI();
+  }catch(e){
+    appliedDiscount = null;
+    discountMsgEl.textContent = e.message || "Could not apply discount code.";
+    renderCartUI();
+  }finally{
+    applyDiscountBtn.disabled = false;
+  }
+}
+
+function removeDiscount(){
+  appliedDiscount = null;
+  discountCodeEl.value = "";
+  discountMsgEl.textContent = "";
+  renderCartUI();
+}
+
+applyDiscountBtn.addEventListener("click", applyDiscount);
+removeDiscountBtn.addEventListener("click", removeDiscount);
+discountCodeEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter"){ e.preventDefault(); applyDiscount(); }
+});
+
 async function payOnline(){
   try{
     setStatus("");
@@ -1369,7 +1503,14 @@ async function payOnline(){
       name: v.name, qty: v.qty, unit_price: v.price, category: v.category
     }));
 
-    const amountPesewas = Math.round(cartSubtotal() * 100);
+    const appliedDiscountCode = discountIsEligible() ? appliedDiscount.code : "";
+    const appliedDiscountAmount = discountIsEligible() ? discountAmount() : 0;
+    const amountPesewas = Math.round(grandTotal() * 100);
+
+    if (amountPesewas <= 0) {
+      setBusy(false);
+      return alert("Discount brings total to GHS 0.00. Please adjust your order or remove the discount.");
+    }
 
     const payload = {
       email,
@@ -1381,6 +1522,7 @@ async function payOnline(){
         mode,
         items,
         note,
+        discountCode: appliedDiscountCode,
         delivery: (mode === "Delivery") ? {
           provider: "Bolt/Yango",
           area: deliveryArea,
@@ -1388,7 +1530,7 @@ async function payOnline(){
           landmark: landmark,
           fee_note: "Delivery fee is paid directly to the rider."
         } : null,
-        totals: { subtotal: cartSubtotal(), total: cartSubtotal() }
+        totals: { subtotal: cartSubtotal(), discount: appliedDiscountAmount, total: grandTotal() }
       }
     };
 
@@ -1429,12 +1571,13 @@ async function payOnline(){
                 mode,
                 items,
                 note,
+                discountCode: appliedDiscountCode,
                 delivery: (mode === "Delivery") ? {
                   area: deliveryArea,
                   address: deliveryAddress,
                   landmark
                 } : null,
-                totals: { subtotal: cartSubtotal(), total: cartSubtotal() },
+                totals: { subtotal: cartSubtotal(), discount: appliedDiscountAmount, total: grandTotal() },
                 paidAt: new Date().toISOString()
               };
 
