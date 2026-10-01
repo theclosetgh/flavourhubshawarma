@@ -1388,11 +1388,11 @@ function clearDiscount({ silent } = {}){
 }
 
 async function revalidateDiscount(){
-  if (!appliedDiscount) return false;
+  if (!appliedDiscount) return { ok:false };
 
   if (cartCount() === 0){
     clearDiscount();
-    return false;
+    return { ok:false, error: "Your cart is empty." };
   }
 
   try{
@@ -1400,17 +1400,20 @@ async function revalidateDiscount(){
 
     if (!result.ok){
       appliedDiscount = null;
-      setDiscountMsg(result.error || "Discount no longer applies and was removed.");
+      const error = result.error || "Discount no longer applies and was removed.";
+      setDiscountMsg(error);
       renderDiscountUI();
-      return false;
+      return { ok:false, error };
     }
 
     appliedDiscount = result.discount;
     renderDiscountUI();
-    return true;
+    return { ok:true };
   }catch(err){
     console.error(err);
-    return false;
+    const error = "Could not re-check your discount code. Please try again.";
+    setDiscountMsg(error);
+    return { ok:false, error };
   }
 }
 
@@ -1527,10 +1530,10 @@ async function payOnline(){
 
     if (appliedDiscount){
       setStatus("Re-checking discount code...");
-      const stillValid = await revalidateDiscount();
-      if (!stillValid){
+      const revalidation = await revalidateDiscount();
+      if (!revalidation.ok){
         setBusy(false);
-        return alert("Your discount code is no longer valid and was removed. Please review your total and try again.");
+        return alert(revalidation.error || "Your discount code is no longer valid and was removed. Please review your total and try again.");
       }
     }
 
