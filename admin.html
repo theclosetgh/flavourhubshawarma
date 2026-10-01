@@ -70,6 +70,7 @@
 
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button id="menuBtn" class="nav-btn" onclick="showMenu()">Menu</button>
+        <button id="discountsBtn" class="nav-btn" onclick="showDiscounts()">Discounts</button>
         <button id="ordersBtn" class="nav-btn" onclick="showOrders()">Orders</button>
         <button onclick="openSite()">Open Site</button>
         <button onclick="logout()">Logout</button>
@@ -108,6 +109,50 @@
     </div>
     <div id="orders"></div>
   </div>
+  <div class="card" id="discountsCard" style="display:none">
+    <div class="topbar">
+      <h2>Discounts</h2>
+      <button onclick="loadDiscounts()">Refresh</button>
+    </div>
+    <div class="muted" id="discountFormStatus"></div>
+    <div class="row3" style="margin-top:10px">
+      <div>
+        <div class="muted">Code</div>
+        <input id="dCode" placeholder="e.g., WELCOME10" />
+      </div>
+      <div>
+        <div class="muted">Type</div>
+        <select id="dType">
+          <option value="percent">Percent (%)</option>
+          <option value="fixed">Fixed amount (GHS)</option>
+        </select>
+      </div>
+      <div>
+        <div class="muted">Value</div>
+        <input id="dValue" type="number" min="0" step="0.01" placeholder="e.g., 10" />
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div>
+        <div class="muted">Minimum order (GHS, optional)</div>
+        <input id="dMinOrder" type="number" min="0" step="0.01" placeholder="0" />
+      </div>
+      <div>
+        <div class="muted">Expires on (optional)</div>
+        <input id="dExpiresAt" type="date" />
+      </div>
+    </div>
+    <div class="actions" style="justify-content:flex-start">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input id="dActive" type="checkbox" style="width:auto" checked /> Active
+      </label>
+    </div>
+    <div class="actions">
+      <button type="button" onclick="resetDiscountForm()">Clear</button>
+      <button class="primary" type="button" onclick="saveDiscount()">Save Discount</button>
+    </div>
+    <div class="cats" id="discountsList"></div>
+  </div>
 </div>
   <script>
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
@@ -117,14 +162,24 @@ let menu = null;
 function showMenu(){
   document.getElementById("editorCard").style.display = "block";
   document.getElementById("ordersCard").style.display = "none";
+  document.getElementById("discountsCard").style.display = "none";
   setActive("menuBtn");
 }
 
 function showOrders(){
   document.getElementById("editorCard").style.display = "none";
+  document.getElementById("discountsCard").style.display = "none";
   document.getElementById("ordersCard").style.display = "block";
   setActive("ordersBtn");
   loadOrders();
+}
+
+function showDiscounts(){
+  document.getElementById("editorCard").style.display = "none";
+  document.getElementById("ordersCard").style.display = "none";
+  document.getElementById("discountsCard").style.display = "block";
+  setActive("discountsBtn");
+  loadDiscounts();
 }
 
 function setActive(id){
@@ -476,6 +531,190 @@ setInterval(() => {
     loadOrders();
   }
 }, 20000); // every 20 seconds
+
+let discounts = [];
+let editingDiscountId = null;
+
+function setDiscountFormStatus(msg){
+  document.getElementById("discountFormStatus").textContent = msg || "";
+}
+
+function resetDiscountForm(){
+  editingDiscountId = null;
+  document.getElementById("dCode").value = "";
+  document.getElementById("dType").value = "percent";
+  document.getElementById("dValue").value = "";
+  document.getElementById("dMinOrder").value = "";
+  document.getElementById("dExpiresAt").value = "";
+  document.getElementById("dActive").checked = true;
+  setDiscountFormStatus("");
+}
+
+async function loadDiscounts(){
+  if(!token){
+    document.getElementById("discountsList").innerHTML =
+      `<div class="muted">Login required to manage discounts</div>`;
+    return;
+  }
+
+  setDiscountFormStatus("Loading discounts...");
+  try{
+    const r = await fetch(`${BACKEND_BASE_URL}/api/admin/discounts`, {
+      headers:{ "Authorization": `Bearer ${token}` }
+    });
+
+    if(!r.ok){
+      const err = await r.json().catch(()=>({}));
+      throw new Error(err.error || "Failed to load discounts");
+    }
+
+    discounts = await r.json();
+    setDiscountFormStatus("");
+    renderDiscounts();
+  }catch(e){
+    document.getElementById("discountsList").innerHTML =
+      `<div class="muted">⚠ ${e.message}</div>`;
+    setDiscountFormStatus("");
+  }
+}
+
+function renderDiscounts(){
+  const el = document.getElementById("discountsList");
+  el.innerHTML = "";
+
+  if(!discounts.length){
+    el.innerHTML = `<div class="muted">No discounts yet. Create one above.</div>`;
+    return;
+  }
+
+  discounts.forEach(d=>{
+    const card = document.createElement("div");
+    card.className = "item";
+    const valueLabel = d.type === "fixed" ? `GHS ${Number(d.value||0)} off` : `${Number(d.value||0)}% off`;
+    const expiry = d.expiresAt ? new Date(d.expiresAt).toLocaleDateString() : "No expiry";
+    card.innerHTML = `
+      <div class="catHd">
+        <div>
+          <strong>${escapeHtml(d.code||"")}</strong>
+          <div class="muted">${valueLabel} • Min order: GHS ${Number(d.minOrder||0)} • ${expiry}</div>
+          <div class="muted">Status: ${d.active ? "Active" : "Inactive"}</div>
+        </div>
+        <div class="actions" style="margin-top:0">
+          <button class="small" type="button" onclick="editDiscount('${d.id}')">Edit</button>
+          <button class="small" type="button" onclick="toggleDiscountActive('${d.id}')">${d.active ? "Deactivate" : "Activate"}</button>
+          <button class="small" type="button" onclick="deleteDiscount('${d.id}')">Delete</button>
+        </div>
+      </div>
+    `;
+    el.appendChild(card);
+  });
+}
+
+function editDiscount(id){
+  const d = discounts.find(x => x.id === id);
+  if(!d) return;
+  editingDiscountId = d.id;
+  document.getElementById("dCode").value = d.code || "";
+  document.getElementById("dType").value = d.type === "fixed" ? "fixed" : "percent";
+  document.getElementById("dValue").value = Number(d.value||0);
+  document.getElementById("dMinOrder").value = Number(d.minOrder||0);
+  document.getElementById("dExpiresAt").value = d.expiresAt ? String(d.expiresAt).slice(0,10) : "";
+  document.getElementById("dActive").checked = !!d.active;
+  setDiscountFormStatus(`Editing "${d.code}"`);
+}
+
+function validateDiscountForm(payload){
+  if(!payload.code) return "Discount code is required.";
+  if(!["percent","fixed"].includes(payload.type)) return "Invalid discount type.";
+  if(!Number.isFinite(payload.value) || payload.value <= 0) return "Value must be a positive number.";
+  if(payload.type === "percent" && payload.value > 100) return "Percent discount cannot exceed 100.";
+  if(!Number.isFinite(payload.minOrder) || payload.minOrder < 0) return "Minimum order must be zero or more.";
+  return "";
+}
+
+async function saveDiscount(){
+  if(!token){ alert("Login first"); return; }
+
+  const payload = {
+    code: document.getElementById("dCode").value.trim().toUpperCase(),
+    type: document.getElementById("dType").value,
+    value: Number(document.getElementById("dValue").value || 0),
+    minOrder: Number(document.getElementById("dMinOrder").value || 0),
+    expiresAt: document.getElementById("dExpiresAt").value || null,
+    active: document.getElementById("dActive").checked
+  };
+
+  const validationError = validateDiscountForm(payload);
+  if(validationError){ setDiscountFormStatus(validationError); return; }
+
+  setDiscountFormStatus("Saving...");
+  try{
+    const isEdit = !!editingDiscountId;
+    const url = isEdit
+      ? `${BACKEND_BASE_URL}/api/admin/discounts/${encodeURIComponent(editingDiscountId)}`
+      : `${BACKEND_BASE_URL}/api/admin/discounts`;
+
+    const r = await fetch(url, {
+      method: isEdit ? "PUT" : "POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || "Failed to save discount");
+
+    resetDiscountForm();
+    await loadDiscounts();
+  }catch(e){
+    setDiscountFormStatus(e.message || "Failed to save discount");
+  }
+}
+
+async function toggleDiscountActive(id){
+  const d = discounts.find(x => x.id === id);
+  if(!d || !token) return;
+
+  try{
+    const r = await fetch(`${BACKEND_BASE_URL}/api/admin/discounts/${encodeURIComponent(id)}`, {
+      method:"PUT",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({ ...d, active: !d.active })
+    });
+
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || "Failed to update discount");
+
+    await loadDiscounts();
+  }catch(e){
+    setDiscountFormStatus(e.message || "Failed to update discount");
+  }
+}
+
+async function deleteDiscount(id){
+  if(!token) return;
+  if(!confirm("Delete this discount? This cannot be undone.")) return;
+
+  try{
+    const r = await fetch(`${BACKEND_BASE_URL}/api/admin/discounts/${encodeURIComponent(id)}`, {
+      method:"DELETE",
+      headers:{ "Authorization": `Bearer ${token}` }
+    });
+
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || "Failed to delete discount");
+
+    if(editingDiscountId === id) resetDiscountForm();
+    await loadDiscounts();
+  }catch(e){
+    setDiscountFormStatus(e.message || "Failed to delete discount");
+  }
+}
 
 </script>
 <audio id="newOrderSound" preload="auto">
