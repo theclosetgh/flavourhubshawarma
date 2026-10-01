@@ -71,6 +71,7 @@
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button id="menuBtn" class="nav-btn" onclick="showMenu()">Menu</button>
         <button id="ordersBtn" class="nav-btn" onclick="showOrders()">Orders</button>
+        <button id="discountsBtn" class="nav-btn" onclick="showDiscounts()">Discounts</button>
         <button onclick="openSite()">Open Site</button>
         <button onclick="logout()">Logout</button>
       </div>
@@ -108,6 +109,54 @@
     </div>
     <div id="orders"></div>
   </div>
+  <div class="card" id="discountsCard" style="display:none">
+    <div class="topbar">
+      <h2>Discounts</h2>
+      <button onclick="loadDiscounts()">Refresh</button>
+    </div>
+
+    <div class="cat" id="discountForm">
+      <div class="catHd"><div style="flex:1"><div class="muted" id="discountFormTitle">New discount</div></div></div>
+      <div class="row3">
+        <div>
+          <div class="muted">Code</div>
+          <input id="dCode" placeholder="e.g., WELCOME10" />
+        </div>
+        <div>
+          <div class="muted">Type</div>
+          <select id="dType">
+            <option value="percentage">Percentage</option>
+            <option value="fixed">Fixed (GHS)</option>
+          </select>
+        </div>
+        <div>
+          <div class="muted">Value</div>
+          <input id="dValue" type="number" placeholder="e.g., 10" />
+        </div>
+      </div>
+      <div class="row3" style="margin-top:10px">
+        <div>
+          <div class="muted">Minimum subtotal (GHS, optional)</div>
+          <input id="dMinSubtotal" type="number" placeholder="0" />
+        </div>
+        <div>
+          <div class="muted">Expires at (optional)</div>
+          <input id="dExpiresAt" type="datetime-local" />
+        </div>
+        <div>
+          <div class="muted">Description (optional)</div>
+          <input id="dDescription" placeholder="e.g., Launch promo" />
+        </div>
+      </div>
+      <div class="actions">
+        <button class="small" type="button" id="dCancelEdit" style="display:none" onclick="cancelDiscountEdit()">Cancel edit</button>
+        <button class="small primary" type="button" onclick="saveDiscount()" id="dSaveBtn">Create discount</button>
+      </div>
+      <div class="muted" id="discountFormMsg" style="margin-top:8px"></div>
+    </div>
+
+    <div id="discounts"></div>
+  </div>
 </div>
   <script>
 const BACKEND_BASE_URL = "https://flavourhub-backend.onrender.com";
@@ -117,14 +166,24 @@ let menu = null;
 function showMenu(){
   document.getElementById("editorCard").style.display = "block";
   document.getElementById("ordersCard").style.display = "none";
+  document.getElementById("discountsCard").style.display = "none";
   setActive("menuBtn");
 }
 
 function showOrders(){
   document.getElementById("editorCard").style.display = "none";
   document.getElementById("ordersCard").style.display = "block";
+  document.getElementById("discountsCard").style.display = "none";
   setActive("ordersBtn");
   loadOrders();
+}
+
+function showDiscounts(){
+  document.getElementById("editorCard").style.display = "none";
+  document.getElementById("ordersCard").style.display = "none";
+  document.getElementById("discountsCard").style.display = "block";
+  setActive("discountsBtn");
+  loadDiscounts();
 }
 
 function setActive(id){
@@ -225,7 +284,7 @@ async function uploadImage(file){
 
   const r = await fetch(`${BACKEND_BASE_URL}/api/admin/upload`, {
     method: "POST",
-    headers: { "Authorization": `Bearer ${token}` },
+    headers: { ...authHeaders() },
     body: fd
   });
 
@@ -361,7 +420,7 @@ async function saveMenu(){
     method:"PUT",
     headers:{
       "Content-Type":"application/json",
-      "Authorization": `Bearer ${token}`
+      ...authHeaders()
     },
     body: JSON.stringify(menu)
   });
@@ -418,7 +477,7 @@ async function loadOrders(){
 
   try{
     const r = await fetch(`${BACKEND_BASE_URL}/api/orders/admin`, {
-      headers:{ "Authorization": `Bearer ${token}` }
+      headers:{ ...authHeaders() }
     });
 
     if(!r.ok){
@@ -455,6 +514,9 @@ hasLoadedOrders = true;
   orders.forEach(o=>{
     const d = document.createElement("div");
     d.className = "item";
+    const discountLine = o.discount?.discountAmount
+      ? `<div class="muted">Discount (${o.discount.code}): -GHS ${Number(o.discount.discountAmount).toFixed(2)}</div>`
+      : "";
     d.innerHTML = `
       <strong>${o.id || o.reference}</strong>
       <div class="muted">${new Date(o.createdAt).toLocaleString()}</div>
@@ -463,6 +525,7 @@ hasLoadedOrders = true;
       <ul>
         ${(o.items||[]).map(i=>`<li>${i.qty} × ${i.name}</li>`).join("")}
       </ul>
+      ${discountLine}
       <strong>Total: GHS ${o.totals?.total}</strong>
     `;
     el.appendChild(d);
@@ -476,6 +539,202 @@ setInterval(() => {
     loadOrders();
   }
 }, 20000); // every 20 seconds
+
+/* -------------------------
+   Discounts
+------------------------- */
+let discounts = [];
+let editingDiscountId = null;
+
+function authHeaders(){
+  return token ? { "Authorization": "Bearer " + token } : {};
+}
+
+function fmtDiscountValue(d){
+  return d.type === "percentage" ? `${d.value}%` : `GHS ${Number(d.value).toFixed(2)}`;
+}
+
+async function loadDiscounts(){
+  const el = document.getElementById("discounts");
+  if(!token){
+    el.innerHTML = `<div class="muted">Login required to view discounts</div>`;
+    return;
+  }
+
+  el.innerHTML = `<div class="muted">Loading discounts...</div>`;
+  try{
+    const r = await fetch(`${BACKEND_BASE_URL}/api/admin/discounts`, {
+      headers: authHeaders()
+    });
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || "Failed to load discounts");
+
+    discounts = Array.isArray(data.discounts) ? data.discounts : [];
+    renderDiscounts();
+  }catch(e){
+    el.innerHTML = `<div class="muted">⚠ ${e.message}</div>`;
+  }
+}
+
+function renderDiscounts(){
+  const el = document.getElementById("discounts");
+  el.innerHTML = "";
+
+  if(!discounts.length){
+    el.innerHTML = `<div class="muted">No discounts yet. Create one above.</div>`;
+    return;
+  }
+
+  discounts.forEach(d=>{
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">
+        <div>
+          <strong>${escapeHtml(d.code)}</strong>
+          <span class="muted"> • ${fmtDiscountValue(d)}${d.minSubtotal ? ` • min GHS ${Number(d.minSubtotal).toFixed(2)}` : ""}</span>
+          <div class="muted">${d.active ? "Active" : "Inactive"}${d.expiresAt ? ` • Expires: ${new Date(d.expiresAt).toLocaleString()}` : ""}</div>
+          ${d.description ? `<div class="muted">${escapeHtml(d.description)}</div>` : ""}
+        </div>
+        <div class="actions" style="margin-top:0">
+          <button class="small" type="button" data-action="edit">Edit</button>
+          <button class="small" type="button" data-action="toggle">${d.active ? "Deactivate" : "Activate"}</button>
+          <button class="small" type="button" data-action="delete">Delete</button>
+        </div>
+      </div>
+    `;
+    row.querySelector('[data-action="edit"]').addEventListener("click", () => editDiscount(d.id));
+    row.querySelector('[data-action="toggle"]').addEventListener("click", () => toggleDiscountStatus(d.id, !d.active));
+    row.querySelector('[data-action="delete"]').addEventListener("click", () => deleteDiscountItem(d.id));
+    el.appendChild(row);
+  });
+}
+
+function resetDiscountForm(){
+  editingDiscountId = null;
+  document.getElementById("dCode").value = "";
+  document.getElementById("dType").value = "percentage";
+  document.getElementById("dValue").value = "";
+  document.getElementById("dMinSubtotal").value = "";
+  document.getElementById("dExpiresAt").value = "";
+  document.getElementById("dDescription").value = "";
+  document.getElementById("discountFormTitle").textContent = "New discount";
+  document.getElementById("dSaveBtn").textContent = "Create discount";
+  document.getElementById("dCancelEdit").style.display = "none";
+  document.getElementById("discountFormMsg").textContent = "";
+}
+
+function cancelDiscountEdit(){
+  resetDiscountForm();
+}
+
+function editDiscount(id){
+  const d = discounts.find(x => x.id === id);
+  if(!d) return;
+
+  editingDiscountId = id;
+  document.getElementById("dCode").value = d.code || "";
+  document.getElementById("dType").value = d.type || "percentage";
+  document.getElementById("dValue").value = d.value ?? "";
+  document.getElementById("dMinSubtotal").value = d.minSubtotal ?? "";
+  document.getElementById("dExpiresAt").value = d.expiresAt ? toLocalDateTimeInput(d.expiresAt) : "";
+  document.getElementById("dDescription").value = d.description || "";
+  document.getElementById("discountFormTitle").textContent = `Editing ${d.code}`;
+  document.getElementById("dSaveBtn").textContent = "Save changes";
+  document.getElementById("dCancelEdit").style.display = "inline-block";
+  document.getElementById("discountFormMsg").textContent = "";
+  document.getElementById("discountForm").scrollIntoView({ behavior:"smooth", block:"nearest" });
+}
+
+function toLocalDateTimeInput(iso){
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = n => String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+async function saveDiscount(){
+  if(!token){ alert("Login first"); return; }
+
+  const msgEl = document.getElementById("discountFormMsg");
+  const code = document.getElementById("dCode").value.trim();
+  const type = document.getElementById("dType").value;
+  const value = Number(document.getElementById("dValue").value);
+  const minSubtotalRaw = document.getElementById("dMinSubtotal").value.trim();
+  const expiresAtRaw = document.getElementById("dExpiresAt").value;
+  const description = document.getElementById("dDescription").value.trim();
+
+  if(!code){ msgEl.textContent = "Discount code is required."; return; }
+  if(!Number.isFinite(value) || value <= 0){ msgEl.textContent = "Value must be a positive number."; return; }
+  if(type === "percentage" && value > 100){ msgEl.textContent = "Percentage value cannot exceed 100."; return; }
+
+  const minSubtotal = minSubtotalRaw ? Number(minSubtotalRaw) : 0;
+  if(!Number.isFinite(minSubtotal) || minSubtotal < 0){ msgEl.textContent = "Minimum subtotal must be a non-negative number."; return; }
+
+  const body = {
+    code,
+    type,
+    value,
+    minSubtotal,
+    expiresAt: expiresAtRaw ? new Date(expiresAtRaw).toISOString() : null,
+    description
+  };
+
+  msgEl.textContent = editingDiscountId ? "Saving..." : "Creating...";
+
+  try{
+    const url = editingDiscountId
+      ? `${BACKEND_BASE_URL}/api/admin/discounts/${encodeURIComponent(editingDiscountId)}`
+      : `${BACKEND_BASE_URL}/api/admin/discounts`;
+
+    const r = await fetch(url, {
+      method: editingDiscountId ? "PUT" : "POST",
+      headers: { "Content-Type":"application/json", ...authHeaders() },
+      body: JSON.stringify(body)
+    });
+
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || "Failed to save discount");
+
+    resetDiscountForm();
+    await loadDiscounts();
+  }catch(e){
+    msgEl.textContent = e.message || "Failed to save discount";
+  }
+}
+
+async function toggleDiscountStatus(id, active){
+  if(!token){ alert("Login first"); return; }
+  try{
+    const r = await fetch(`${BACKEND_BASE_URL}/api/admin/discounts/${encodeURIComponent(id)}/status`, {
+      method:"PATCH",
+      headers: { "Content-Type":"application/json", ...authHeaders() },
+      body: JSON.stringify({ active })
+    });
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || "Failed to update discount status");
+    await loadDiscounts();
+  }catch(e){
+    alert(e.message || "Failed to update discount status");
+  }
+}
+
+async function deleteDiscountItem(id){
+  if(!token){ alert("Login first"); return; }
+  if(!confirm("Delete this discount? This cannot be undone.")) return;
+
+  try{
+    const r = await fetch(`${BACKEND_BASE_URL}/api/admin/discounts/${encodeURIComponent(id)}`, {
+      method:"DELETE",
+      headers: authHeaders()
+    });
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || "Failed to delete discount");
+    await loadDiscounts();
+  }catch(e){
+    alert(e.message || "Failed to delete discount");
+  }
+}
 
 </script>
 <audio id="newOrderSound" preload="auto">

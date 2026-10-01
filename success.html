@@ -150,6 +150,7 @@
 
         <div class="totals">
           <div class="r"><span>Subtotal (food)</span><strong id="subtotal">—</strong></div>
+          <div class="r" id="discountRow" style="display:none"><span>Discount <span id="discountCodeLabel"></span></span><strong id="discountAmount">—</strong></div>
           <div class="r"><span>Delivery fee</span><strong>Paid to rider</strong></div>
           <div class="r"><span>Total paid online</span><strong id="total">—</strong></div>
         </div>
@@ -225,6 +226,13 @@
       lines.push(`- ${qty} × ${it.name} = ${fmt(line)}`);
     });
 
+    const discAmount = order.discount?.discountAmount ?? order.totals?.discount ?? 0;
+    const discCode = order.discount?.code || order.discountCode || "";
+    if (Number(discAmount) > 0) {
+      lines.push("");
+      lines.push(`Discount${discCode ? ` (${discCode})` : ""}: -${fmt(discAmount)}`);
+    }
+
     lines.push("");
     lines.push(`Total paid online (food): ${fmt(order.totals?.total || order.totals?.subtotal || 0)}`);
 
@@ -255,6 +263,14 @@
   document.getElementById("subtotal").textContent = fmt(order?.totals?.subtotal || 0);
   document.getElementById("total").textContent = fmt(order?.totals?.total || 0);
   document.getElementById("paid").textContent = fmt(order?.totals?.total || 0);
+
+  const discountAmount = order?.discount?.discountAmount ?? order?.totals?.discount ?? 0;
+  const discountCode = order?.discount?.code || order?.discountCode || "";
+  if (Number(discountAmount) > 0) {
+    document.getElementById("discountRow").style.display = "flex";
+    document.getElementById("discountCodeLabel").textContent = discountCode ? `(${discountCode})` : "";
+    document.getElementById("discountAmount").textContent = `-${fmt(discountAmount)}`;
+  }
 
   const itemsEl = document.getElementById("items");
   if (order?.items?.length){
