@@ -1389,7 +1389,7 @@ async function applyDiscountCode(){
 function clearDiscount({ silent } = {}){
   appliedDiscount = null;
   discountCodeInput.value = "";
-  discountCodeInput.disabled = false;
+  discountCodeInput.disabled = checkoutInProgress;
   if (!silent) setDiscountMsg("");
   renderDiscountUI();
 }
