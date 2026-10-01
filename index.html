@@ -1315,11 +1315,18 @@ function renderDiscountUI(){
 function setDiscountMsg(msg){ discountMsgEl.textContent = msg || ""; }
 
 async function fetchDiscountValidation(code, subtotal){
-  const res = await fetch(`${BACKEND_BASE_URL}/api/discounts/validate`, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ code, subtotal })
-  });
+  let res;
+  try{
+    res = await fetch(`${BACKEND_BASE_URL}/api/discounts/validate`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ code, subtotal })
+    });
+  }catch(err){
+    console.error(err);
+    return { ok:false, error: "Could not reach the server. Please check your connection and try again." };
+  }
+
   let parseFailed = false;
   const data = await res.json().catch(()=>{ parseFailed = true; return {}; });
 
@@ -1623,6 +1630,9 @@ async function payOnline(){
                 body: JSON.stringify(paidOrder)
               });
               const orderData = await orderRes.json().catch(()=> ({}));
+              if (!orderRes.ok){
+                throw new Error(orderData?.error || "Payment succeeded but we could not save your order.");
+              }
               const savedOrder = orderData?.order || paidOrder;
 
               localStorage.setItem("fh_last_paid_order", JSON.stringify(savedOrder));

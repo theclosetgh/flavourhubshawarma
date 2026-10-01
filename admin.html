@@ -666,6 +666,7 @@ async function saveDiscount(){
 
   if(!code){ msgEl.textContent = "Discount code is required."; return; }
   if(!Number.isFinite(value) || value <= 0){ msgEl.textContent = "Value must be a positive number."; return; }
+  if(type === "percentage" && value > 100){ msgEl.textContent = "Percentage value cannot exceed 100."; return; }
 
   const minSubtotal = minSubtotalRaw ? Number(minSubtotalRaw) : 0;
   if(!Number.isFinite(minSubtotal) || minSubtotal < 0){ msgEl.textContent = "Minimum subtotal must be a non-negative number."; return; }
