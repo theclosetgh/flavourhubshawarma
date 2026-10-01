@@ -597,12 +597,15 @@ function renderDiscounts(){
           ${d.description ? `<div class="muted">${escapeHtml(d.description)}</div>` : ""}
         </div>
         <div class="actions" style="margin-top:0">
-          <button class="small" type="button" onclick="editDiscount('${d.id}')">Edit</button>
-          <button class="small" type="button" onclick="toggleDiscountStatus('${d.id}', ${!d.active})">${d.active ? "Deactivate" : "Activate"}</button>
-          <button class="small" type="button" onclick="deleteDiscountItem('${d.id}')">Delete</button>
+          <button class="small" type="button" data-action="edit">Edit</button>
+          <button class="small" type="button" data-action="toggle">${d.active ? "Deactivate" : "Activate"}</button>
+          <button class="small" type="button" data-action="delete">Delete</button>
         </div>
       </div>
     `;
+    row.querySelector('[data-action="edit"]').addEventListener("click", () => editDiscount(d.id));
+    row.querySelector('[data-action="toggle"]').addEventListener("click", () => toggleDiscountStatus(d.id, !d.active));
+    row.querySelector('[data-action="delete"]').addEventListener("click", () => deleteDiscountItem(d.id));
     el.appendChild(row);
   });
 }

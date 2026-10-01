@@ -1306,6 +1306,31 @@ function renderDiscountUI(){
 
 function setDiscountMsg(msg){ discountMsgEl.textContent = msg || ""; }
 
+async function fetchDiscountValidation(code, subtotal){
+  const res = await fetch(`${BACKEND_BASE_URL}/api/discounts/validate`, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ code, subtotal })
+  });
+  const data = await res.json().catch(()=>({}));
+
+  if (!res.ok || !data.valid){
+    return { ok:false, error: data?.error || "Invalid discount code." };
+  }
+
+  return {
+    ok: true,
+    discount: {
+      code: String(data.code || code),
+      type: data.type,
+      value: Number(data.value),
+      subtotal: Number(data.subtotal ?? subtotal),
+      discountAmount: Number(data.discountAmount || 0),
+      total: Number(data.total ?? (subtotal - (data.discountAmount || 0)))
+    }
+  };
+}
+
 async function applyDiscountCode(){
   const code = (discountCodeInput.value || "").trim();
   if (!code) { setDiscountMsg("Enter a discount code."); return; }
@@ -1319,23 +1344,18 @@ async function applyDiscountCode(){
   setDiscountMsg("Checking discount code...");
 
   try{
-    const res = await fetch(`${BACKEND_BASE_URL}/api/discounts/validate`, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ code, subtotal: cartSubtotal() })
-    });
-    const data = await res.json().catch(()=>({}));
+    const result = await fetchDiscountValidation(code, cartSubtotal());
 
-    if (!res.ok || !data.valid){
+    if (!result.ok){
       appliedDiscount = null;
-      setDiscountMsg(data?.error || "Invalid discount code.");
+      setDiscountMsg(result.error);
       renderDiscountUI();
       renderCartUI();
       return;
     }
 
-    appliedDiscount = data;
-    setDiscountMsg(`Discount applied: ${data.code}`);
+    appliedDiscount = result.discount;
+    setDiscountMsg(`Discount applied: ${appliedDiscount.code}`);
     renderDiscountUI();
     renderCartUI();
   }catch(err){
@@ -1355,32 +1375,29 @@ function clearDiscount({ silent } = {}){
 }
 
 async function revalidateDiscount(){
-  if (!appliedDiscount) return;
+  if (!appliedDiscount) return false;
 
   if (cartCount() === 0){
     clearDiscount();
-    return;
+    return false;
   }
 
   try{
-    const res = await fetch(`${BACKEND_BASE_URL}/api/discounts/validate`, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ code: appliedDiscount.code, subtotal: cartSubtotal() })
-    });
-    const data = await res.json().catch(()=>({}));
+    const result = await fetchDiscountValidation(appliedDiscount.code, cartSubtotal());
 
-    if (!res.ok || !data.valid){
+    if (!result.ok){
       appliedDiscount = null;
-      setDiscountMsg(data?.error || "Discount no longer applies and was removed.");
+      setDiscountMsg(result.error || "Discount no longer applies and was removed.");
       renderDiscountUI();
-      return;
+      return false;
     }
 
-    appliedDiscount = data;
+    appliedDiscount = result.discount;
     renderDiscountUI();
+    return true;
   }catch(err){
     console.error(err);
+    return false;
   }
 }
 
@@ -1493,6 +1510,15 @@ async function payOnline(){
     if (typeof window.PaystackPop === "undefined" || typeof window.PaystackPop.setup !== "function") {
       setBusy(false);
       return alert("Paystack failed to load. Refresh and try again.");
+    }
+
+    if (appliedDiscount){
+      setStatus("Re-checking discount code...");
+      const stillValid = await revalidateDiscount();
+      if (!stillValid){
+        setBusy(false);
+        return alert("Your discount code is no longer valid and was removed. Please review your total and try again.");
+      }
     }
 
     const items = Array.from(cart.values()).map(v => ({
