@@ -1324,7 +1324,7 @@ async function fetchDiscountValidation(code, subtotal){
   const data = await res.json().catch(()=>{ parseFailed = true; return {}; });
 
   if (parseFailed){
-    return { ok:false, error: "Could not reach the server. Please try again." };
+    return { ok:false, error: "Received an invalid response from the server. Please try again." };
   }
   if (!res.ok || !data.valid){
     return { ok:false, error: data?.error || "Invalid discount code." };
@@ -1538,10 +1538,10 @@ async function payOnline(){
       name: v.name, qty: v.qty, unit_price: v.price, category: v.category
     }));
 
-    const subtotal = cartSubtotal();
+    const subtotal = appliedDiscount ? appliedDiscount.subtotal : cartSubtotal();
     const discountCode = appliedDiscount ? appliedDiscount.code : "";
     const discountAmountPaid = appliedDiscount ? appliedDiscount.discountAmount : 0;
-    const total = subtotal - discountAmountPaid;
+    const total = appliedDiscount ? appliedDiscount.total : subtotal;
     const amountPesewas = Math.round(total * 100);
 
     const payload = {
@@ -1561,7 +1561,7 @@ async function payOnline(){
           landmark: landmark,
           fee_note: "Delivery fee is paid directly to the rider."
         } : null,
-        discountCode: discountCode || undefined,
+        ...(discountCode ? { discountCode } : {}),
         totals: { subtotal, discount: discountAmountPaid, total }
       }
     };
@@ -1608,7 +1608,7 @@ async function payOnline(){
                   address: deliveryAddress,
                   landmark
                 } : null,
-                discountCode: discountCode || undefined,
+                ...(discountCode ? { discountCode } : {}),
                 subtotal,
                 totals: { subtotal, discount: discountAmountPaid, total },
                 paidAt: new Date().toISOString()

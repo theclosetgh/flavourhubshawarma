@@ -284,7 +284,7 @@ async function uploadImage(file){
 
   const r = await fetch(`${BACKEND_BASE_URL}/api/admin/upload`, {
     method: "POST",
-    headers: { "Authorization": `Bearer ${token}` },
+    headers: { ...authHeaders() },
     body: fd
   });
 
@@ -420,7 +420,7 @@ async function saveMenu(){
     method:"PUT",
     headers:{
       "Content-Type":"application/json",
-      "Authorization": `Bearer ${token}`
+      ...authHeaders()
     },
     body: JSON.stringify(menu)
   });
@@ -477,7 +477,7 @@ async function loadOrders(){
 
   try{
     const r = await fetch(`${BACKEND_BASE_URL}/api/orders/admin`, {
-      headers:{ "Authorization": `Bearer ${token}` }
+      headers:{ ...authHeaders() }
     });
 
     if(!r.ok){
