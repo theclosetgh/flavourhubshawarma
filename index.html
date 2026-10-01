@@ -1105,9 +1105,14 @@ const statusEl = document.getElementById("status");
 const payBtn = document.getElementById("payBtn");
 
 function setStatus(msg){ statusEl.textContent = msg || ""; }
+let checkoutInProgress = false;
+
 function setBusy(b){
+  checkoutInProgress = !!b;
   payBtn.disabled = !!b;
   payBtn.textContent = b ? "Processing..." : "Proceed to Payment";
+  applyDiscountBtn.disabled = !!b;
+  removeDiscountBtn.disabled = !!b;
 }
 
 function cartCount(){ let c=0; for (const v of cart.values()) c += v.qty; return c; }
@@ -1250,6 +1255,7 @@ const applyDiscountBtn = document.getElementById("applyDiscountBtn");
 const removeDiscountBtn = document.getElementById("removeDiscountBtn");
 
 function addToCart(key, it, category){
+  if (checkoutInProgress) return;
   const cat = category || it.category || activeCategory || "Menu";
   if (cart.has(key)) cart.get(key).qty += 1;
   else cart.set(key, { name: it.name, price: it.price, qty: 1, category: cat, img: it.img || "" });
@@ -1260,6 +1266,7 @@ function addToCart(key, it, category){
 }
 
 function inc(key){
+  if (checkoutInProgress) return;
   if (!cart.has(key)) return;
   cart.get(key).qty += 1;
   renderCartUI();
@@ -1268,6 +1275,7 @@ function inc(key){
 }
 
 function dec(key){
+  if (checkoutInProgress) return;
   if (!cart.has(key)) return;
   cart.get(key).qty -= 1;
   if (cart.get(key).qty <= 0) cart.delete(key);
@@ -1312,8 +1320,12 @@ async function fetchDiscountValidation(code, subtotal){
     headers:{ "Content-Type":"application/json" },
     body: JSON.stringify({ code, subtotal })
   });
-  const data = await res.json().catch(()=>({}));
+  let parseFailed = false;
+  const data = await res.json().catch(()=>{ parseFailed = true; return {}; });
 
+  if (parseFailed){
+    return { ok:false, error: "Could not reach the server. Please try again." };
+  }
   if (!res.ok || !data.valid){
     return { ok:false, error: data?.error || "Invalid discount code." };
   }
@@ -1332,6 +1344,7 @@ async function fetchDiscountValidation(code, subtotal){
 }
 
 async function applyDiscountCode(){
+  if (checkoutInProgress) return;
   const code = (discountCodeInput.value || "").trim();
   if (!code) { setDiscountMsg("Enter a discount code."); return; }
 
@@ -1528,7 +1541,7 @@ async function payOnline(){
     const subtotal = cartSubtotal();
     const discountCode = appliedDiscount ? appliedDiscount.code : "";
     const discountAmountPaid = appliedDiscount ? appliedDiscount.discountAmount : 0;
-    const total = grandTotal();
+    const total = subtotal - discountAmountPaid;
     const amountPesewas = Math.round(total * 100);
 
     const payload = {

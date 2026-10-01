@@ -547,7 +547,7 @@ let discounts = [];
 let editingDiscountId = null;
 
 function authHeaders(){
-  return { "Authorization": "Bearer " + token };
+  return token ? { "Authorization": "Bearer " + token } : {};
 }
 
 function fmtDiscountValue(d){
