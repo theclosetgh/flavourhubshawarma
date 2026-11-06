@@ -1668,7 +1668,7 @@ async function payOnline(){
 document.getElementById("payBtn").addEventListener("click", payOnline);
 
 async function updateShopStatus(){
-  const OPEN_HOUR = 16;
+  const OPEN_HOUR = 12;
   const CLOSE_HOUR = 1;
 
   const now = new Date();
@@ -1687,10 +1687,10 @@ async function updateShopStatus(){
   });
 
   if (open){
-    statusBox.textContent = "OPEN — Orders available (4:00 PM – 1:00 AM)";
+    statusBox.textContent = "OPEN — Orders available (12:00 PM – 1:00 AM)";
     statusBox.className = "brandMeta shop-open";
   }else{
-    statusBox.textContent = "CLOSED — Opens at 4:00 PM";
+    statusBox.textContent = "CLOSED — Opens at 12:00 PM";
     statusBox.className = "brandMeta shop-closed";
   }
 }
